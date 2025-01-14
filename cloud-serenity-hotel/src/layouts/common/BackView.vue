@@ -127,11 +127,10 @@ import { RouterView } from "vue-router";
             租車
           </button>
           <div class="collapse" id="rent-collapse">
-            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-              <li><a href="#" class="link-dark rounded">New</a></li>
-              <li><a href="#" class="link-dark rounded">Processed</a></li>
-              <li><a href="#" class="link-dark rounded">Shipped</a></li>
-              <li><a href="#" class="link-dark rounded">Returned</a></li>
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">             
+              <li><RouterLink :to="{name: 'carHome'}">車型管理</RouterLink></li>
+              <li><a href="#" class="link-dark rounded">車輛管理</a></li>
+              <li><a href="#" class="link-dark rounded">訂單管理</a></li>
             </ul>
           </div>
         </li>
