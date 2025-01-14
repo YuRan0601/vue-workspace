@@ -1,5 +1,5 @@
 <script setup>
-import BookingBack from '@/components/booking/BookingBack.vue';
+import BookingBack from '@/layouts/booking/BookingBack.vue';
 
 
 </script>

@@ -51,11 +51,8 @@ import { RouterView } from "vue-router";
           </button>
           <div class="collapse" id="booking-collapse">
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-              <li><RouterLink :to="{name: 'bookingBack'}">home</RouterLink></li>
+              <li><RouterLink :to="{name: 'bookingBack'}">房型、房間</RouterLink></li>
               <li><a href="#" class="link-dark rounded">Overview</a></li>
-              <li><a href="#" class="link-dark rounded">Weekly</a></li>
-              <li><a href="#" class="link-dark rounded">Monthly</a></li>
-              <li><a href="#" class="link-dark rounded">Annually</a></li>
             </ul>
           </div>
         </li>
