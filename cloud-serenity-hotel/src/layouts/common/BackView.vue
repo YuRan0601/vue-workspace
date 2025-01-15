@@ -118,7 +118,7 @@ import { RouterView } from "vue-router";
                     <div class="collapse" id="account-collapse">
                         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                             <li>
-                                <RouterLink :to="{ name: 'AddAdmin' }">New...</RouterLink>
+                                <RouterLink :to="{ name: 'adminBack' }">Overview</RouterLink>
                             </li>
                             <li>
                                 <RouterLink :to="{ name: '' }">Profile</RouterLink>
@@ -126,8 +126,7 @@ import { RouterView } from "vue-router";
                             <li>
                                 <RouterLink :to="{ name: '' }">Settings</RouterLink>
                             </li>
-                            <li>
-                                <RouterLink :to="{ name: '' }">Sign out</RouterLink>
+                            <li><a href="/api/user/logout">Sign out</a>
                             </li>
                         </ul>
                     </div>

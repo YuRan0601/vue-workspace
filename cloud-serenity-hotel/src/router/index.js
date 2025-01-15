@@ -1,5 +1,4 @@
 import BookingBack from "@/components/booking/BookingBack.vue";
-import AddAdmin from "@/views/user/AddAdmin.vue";
 import BackMember from "@/views/user/BackMember.vue";
 import BookingHome from "@/layouts/booking/BookingHome.vue";
 import RoomFront from "@/layouts/booking/RoomFront.vue";
@@ -8,6 +7,7 @@ import FrontView from "@/layouts/common/FrontView.vue";
 import FrontMember from "@/layouts/user/FrontMember.vue";
 import RoomTypeView from "@/views/booking/RoomTypeView.vue";
 import { createRouter, createWebHistory } from "vue-router";
+import BackAdmin from "@/views/user/BackAdmin.vue";
 const router = createRouter({
     history: createWebHistory(),
     routes: [
@@ -56,9 +56,9 @@ const router = createRouter({
                     component: BackMember
                 },
                 {
-                    path: '/Admin/AddAdmin',
-                    name: 'AddAdmin',
-                    component: AddAdmin
+                    path: '/admin',
+                    name: 'adminBack',
+                    component: BackAdmin
                 },
 
             ]
