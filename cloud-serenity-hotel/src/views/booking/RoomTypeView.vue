@@ -33,15 +33,102 @@ const updateRoomType = ref({
 });
 
 const updateDialog = ref(false);
-
 const updatePrImg = ref(null);
-
 const updateOtherImg = ref([]);
 
+const updatePreviewUrl = ref(null); // 存储图片预览的 URL
+const updatePreviewUrls = ref([]);
+
+const selectPrImg = ref(null);
+const selectOtherImg = ref([]);
+
+const deletePrImgIdAndUrl = ref(null);
+const deleteOtherImgsIdAndUrl = ref([]);
+
 function editItem(item) {
+  console.log(item);
   updateDialog.value = true;
-  updateRoomType.value = item;
-  console.log(item.imgs[0]);
+  updateRoomType.value.typeId = item.typeId;
+  updateRoomType.value.typeName = item.typeName;
+  updateRoomType.value.typeDesc = item.typeDesc;
+  updateRoomType.value.maxCapacity = item.maxCapacity;
+  selectPrImg.value = item.prImg;
+  selectOtherImg.value = item.imgs;
+}
+
+function updateRoomTypeHandler() {
+  Swal.fire({
+    title: `確定要修改 ${updateRoomType.value.typeName} 房型?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "確定",
+    cancelButtonText: "取消",
+  }).then(async (res) => {
+    if (res.isConfirmed) {
+      const formData = new FormData();
+      console.log("123" + updateRoomType.value);
+
+      formData.append("roomTypeJson", JSON.stringify(updateRoomType.value));
+
+      // 添加主圖片
+      if (updatePrImg.value) {
+        formData.append("typePrimaryImg", updatePrImg.value);
+      }
+
+      // 添加其他圖片（多個文件）
+      if (updateOtherImg.value && updateOtherImg.value.length > 0) {
+        updateOtherImg.value.forEach((file, index) => {
+          // 將每個文件都添加到 FormData 中
+          formData.append("typeImg", file); // 可以根據需要調整 key 的命名
+        });
+      }
+
+      if (deletePrImgIdAndUrl.value) {
+        formData.append("deletePrImgIdAndUrl", deletePrImgIdAndUrl.value);
+      }
+
+      if (
+        deleteOtherImgsIdAndUrl.value &&
+        deleteOtherImgsIdAndUrl.value.length > 0
+      ) {
+        deleteOtherImgsIdAndUrl.value.forEach((item, index) => {
+          // 將每個文件都添加到 FormData 中
+          formData.append("deleteOtherImgsIdAndUrl", item); // 可以根據需要調整 key 的命名
+        });
+      }
+
+      console.log(formData.getAll("deleteOtherImgsIdAndUrl"));
+
+      const { data } = await axios.put("/api/room/type", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
+
+      if (data !== 0) {
+        Swal.fire({
+          title: "修改成功",
+          icon: "success",
+          confirmButtonText: "確定",
+        }).then(() => {
+          loadTable();
+          updateDialog.value = false;
+        });
+      } else {
+        Swal.fire({
+          title: "修改失敗",
+          icon: "error",
+          confirmButtonText: "確定",
+        }).then(() => {
+          loadTable();
+          updateDialog.value = false;
+        });
+      }
+    }
+  });
 }
 
 function deleteItem(item) {
@@ -90,38 +177,100 @@ const insertRoomType = ref({
 
 const insertPrImg = ref(null);
 const insertOtherImg = ref([]);
-const previewUrl = ref(null); // 存储图片预览的 URL
-const previewUrls = ref([]);
+const insertPreviewUrl = ref(null); // 存储图片预览的 URL
+const insertPreviewUrls = ref([]);
 
 watchEffect(() => {
+  if (!insertDialog.value) {
+    resetInsert();
+  }
+
+  if (!updateDialog.value) {
+    resetUpdate();
+  }
+
   //監視主圖片是否改變
   if (insertPrImg.value) {
     const reader = new FileReader();
     reader.onload = (e) => {
-      previewUrl.value = e.target.result; // 设置预览 URL
+      insertPreviewUrl.value = e.target.result; // 设置预览 URL
     };
     reader.readAsDataURL(insertPrImg.value);
   } else {
-    previewUrl.value = "";
+    insertPreviewUrl.value = "";
   }
 
   //監視其他圖片是否改變
   if (insertOtherImg.value.length === 0) {
-    previewUrls.value = [];
+    insertPreviewUrls.value = [];
   } else {
     // 读取每个文件并生成预览
-    previewUrls.value = [];
+    insertPreviewUrls.value = [];
     Array.from(insertOtherImg.value).forEach((file) => {
       if (file instanceof File) {
         const reader = new FileReader();
         reader.onload = (e) => {
-          previewUrls.value.push(e.target.result); // 添加预览 URL
+          insertPreviewUrls.value.push(e.target.result); // 添加预览 URL
+        };
+        reader.readAsDataURL(file); // 读取文件
+      }
+    });
+  }
+
+  if (deletePrImgIdAndUrl.value) {
+    console.log(deletePrImgIdAndUrl);
+  }
+
+  if (deleteOtherImgsIdAndUrl.value) {
+    console.log(deleteOtherImgsIdAndUrl);
+  }
+
+  //監視主圖片是否改變
+  if (updatePrImg.value) {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      updatePreviewUrl.value = e.target.result; // 设置预览 URL
+    };
+    reader.readAsDataURL(updatePrImg.value);
+  } else {
+    updatePreviewUrl.value = "";
+  }
+
+  //監視其他圖片是否改變
+  if (updateOtherImg.value.length === 0) {
+    updatePreviewUrls.value = [];
+  } else {
+    // 读取每个文件并生成预览
+    updatePreviewUrls.value = [];
+    Array.from(updateOtherImg.value).forEach((file) => {
+      if (file instanceof File) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          updatePreviewUrls.value.push(e.target.result); // 添加预览 URL
         };
         reader.readAsDataURL(file); // 读取文件
       }
     });
   }
 });
+
+function resetInsert() {
+  insertRoomType.value.typeName = "";
+  insertRoomType.value.typeId = null;
+  insertRoomType.value.maxCapacity = null;
+  insertRoomType.value.typeDesc = "";
+  insertPrImg.value = null;
+  insertOtherImg.value = [];
+  insertPreviewUrl.value = null;
+  insertPreviewUrls.value = [];
+}
+
+function resetUpdate() {
+  updatePrImg.value = null;
+  updateOtherImg.value = [];
+  updatePreviewUrl.value = null;
+  updatePreviewUrls.value = [];
+}
 
 async function insertRoomTypeHandler() {
   console.log(insertRoomType.value);
@@ -229,8 +378,8 @@ async function insertRoomTypeHandler() {
                 </v-file-input>
 
                 <v-img
-                  v-if="previewUrl"
-                  :src="previewUrl"
+                  v-if="insertPreviewUrl"
+                  :src="insertPreviewUrl"
                   max-height="200"
                   max-width="200"
                   class="mt-4"
@@ -246,9 +395,9 @@ async function insertRoomTypeHandler() {
                 >
                 </v-file-input>
 
-                <v-row v-if="previewUrls.length > 0" class="mt-4">
+                <v-row v-if="insertPreviewUrls.length > 0" class="mt-4">
                   <v-col
-                    v-for="(url, index) in previewUrls"
+                    v-for="(url, index) in insertPreviewUrls"
                     :key="index"
                     cols="4"
                   >
@@ -289,7 +438,7 @@ async function insertRoomTypeHandler() {
     </div>
 
     <div class="pa-4 text-center">
-      <v-dialog v-model="updateDialog" max-width="600">
+      <v-dialog v-model="updateDialog" max-width="1000">
         <v-card prepend-icon="mdi-account" title="修改房型">
           <v-card-text>
             <v-row dense>
@@ -319,8 +468,8 @@ async function insertRoomTypeHandler() {
                 </v-file-input>
 
                 <v-img
-                  v-if="previewUrl"
-                  :src="previewUrl"
+                  v-if="updatePreviewUrl"
+                  :src="updatePreviewUrl"
                   max-height="200"
                   max-width="200"
                   class="mt-4"
@@ -336,15 +485,54 @@ async function insertRoomTypeHandler() {
                 >
                 </v-file-input>
 
-                <v-row v-if="previewUrls.length > 0" class="mt-4">
+                <v-row v-if="updatePreviewUrls.length > 0" class="mt-4">
                   <v-col
-                    v-for="(url, index) in previewUrls"
+                    v-for="(url, index) in updatePreviewUrls"
                     :key="index"
                     cols="4"
                   >
                     <v-img :src="url" max-height="200" max-width="200"></v-img>
                   </v-col>
                 </v-row>
+              </v-col>
+
+              <v-col v-if="selectPrImg" cols="12">
+                <div id="prImgDiv">
+                  <span>選取刪除已有的房型主圖片：</span><br />
+                  <div>
+                    <v-checkbox
+                      :value="selectPrImg.imgId + '，' + selectPrImg.imgUrl"
+                      v-model="deletePrImgIdAndUrl"
+                    >
+                      <template #label>
+                        <div class="prImg">
+                          <img :src="selectPrImg.imgUrl" />
+                        </div>
+                      </template>
+                    </v-checkbox>
+                  </div>
+                </div>
+              </v-col>
+
+              <v-col
+                v-if="selectOtherImg !== undefined && selectOtherImg.length > 0"
+                cols="12"
+              >
+                <div id="otherImgsDiv">
+                  <span>選取刪除已有的其他房型圖片：</span><br />
+                  <div v-for="img in selectOtherImg" :key="img.imgId">
+                    <v-checkbox
+                      :value="img.imgId + '，' + img.imgUrl"
+                      v-model="deleteOtherImgsIdAndUrl"
+                    >
+                      <template #label>
+                        <div class="prImg">
+                          <img :src="img.imgUrl" />
+                        </div>
+                      </template>
+                    </v-checkbox>
+                  </div>
+                </div>
               </v-col>
 
               <v-col cols="12">
@@ -371,7 +559,7 @@ async function insertRoomTypeHandler() {
               color="primary"
               text="Save"
               variant="tonal"
-              @click="insertRoomTypeHandler"
+              @click="updateRoomTypeHandler"
             ></v-btn>
           </v-card-actions>
         </v-card>
@@ -384,14 +572,17 @@ async function insertRoomTypeHandler() {
       item-value="typeName"
       show-expand
     >
-      <template v-slot:expanded-row="{ columns, item }">
+      <template v-slot:expanded-row="{ item }">
         <tr>
           <td :colspan="3">照片</td>
           <td :colspan="4">房型描述</td>
         </tr>
         <tr>
           <td :colspan="3">
-            <img :src="item.imgs[0].imgUrl" alt="" />
+            <div v-if="item.prImg">
+              <img :src="item.prImg.imgUrl" alt="" />
+            </div>
+            <div v-else>沒有圖片</div>
           </td>
           <td :colspan="3">
             {{ item.typeDesc }}
@@ -412,6 +603,10 @@ async function insertRoomTypeHandler() {
 <style lang="css" scoped>
 td img {
   height: 200px;
+}
+
+.prImg img {
+  height: 100px;
 }
 
 .v-dialog {
