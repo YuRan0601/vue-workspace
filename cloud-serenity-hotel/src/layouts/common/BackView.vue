@@ -21,12 +21,6 @@ import { RouterView } from "vue-router";
                             <li>
                                 <RouterLink :to="{ name: 'memberBack' }">Overview</RouterLink>
                             </li>
-                            <li>
-                                <RouterLink :to="{ name: '' }">Updates</RouterLink>
-                            </li>
-                            <li>
-                                <RouterLink :to="{ name: '' }">Reports</RouterLink>
-                            </li>
                         </ul>
                     </div>
                 </li>
@@ -119,9 +113,6 @@ import { RouterView } from "vue-router";
                         <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
                             <li>
                                 <RouterLink :to="{ name: 'adminBack' }">Overview</RouterLink>
-                            </li>
-                            <li>
-                                <RouterLink :to="{ name: '' }">Profile</RouterLink>
                             </li>
                             <li>
                                 <RouterLink :to="{ name: '' }">Settings</RouterLink>
