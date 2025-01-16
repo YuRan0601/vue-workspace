@@ -167,7 +167,10 @@ import { RouterView } from "vue-router";
 .content {
   margin-left: 280px;
   margin-top: 66px;
-  border: 1px solid;
+}
+
+.container {
+  max-width: 1500px;
 }
 
 .aside {

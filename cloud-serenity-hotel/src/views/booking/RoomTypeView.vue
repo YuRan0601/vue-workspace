@@ -3,10 +3,30 @@ import axios from "axios";
 import Swal from "sweetalert2";
 import { onMounted, ref, watchEffect } from "vue";
 
+function resetInsert() {
+  insertRoomType.value.typeName = "";
+  insertRoomType.value.typeId = null;
+  insertRoomType.value.maxCapacity = null;
+  insertRoomType.value.typeDesc = "";
+  insertRoomType.value.price = null;
+  insertPrImg.value = null;
+  insertOtherImg.value = [];
+  insertPreviewUrl.value = null;
+  insertPreviewUrls.value = [];
+}
+
+function resetUpdate() {
+  updatePrImg.value = null;
+  updateOtherImg.value = [];
+  updatePreviewUrl.value = null;
+  updatePreviewUrls.value = [];
+}
+
 const headers = [
   { title: "房型ID", key: "typeId" },
   { title: "房型名稱", key: "typeName" },
   { title: "容納人數", key: "maxCapacity" },
+  { title: "每晚房價", key: "price" },
   { title: "新增時間", key: "createdDate" },
   { title: "修改時間", key: "updatedDate" },
   { title: "操作", key: "actions" },
@@ -30,6 +50,7 @@ const updateRoomType = ref({
   typeName: "",
   typeDesc: "",
   maxCapacity: null,
+  price: null
 });
 
 const updateDialog = ref(false);
@@ -51,6 +72,7 @@ function editItem(item) {
   updateRoomType.value.typeId = item.typeId;
   updateRoomType.value.typeName = item.typeName;
   updateRoomType.value.typeDesc = item.typeDesc;
+  updateRoomType.value.price = item.price;
   updateRoomType.value.maxCapacity = item.maxCapacity;
   selectPrImg.value = item.prImg;
   selectOtherImg.value = item.imgs;
@@ -173,12 +195,75 @@ const insertRoomType = ref({
   typeName: "",
   maxCapacity: null,
   typeDesc: "",
+  price: null
 });
 
 const insertPrImg = ref(null);
 const insertOtherImg = ref([]);
 const insertPreviewUrl = ref(null); // 存储图片预览的 URL
 const insertPreviewUrls = ref([]);
+
+async function insertRoomTypeHandler() {
+  console.log(insertRoomType.value);
+
+  Swal.fire({
+    title: "確定要新增此房型?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "確定",
+    cancelButtonText: "取消",
+  }).then(async (res) => {
+    if (res.isConfirmed) {
+      const formData = new FormData();
+
+      formData.append("roomTypeJson", JSON.stringify(insertRoomType.value));
+
+      // 添加主圖片
+      if (insertPrImg.value) {
+        formData.append("typePrimaryImg", insertPrImg.value);
+      }
+
+      // 添加其他圖片（多個文件）
+      if (insertOtherImg.value && insertOtherImg.value.length > 0) {
+        insertOtherImg.value.forEach((file, index) => {
+          // 將每個文件都添加到 FormData 中
+          formData.append("typeImg", file); // 可以根據需要調整 key 的命名
+        });
+      }
+
+      console.log(formData);
+
+      const { data } = await axios.post("/api/room/type", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        withCredentials: true,
+      });
+
+      if (data !== 0) {
+        Swal.fire({
+          title: "新增成功",
+          icon: "success",
+          confirmButtonText: "確定",
+        }).then(() => {
+          loadTable();
+          insertDialog.value = false;
+        });
+      } else {
+        Swal.fire({
+          title: "新增失敗",
+          icon: "error",
+          confirmButtonText: "確定",
+        }).then(() => {
+          loadTable();
+          insertDialog.value = false;
+        });
+      }
+    }
+  });
+}
 
 watchEffect(() => {
   if (!insertDialog.value) {
@@ -253,86 +338,6 @@ watchEffect(() => {
     });
   }
 });
-
-function resetInsert() {
-  insertRoomType.value.typeName = "";
-  insertRoomType.value.typeId = null;
-  insertRoomType.value.maxCapacity = null;
-  insertRoomType.value.typeDesc = "";
-  insertPrImg.value = null;
-  insertOtherImg.value = [];
-  insertPreviewUrl.value = null;
-  insertPreviewUrls.value = [];
-}
-
-function resetUpdate() {
-  updatePrImg.value = null;
-  updateOtherImg.value = [];
-  updatePreviewUrl.value = null;
-  updatePreviewUrls.value = [];
-}
-
-async function insertRoomTypeHandler() {
-  console.log(insertRoomType.value);
-
-  Swal.fire({
-    title: "確定要新增此房型?",
-    icon: "warning",
-    showCancelButton: true,
-    confirmButtonColor: "#3085d6",
-    cancelButtonColor: "#d33",
-    confirmButtonText: "確定",
-    cancelButtonText: "取消",
-  }).then(async (res) => {
-    if (res.isConfirmed) {
-      const formData = new FormData();
-
-      formData.append("roomTypeJson", JSON.stringify(insertRoomType.value));
-
-      // 添加主圖片
-      if (insertPrImg.value) {
-        formData.append("typePrimaryImg", insertPrImg.value);
-      }
-
-      // 添加其他圖片（多個文件）
-      if (insertOtherImg.value && insertOtherImg.value.length > 0) {
-        insertOtherImg.value.forEach((file, index) => {
-          // 將每個文件都添加到 FormData 中
-          formData.append("typeImg", file); // 可以根據需要調整 key 的命名
-        });
-      }
-
-      console.log(formData);
-
-      const { data } = await axios.post("/api/room/type", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-        withCredentials: true,
-      });
-
-      if (data !== 0) {
-        Swal.fire({
-          title: "新增成功",
-          icon: "success",
-          confirmButtonText: "確定",
-        }).then(() => {
-          loadTable();
-          insertDialog.value = false;
-        });
-      } else {
-        Swal.fire({
-          title: "新增失敗",
-          icon: "error",
-          confirmButtonText: "確定",
-        }).then(() => {
-          loadTable();
-          insertDialog.value = false;
-        });
-      }
-    }
-  });
-}
 </script>
 
 <template>
@@ -352,7 +357,7 @@ async function insertRoomTypeHandler() {
         <v-card prepend-icon="mdi-account" title="新增房型">
           <v-card-text>
             <v-row dense>
-              <v-col cols="12" md="6" sm="6">
+              <v-col cols="12">
                 <v-text-field
                   label="房型名稱*"
                   v-model="insertRoomType.typeName"
@@ -365,6 +370,14 @@ async function insertRoomTypeHandler() {
                   hint="請輸入大於0的數字"
                   v-model="insertRoomType.maxCapacity"
                   label="容納人數*"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12" md="6" sm="6">
+                <v-text-field
+                  hint="請輸入大於0的數字"
+                  v-model="insertRoomType.price"
+                  label="每晚房價*"
                 ></v-text-field>
               </v-col>
 
@@ -442,7 +455,7 @@ async function insertRoomTypeHandler() {
         <v-card prepend-icon="mdi-account" title="修改房型">
           <v-card-text>
             <v-row dense>
-              <v-col cols="12" md="6" sm="6">
+              <v-col cols="12">
                 <v-text-field
                   label="房型名稱*"
                   v-model="updateRoomType.typeName"
@@ -455,6 +468,14 @@ async function insertRoomTypeHandler() {
                   hint="請輸入大於0的數字"
                   v-model="updateRoomType.maxCapacity"
                   label="容納人數*"
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12" md="6" sm="6">
+                <v-text-field
+                  hint="請輸入大於0的數字"
+                  v-model="updateRoomType.price"
+                  label="每晚房價*"
                 ></v-text-field>
               </v-col>
 
@@ -570,12 +591,13 @@ async function insertRoomTypeHandler() {
       :items="roomTypeTable"
       :headers="headers"
       item-value="typeName"
+      class="roomTypeTable"
       show-expand
     >
       <template v-slot:expanded-row="{ item }">
         <tr>
-          <td :colspan="3">照片</td>
-          <td :colspan="4">房型描述</td>
+          <th :colspan="3">照片</th>
+          <th :colspan="4">房型描述</th>
         </tr>
         <tr>
           <td :colspan="3">
@@ -615,5 +637,18 @@ td img {
 
 .swal2-container {
   z-index: 9999 !important;
+}
+
+
+th {
+  background-color: #5df5e8;
+}
+
+.roomTypeTable th {
+  background-color: #5df5e8;
+}
+
+.v-data-table-header {
+  background-color: #5df5e8;
 }
 </style>

@@ -3,6 +3,7 @@ import BookingHome from "@/layouts/booking/BookingHome.vue";
 import RoomFront from "@/layouts/booking/RoomFront.vue";
 import BackView from "@/layouts/common/BackView.vue";
 import FrontView from "@/layouts/common/FrontView.vue";
+import BookingSearchView from "@/views/booking/BookingSearchView.vue";
 import RoomTypeView from "@/views/booking/RoomTypeView.vue";
 import RoomView from "@/views/booking/RoomView.vue";
 import { createRouter, createWebHistory } from "vue-router";
@@ -50,6 +51,18 @@ const router = createRouter({
         },
       ]
     },
+    {
+      path: '/bookingHome',
+      name: 'bookingHome',
+      component: BookingHome,
+      children: [
+        {
+          path: '/bookingSearch',
+          name: 'bookingSearch',
+          component: BookingSearchView,
+        }
+      ]
+    }
 
   ],
 });
