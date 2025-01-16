@@ -1,15 +1,20 @@
 <script setup>
 import axios from 'axios';
-import Swal from 'sweetalert2';
 import { ref, onMounted, reactive } from 'vue';
 
+const loginData = ref({
+    email: '',
+    password: ''
+});
+const errorMsg = ref('');
+const isError = ref(false);
 
 function showErrorMsg(msg) {
     if (msg.length > 0) { // 如果訊息不為空，顯示錯誤訊息
-        $('#errormsg').text(msg);
-        $('#errorMessage').css('visibility', 'visible');
+        errorMsg.value = msg;
+        isError.value = true;
     } else { // 如果沒有訊息，隱藏錯誤訊息
-        $('#errorMessage').css('visibility', 'hidden');
+        isError.value = false;
     }
 }
 
@@ -23,16 +28,32 @@ $("#pass-hidden").on("change", function () {
 });
 
 //一鍵登入
-$('#admin').on("click", (e) => {
-    e.preventDefault();
-    $("#email").val("CSH_AD@mail.com")
-    $("#password").val("aDmin@01")
-})
-$('#member').on("click", (e) => {
-    e.preventDefault();
-    $("#email").val("Linsansan@mail.com")
-    $("#password").val("Lin33#033")
-})
+function adminKeyin() {
+    loginData.value.email = "CSH_AD@mail.com"
+    loginData.value.password = "aDmin@01"
+}
+function memberKeyin() {
+    loginData.value.email = "Linsansan@mail.com"
+    loginData.value.password = "Lin33#033"
+}
+
+const loginStatus = () => {
+    //發送請求給後端
+    axios.post('/api/user/checklogin', loginData)
+        .then(function (response) {
+            console.log(response.data);
+            let data = response.data
+            if (data == "admin") {
+                window.location.href = '/back';
+            } else if (data == "member") {
+                window.location.href = '/front/member';
+            }
+        })
+        .catch(function (error) {
+            console.log(error.response.data);
+            showErrorMsg(error.response.data);
+        });
+}
 
 $('#login').on('submit', function (e) {
     e.preventDefault(); // 防止表單預設提交行為
@@ -79,19 +100,19 @@ $('#login').on('submit', function (e) {
             </div>
             <div class="row mt-2">
                 <!-- 一鍵登入 -->
-                <div class="col-2"><button id="admin" class="btn btn-outline-dark bg-white text-dark"><i
-                            class="fa-solid fa-user-tie"></i></button>
+                <div class="col-2"><v-btn @click.stop.prevent="adminKeyin()"
+                        class="btn btn-outline-dark bg-white text-dark"><i class="fa-solid fa-user-tie"></i></v-btn>
                 </div>
-                <div class="col-2"><button id="member" class="btn btn-outline-dark bg-white text-dark"><i
-                            class="fa-solid fa-user"></i></button>
+                <div class="col-2"><v-btn @click.stop.prevent="memberKeyin()"
+                        class="btn btn-outline-dark bg-white text-dark"><i class="fa-solid fa-user"></i></v-btn>
                 </div>
             </div>
-            <p id="errorMessage" class="pt-2">
+            <p v-show="isError" class="pt-2">
                 <i class="fa-solid fa-circle-xmark"></i>
-                <span id="errormsg"></span>
+                <span v-text="errorMsg"></span>
             </p>
             <p style='text-align: center; margin: 0;'>
-                沒有帳號? <a href="/CloudSerenityHotel/user/register">立即註冊</a>
+                沒有帳號? <RouterLink :to="{ name: 'register' }">立即註冊</RouterLink>
             </p>
         </form>
     </div>
