@@ -24,7 +24,10 @@ import "vuetify/styles";
 import { createVuetify } from "vuetify";
 import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
+import { zhHant } from "vuetify/locale";
 import "@mdi/font/css/materialdesignicons.css";
+import customZhHant from "./assets/common/js/customZhHant";
+
 
 const vuetify = createVuetify({
   components,
@@ -32,6 +35,10 @@ const vuetify = createVuetify({
   icons: {
     defaultSet: "mdi", // This is already the default value - only for display purposes
   },
+  locale: {
+    locale: 'zhHant',
+    messages: { zhHant: customZhHant }
+  }
 });
 
 app.use(vuetify);

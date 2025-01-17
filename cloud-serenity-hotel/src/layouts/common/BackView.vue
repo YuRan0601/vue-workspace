@@ -51,7 +51,7 @@ import { RouterView } from "vue-router";
           </button>
           <div class="collapse" id="booking-collapse">
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-              <li><RouterLink :to="{name: 'bookingBack'}">房型、房間</RouterLink></li>
+              <li><RouterLink :to="{name: 'roomType'}">房型、房間</RouterLink></li>
               <li><a href="#" class="link-dark rounded">Overview</a></li>
             </ul>
           </div>

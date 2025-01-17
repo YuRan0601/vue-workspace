@@ -3,6 +3,9 @@ import axios from 'axios';
 import Swal from 'sweetalert2';
 import { onMounted, ref, watchEffect } from 'vue';
 
+
+const search = ref('');
+
 function resetInsert() {
   insertRoom.value.roomType.typeId = null;
   insertRoom.value.roomId = null;
@@ -365,6 +368,10 @@ function deleteRoom(room) {
       </v-dialog>
     </div>
 
+    <v-text-field 
+    v-model="search"
+    label="查詢"></v-text-field>
+
     
     <!-- 房間資料 -->
     <div>
@@ -373,6 +380,7 @@ function deleteRoom(room) {
       :headers="headers"
       item-value="roomName"
       class="roomTable"
+      :search="search"
       show-expand
     >
       <template v-slot:expanded-row="{ item }">

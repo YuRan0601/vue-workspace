@@ -45,6 +45,8 @@ onMounted(async () => {
   loadTable();
 });
 
+const search = ref('');
+
 const updateRoomType = ref({
   typeId: null,
   typeName: "",
@@ -473,7 +475,7 @@ watchEffect(() => {
 
               <v-col cols="12" md="6" sm="6">
                 <v-text-field
-                  hint="請輸入大於0的數字"
+                  hint="請輸入大s於0的數字"
                   v-model="updateRoomType.price"
                   label="每晚房價*"
                 ></v-text-field>
@@ -587,11 +589,16 @@ watchEffect(() => {
       </v-dialog>
     </div>
 
+    <v-text-field 
+    v-model="search"
+    label="查詢"></v-text-field>
+
     <v-data-table
       :items="roomTypeTable"
       :headers="headers"
       item-value="typeName"
       class="roomTypeTable"
+      :search="search"
       show-expand
     >
       <template v-slot:expanded-row="{ item }">
@@ -644,11 +651,12 @@ th {
   background-color: #5df5e8;
 }
 
-.roomTypeTable th {
-  background-color: #5df5e8;
+.v-data-table thead {
+  background-color: #ff5722 !important;
 }
 
 .v-data-table-header {
-  background-color: #5df5e8;
+  background-color: #5df5e8 !important
 }
+
 </style>

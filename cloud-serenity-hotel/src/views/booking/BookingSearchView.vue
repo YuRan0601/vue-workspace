@@ -14,6 +14,8 @@ import { ref } from 'vue';
                 <v-date-picker
                 v-model="selectedStartDate"
                 title="選擇訂房日期"
+                header="選擇訂房日期"
+                locale="zh-Hant"
                 ></v-date-picker>
             </v-col>
 
@@ -25,6 +27,7 @@ import { ref } from 'vue';
                 <v-date-picker
                 v-model="selectedEndDate"
                 title="選擇退房日期"
+                header="選擇退房日期"
                 ></v-date-picker>
             </v-col>
             </v-row>
