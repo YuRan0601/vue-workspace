@@ -1,51 +1,40 @@
 <script setup>
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { ref, onMounted, reactive } from 'vue';
+import { ref, computed } from 'vue';
 
 //國家列表api
-fetch("https://restcountries.com/v3.1/all")
-    .then((response) => response.json())
-    .then((data) => {
-        const select = document.getElementById("country");
-        data.sort((a, b) => a.name.common.localeCompare(b.name.common)); // 按國名排序
-        data.forEach((country) => {
-            const option = document.createElement("option");
-            option.value = country.cca3; // 使用 ISO 3166-1 Alpha-3 代碼
-            option.textContent = country.name.common; // 國家名稱
-            if (country.cca3 === "TWN") {
-                // 讓預設選中的選項是台灣
-                option.selected = true;
-            }
-            select.appendChild(option);
-        });
+axios.get("https://restcountries.com/v3.1/all?fields=name,cca3")
+    .then((response) => {
+        let country = response.data
+        country.sort((a, b) => a.name.common.localeCompare(b.name.common)); // 按國名排序
+        console.log(country);
+
+    }).catch((error) => {
+        console.log(error);
+
     })
-    .catch((error) => console.error("Error fetching country data:", error));
 
-$('#register').on('submit', function (e) {
-    e.preventDefault(); // 防止表單預設提交行為
+// 獲取表單資料
+const registerData = ref({
+    userName: '',
+    email: '',
+    password: '',
+    member: {
+        gender: '',
+        birthday: '',
+        phone: '',
+        personalIdNo: '',
+        country: '',
+        address: '',
+        passportNo: ''
+    }
+});
 
-    // 獲取表單資料
-    const registerData = {
-        userName: $('#name').val(),
-        email: $('#email').val(),
-        password: $('#password').val(),
-        member: {
-            gender: $('#gender').val(),
-            birthday: $('#birthday').val(),
-            phone: $('#phone').val(),
-            personalIdNo: $('#personal-id-no').val(),
-            country: $('#country').val(),
-            address: $('#address').val(),
-            passportNo: $('#passport-no').val()
-        }
-    };
-
-    // console.log(registerData);
-
+const submitRegister = () => {
 
     //發送請求給後端
-    axios.post('http://localhost:8080/CloudSerenityHotel/user/register', registerData)
+    axios.post('/api/user/register', registerData)
         .then(function (response) {
             // 彈出成功提示
             Swal.fire({
@@ -57,7 +46,7 @@ $('#register').on('submit', function (e) {
                 timerProgressBar: true, // 顯示倒數計時進度條
                 didClose: () => {
                     // 跳轉到登入頁面
-                    window.location.href = 'http://localhost:8080/CloudSerenityHotel/user/login';
+                    window.location.href = '/login';
                 }
             });
         })
@@ -69,25 +58,24 @@ $('#register').on('submit', function (e) {
                 allowOutsideClick: false
             });
         });
-});
+}
 
 //一鍵帶入
-$('#auto-keyin').on("click", (e) => {
-    e.preventDefault();
-    $('#name').val("王小明")
-    $("#email").val("WangXiaoMing@mail.com")
-    $("#password").val("J$6vul3au!6")
-    $('#gender').val("Male")
-    $('#birthday').val("1988-01-08")
-    $('#phone').val("0911123245")
-    $('#personal-id-no').val("A123456789")
-    $('#country').val("TWN")
-    $('#address').val("")
-    $('#passport-no').val("")
-})
+function autoKeyin() {
+    registerData.userName = "王小明"
+    registerData.email = "WangXiaoMing@mail.com"
+    registerData.password = "J$6vul3au!6"
+    registerData.member.gender = "Male"
+    registerData.member.birthday = "1988-01-08"
+    registerData.member.phone = "0911123245"
+    registerData.member.personalIdNo = "A123456789"
+    registerData.member.country = "TWN"
+    registerData.member.address = ""
+    registerData.member.passportNo = ""
+}
 
 //判斷身分別 移除必填屬性
-addEventListener("load", (e) => {
+const switchIdentity = computed(() => {
     // console.log("load done");
     let id = $("#identity").val();
     if (id == "native") {
@@ -122,11 +110,11 @@ $("#identity").change((e) => {
 });
 
 //email
-$("#email").blur(function () {
-    let email = $(this).val();
+function emailCheck() {
+    let email = registerData.email;
 
     if (email.length != 0) {
-        axios.post('http://localhost:8080/CloudSerenityHotel/user/checkEmail', { email })
+        axios.post('/api/user/checkEmail', { email })
             .then(function (response) {
                 console.log(response.data);
 
@@ -145,7 +133,7 @@ $("#email").blur(function () {
         $("#EmailMsg").css("visibility", "visible");
     }
 
-});
+};
 
 //password 顯示開關
 $("#checkEye").click(function () {
@@ -158,47 +146,44 @@ $("#checkEye").click(function () {
 });
 
 //password 檢查
-$("#password").blur(function () {
-    let content = $(this).val();
-    let contentLength = $(this).val().length;
+const passwordMsg = ref('')
+function passwordCheck() {
+    let content = registerData.password;
+    let contentLength = registerData.password.length;
     let rule1 = new RegExp(/[a-z]/i);
     let rule2 = new RegExp(/[0-9]/);
     let rule3 = new RegExp(/[!@#$%^*]/);
     if (contentLength == 0) {
-        $("#passwordMsg").html(
-            '<i class="fa-solid fa-circle-xmark"></i> 密碼不可為空白');
-        $("#passwordMsg").css("visibility", "visible");
+        passwordMsg.value =
+            '<i class="fa-solid fa-circle-xmark"></i> 密碼不可為空白';
     } else if (contentLength < 8) {
-        $("#passwordMsg").html(
-            '<i class="fa-solid fa-circle-xmark"></i> 密碼至少8個字');
-        $("#passwordMsg").css("visibility", "visible");
+        passwordMsg.value =
+            '<i class="fa-solid fa-circle-xmark"></i> 密碼至少8個字';
     } else if (!rule1.test(content)) {
-        $("#passwordMsg").html(
-            '<i class="fa-solid fa-circle-xmark"></i> 密碼必須包含英文');
-        $("#passwordMsg").css("visibility", "visible");
+        passwordMsg.value =
+            '<i class="fa-solid fa-circle-xmark"></i> 密碼必須包含英文';
     } else if (!rule2.test(content)) {
-        $("#passwordMsg").html(
-            '<i class="fa-solid fa-circle-xmark"></i> 密碼必須包含數字');
-        $("#passwordMsg").css("visibility", "visible");
+        passwordMsg.value =
+            '<i class="fa-solid fa-circle-xmark"></i> 密碼必須包含數字';
     } else if (!rule3.test(content)) {
-        $("#passwordMsg").html(
-            '<i class="fa-solid fa-circle-xmark"></i> 密碼必須包含特殊字元!@#$%^*');
-        $("#passwordMsg").css("visibility", "visible");
+        passwordMsg.value =
+            '<i class="fa-solid fa-circle-xmark"></i> 密碼必須包含特殊字元!@#$%^*';
     } else {
-        $("#passwordMsg").css("visibility", "hidden");
+        passwordMsg.value = '';
     }
-});
+};
 
 // twId
-$("#personal-id-no").blur(function () {
-    let content = $(this).val();
+const twIdMsg = ref(false)
+function twId() {
+    let content = registerData.member.personalIdNo;
     let result = validateTaiwanID(content);
     if (!result) {
-        $("#twIdMsg").css("visibility", "visible");
+        twIdMsg.value = false;
     } else {
-        $("#twIdMsg").css("visibility", "hidden");
+        twIdMsg.value = true;
     }
-});
+};
 
 //身分證驗證器 by GPT
 function validateTaiwanID(id) {
@@ -254,7 +239,8 @@ function validateTaiwanID(id) {
             <div class="col-md-6">
                 <label for="email" class="form-label fs-5">電子信箱<span
                         style="color: red; font-weight: bold;">*</span></label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="請輸入電子信箱" required />
+                <input type="email" class="form-control" v-model="registerData.email" name="email" placeholder="請輸入電子信箱"
+                    required />
                 <span id="EmailMsg" style="visibility: hidden"><i class="fa-solid fa-circle-xmark"></i></span>
                 <br />
 
@@ -271,25 +257,26 @@ function validateTaiwanID(id) {
                 </div>
                 <div class="row">
                     <div class="col">
-                        <input type="password" class="form-control" id="password" name="password" placeholder="請輸入密碼"
-                            minlength="8" maxlength="64" required />
+                        <input type="password" class="form-control" v-model="registerData.password" name="password"
+                            placeholder="請輸入密碼" minlength="8" maxlength="64" @blur="passwordCheck()" required />
                     </div>
                     <div class="col-1">
                         <i id="checkEye" class="fa-solid fa-eye fa-lg"></i>
                     </div>
                 </div>
 
-                <span id="passwordMsg" style="visibility: hidden"><i class="fa-solid fa-circle-xmark"></i></span>
+                <span id="passwordMsg" v-show="passwordMsg.length != 0 ? true : false" v-html="passwordMsg"></span>
                 <br />
 
                 <label for="name" class="form-label fs-5">姓名<span
                         style="color: red; font-weight: bold;">*</span></label>
-                <input type="text" class="form-control" id="name" name="name" placeholder="請輸入姓名" required />
+                <input type="text" class="form-control" v-model="registerData.userName" name="name" placeholder="請輸入姓名"
+                    required />
                 <br />
 
                 <label for="gender" class="form-label fs-5">性別<span
                         style="color: red; font-weight: bold;">*</span></label>
-                <select class="form-select" id="gender" name="gender" required>
+                <select class="form-select" v-model="registerData.member.gender" name="gender" required>
                     <option value="Male">男</option>
                     <option value="Female">女</option>
                     <option value="Other">其他</option>
@@ -298,7 +285,8 @@ function validateTaiwanID(id) {
 
                 <label for="birthday" class="form-label fs-5">生日<span
                         style="color: red; font-weight: bold;">*</span></label>
-                <input type="date" class="form-control" id="birthday" name="birthday" required />
+                <input type="date" class="form-control" v-model="registerData.member.birthday" name="birthday"
+                    required />
                 <br />
             </div>
 
@@ -306,25 +294,30 @@ function validateTaiwanID(id) {
             <div class="col-md-6">
                 <label for="phone" class="form-label fs-5">行動電話<span
                         style="color: red; font-weight: bold;">*</span></label>
-                <input type="tel" class="form-control" id="phone" name="phone" placeholder="請輸入行動電話" required />
+                <input type="tel" class="form-control" v-model="registerData.member.phone" name="phone"
+                    placeholder="請輸入行動電話" required />
                 <br />
 
                 <label for="personal-id-no" class="form-label fs-5">身分證字號<span class="per-sp"
                         style="font-weight: bold;"></span></label>
-                <input type="text" class="form-control" id="personal-id-no" name="personal_id_no" placeholder="請輸入身分證字號"
-                    required />
-                <span id="twIdMsg" style="visibility: hidden"><i class="fa-solid fa-circle-xmark"></i> 身分證字號錯誤</span>
+                <input type="text" class="form-control" v-model="registerData.member.personalIdNo" name="personal_id_no"
+                    placeholder="請輸入身分證字號" @blur="twId()" required />
+                <span id="twIdMsg" v-show="twIdMsg"><i class="fa-solid fa-circle-xmark"></i> 身分證字號錯誤</span>
                 <br />
 
                 <label for="country" class="form-label fs-5">國家<span
                         style="color: red; font-weight: bold;">*</span></label>
-                <select class="form-select" id="country" name="country" required></select>
+                <select class="form-select" v-model="registerData.member.country" name="country" required>
+                    <option v-for="country in countrys" :value="country.cca3">
+                        {{ country.name.common }}
+                    </option>
+                </select>
                 <br />
 
                 <label for="passport-no" class="form-label fs-5">護照號碼<span class="pass-sp"
                         style="font-weight: bold;"></span></label>
-                <input type="text" class="form-control" id="passport-no" name="passport_no" placeholder="請輸入護照號碼"
-                    required />
+                <input type="text" class="form-control" v-model="registerData.member.passportNo" name="passport_no"
+                    placeholder="請輸入護照號碼" required />
                 <br />
             </div>
 
@@ -332,15 +325,16 @@ function validateTaiwanID(id) {
             <div class="col-12">
                 <label for="address" class="form-label fs-5">聯絡地址<span
                         style="color: blue; font-weight: bold;">(選填)</span></label>
-                <input type="text" class="form-control" id="address" name="address" minlength="10"
-                    placeholder="請輸入地址" />
+                <input type="text" class="form-control" v-model="registerData.member.address" id="address"
+                    name="address" minlength="10" placeholder="請輸入地址" />
                 <br />
             </div>
 
             <!-- 按鈕 -->
             <div class="col-12 text-center">
-                <button type="submit" class="btn btn-primary btn-lg px-5 text-white">註冊</button>
-                <button id="auto-keyin" class="btn btn-primary btn-lg px-5 text-white mx-2">一鍵帶入</button>
+                <button @click.stop.prevent="submitRegister()"
+                    class="btn btn-primary btn-lg px-5 text-white">註冊</button>
+                <button @click="autoKeyin()" class="btn btn-primary btn-lg px-5 text-white mx-2">一鍵帶入</button>
             </div>
         </form>
     </div>
