@@ -1,6 +1,6 @@
 <script setup>
 import axios from 'axios';
-import { ref, onMounted, reactive } from 'vue';
+import { ref, computed } from 'vue';
 
 const loginData = ref({
     email: '',
@@ -8,6 +8,8 @@ const loginData = ref({
 });
 const errorMsg = ref('');
 const isError = ref(false);
+const passHidden = ref(false);
+const passAttr = ref('password');
 
 function showErrorMsg(msg) {
     if (msg.length > 0) { // 如果訊息不為空，顯示錯誤訊息
@@ -19,13 +21,13 @@ function showErrorMsg(msg) {
 }
 
 //password 顯示開關
-$("#pass-hidden").on("change", function () {
-    if (this.checked) {
-        $("#password").attr('type', 'text');
+const checkHidden = computed(() => {
+    if (passHidden.value) {
+        passAttr.value = 'text';
     } else {
-        $("#password").attr('type', 'password');
+        passAttr.value = 'password';
     }
-});
+})
 
 //一鍵登入
 function adminKeyin() {
@@ -39,7 +41,7 @@ function memberKeyin() {
 
 const loginStatus = () => {
     //發送請求給後端
-    axios.post('/api/user/checklogin', loginData)
+    axios.post('/api/user/checklogin', loginData.value)
         .then(function (response) {
             console.log(response.data);
             let data = response.data
@@ -55,31 +57,6 @@ const loginStatus = () => {
         });
 }
 
-$('#login').on('submit', function (e) {
-    e.preventDefault(); // 防止表單預設提交行為
-
-    // 獲取表單資料
-    const loginData = {
-        email: $('#email').val(),
-        password: $('#password').val()
-    };
-
-    //發送請求給後端
-    axios.post('http://localhost:8080/CloudSerenityHotel/user/checklogin', loginData)
-        .then(function (response) {
-            console.log(response.data);
-            let data = response.data
-            if (data == "admin") {
-                window.location.href = 'http://localhost:8080/CloudSerenityHotel/static/common/adminPage.html';
-            } else if (data == "member") {
-                window.location.href = 'http://localhost:8080/CloudSerenityHotel/static/user/protected/userDashboard.html';
-            }
-        })
-        .catch(function (error) {
-            showErrorMsg(error.response.data);
-        });
-});
-
 </script>
 
 <template>
@@ -88,27 +65,28 @@ $('#login').on('submit', function (e) {
             <h2 style='text-align: center; margin: 0;'>歡迎登入</h2>
             <br>
             <label for="email" class="form-label fs-5">電子信箱</label>
-            <input type="email" class="form-control" id="email" name="email" placeholder="請輸入電子信箱" required />
+            <input v-model="loginData.email" type="email" class="form-control" id="email" name="email"
+                placeholder="請輸入電子信箱" required />
             <br>
             <label for="password" class="form-label fs-5">密碼</label>
-            <input type="password" class="form-control" id="password" name="password" placeholder="請輸入密碼" minlength="8"
-                maxlength="64" required />
-            <input type="checkbox" class="my-3" id="pass-hidden"> 顯示密碼</input>
+            <input v-model="loginData.password" :type="passAttr" class="form-control" id="password" name="password"
+                placeholder="請輸入密碼" minlength="8" maxlength="64" required />
+            <input v-model="passHidden" type="checkbox" class="my-3" @change="checkHidden()"> 顯示密碼</input>
             <br>
             <div class="d-grid gap-2 mx-auto">
-                <button type="submit" class="btn btn-primary">登入</button>
+                <button @click.prevent="loginStatus()" class="btn btn-primary">登入</button>
             </div>
-            <div class="row mt-2">
+            <div class="row my-2">
                 <!-- 一鍵登入 -->
-                <div class="col-2"><v-btn @click.stop.prevent="adminKeyin()"
-                        class="btn btn-outline-dark bg-white text-dark"><i class="fa-solid fa-user-tie"></i></v-btn>
+                <div class="col-2"><button @click.prevent="adminKeyin()"
+                        class="btn btn-outline-dark bg-white text-dark"><v-icon>mdi-account-tie</v-icon></button>
                 </div>
-                <div class="col-2"><v-btn @click.stop.prevent="memberKeyin()"
-                        class="btn btn-outline-dark bg-white text-dark"><i class="fa-solid fa-user"></i></v-btn>
+                <div class="col-2"><button @click.prevent="memberKeyin()"
+                        class="btn btn-outline-dark bg-white text-dark"><v-icon>mdi-account</v-icon></button>
                 </div>
             </div>
-            <p v-show="isError" class="pt-2">
-                <i class="fa-solid fa-circle-xmark"></i>
+            <p v-show="isError" class="pt-2" id="errorMessage">
+                <v-icon>mdi-alert</v-icon>
                 <span v-text="errorMsg"></span>
             </p>
             <p style='text-align: center; margin: 0;'>
@@ -142,7 +120,6 @@ $('#login').on('submit', function (e) {
     margin: 0;
     color: #c70000;
     font-weight: bold;
-    visibility: hidden;
     text-align: center;
 }
 </style>
