@@ -4,7 +4,7 @@
 
 <template>
     <div>
-        <h2>測試</h2>
+        <h2>Edit</h2>
     </div>
 </template>
 
