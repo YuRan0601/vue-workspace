@@ -1,14 +1,16 @@
 <script setup>
 import axios from 'axios';
 import Swal from 'sweetalert2';
-import { ref, computed } from 'vue';
+import { ref, watch } from 'vue';
 
 //國家列表api
+const countryArray = ref()
 axios.get("https://restcountries.com/v3.1/all?fields=name,cca3")
     .then((response) => {
         let country = response.data
         country.sort((a, b) => a.name.common.localeCompare(b.name.common)); // 按國名排序
-        console.log(country);
+        countryArray.value = country
+        // console.log(countryArray.value);
 
     }).catch((error) => {
         console.log(error);
@@ -21,20 +23,19 @@ const registerData = ref({
     email: '',
     password: '',
     member: {
-        gender: '',
+        gender: 'Male',
         birthday: '',
         phone: '',
         personalIdNo: '',
-        country: '',
+        country: 'TWN',
         address: '',
         passportNo: ''
     }
 });
-
 const submitRegister = () => {
 
     //發送請求給後端
-    axios.post('/api/user/register', registerData)
+    axios.post('/api/user/register', registerData.value)
         .then(function (response) {
             // 彈出成功提示
             Swal.fire({
@@ -62,56 +63,42 @@ const submitRegister = () => {
 
 //一鍵帶入
 function autoKeyin() {
-    registerData.userName = "王小明"
-    registerData.email = "WangXiaoMing@mail.com"
-    registerData.password = "J$6vul3au!6"
-    registerData.member.gender = "Male"
-    registerData.member.birthday = "1988-01-08"
-    registerData.member.phone = "0911123245"
-    registerData.member.personalIdNo = "A123456789"
-    registerData.member.country = "TWN"
-    registerData.member.address = ""
-    registerData.member.passportNo = ""
+    registerData.value.userName = "王小明";
+    registerData.value.email = "WangXiaoMing@mail.com";
+    registerData.value.password = "J$6vul3au!6";
+    registerData.value.member.gender = "Male";
+    registerData.value.member.birthday = "1988-01-08";
+    registerData.value.member.phone = "0911123245";
+    registerData.value.member.personalIdNo = "A123456789";
+    registerData.value.member.country = "TWN";
+    registerData.value.member.address = "";
+    registerData.value.member.passportNo = "";
 }
 
+
 //判斷身分別 移除必填屬性
-const switchIdentity = computed(() => {
-    // console.log("load done");
-    let id = $("#identity").val();
-    if (id == "native") {
+const nativeRequired = ref(true)
+const foreignerRequired = ref(false)
+const identity = ref('native')
+
+watch(identity, (newVal) => {
+    if (newVal == "native") {
         //本國人無須護照號碼也可訂房入住
-        $("#passport-no").removeAttr("required");
-        $("#personal-id-no").attr("required", true);
-        $(".per-sp").css("color", "red").text("*");
-        $(".pass-sp").text("");
+        nativeRequired.value = true;
+        foreignerRequired.value = false;
     } else {
         //外國人沒有身分證字號
-        $("#personal-id-no").removeAttr("required");
-        $("#passport-no").attr("required", true);
-        $(".pass-sp").css("color", "red").text("*");
-        $(".per-sp").text("");
-    }
-});
-$("#identity").change((e) => {
-    let id = $("#identity").val();
-    if (id == "native") {
-        //本國人無須護照號碼也可訂房入住
-        $("#passport-no").removeAttr("required");
-        $("#personal-id-no").attr("required", true);
-        $(".per-sp").css("color", "red").text("*");
-        $(".pass-sp").text("");
-    } else {
-        //外國人沒有身分證字號
-        $("#personal-id-no").removeAttr("required");
-        $("#passport-no").attr("required", true);
-        $(".pass-sp").css("color", "red").text("*");
-        $(".per-sp").text("");
+        nativeRequired.value = false;
+        foreignerRequired.value = true;
     }
 });
 
 //email
+const emailMsg = ref('')
+const eMsgShow = ref('false')
+const eMsgColor = ref('')
 function emailCheck() {
-    let email = registerData.email;
+    let email = registerData.value.email;
 
     if (email.length != 0) {
         axios.post('/api/user/checkEmail', { email })
@@ -119,55 +106,61 @@ function emailCheck() {
                 console.log(response.data);
 
                 if (response.data == "ok") {
-                    $("#EmailMsg").html('<i class="fa-solid fa-circle-check"></i> 此Email可以使用').css("color", "green")
+                    emailMsg.value = '此Email可以使用'
+                    eMsgColor.value = 'green'
+                    eMsgShow.value = true
                 } else {
-                    $("#EmailMsg").html('<i class="fa-solid fa-circle-xmark"></i> 此Email已被使用').css("color", "#c70000")
+                    emailMsg.value = '此Email已被使用'
+                    eMsgColor.value = '#c70000'
+                    eMsgShow.value = true
                 }
-                $("#EmailMsg").css("visibility", "visible");
             })
             .catch(function (error) {
                 console.log(error);
             })
     } else {
-        $("#EmailMsg").html('<i class="fa-solid fa-circle-xmark"></i> Email不可為空白').css("color", "#c70000")
-        $("#EmailMsg").css("visibility", "visible");
+        emailMsg.value = '<i class="fa-solid fa-circle-xmark"></i> Email不可為空白'
+        eMsgShow.value = true
     }
 
 };
 
 //password 顯示開關
-$("#checkEye").click(function () {
-    if ($(this).hasClass('fa-eye')) {
-        $("#password").attr('type', 'text');
+const passAttr = ref('password');
+const showPassword = ref('false');
+function checkEye() {
+    if (passAttr.value === 'password') {
+        passAttr.value = 'text';
+        showPassword.value = true;
     } else {
-        $("#password").attr('type', 'password');
+        passAttr.value = 'password';
+        showPassword.value = false;
     }
-    $(this).toggleClass('fa-eye').toggleClass('fa-eye-slash');
-});
+};
 
 //password 檢查
 const passwordMsg = ref('')
 function passwordCheck() {
-    let content = registerData.password;
-    let contentLength = registerData.password.length;
+    let content = registerData.value.password;
+    let contentLength = content.length;
     let rule1 = new RegExp(/[a-z]/i);
     let rule2 = new RegExp(/[0-9]/);
     let rule3 = new RegExp(/[!@#$%^*]/);
     if (contentLength == 0) {
         passwordMsg.value =
-            '<i class="fa-solid fa-circle-xmark"></i> 密碼不可為空白';
+            '密碼不可為空白';
     } else if (contentLength < 8) {
         passwordMsg.value =
-            '<i class="fa-solid fa-circle-xmark"></i> 密碼至少8個字';
+            '密碼至少8個字';
     } else if (!rule1.test(content)) {
         passwordMsg.value =
-            '<i class="fa-solid fa-circle-xmark"></i> 密碼必須包含英文';
+            '密碼必須包含英文';
     } else if (!rule2.test(content)) {
         passwordMsg.value =
-            '<i class="fa-solid fa-circle-xmark"></i> 密碼必須包含數字';
+            '密碼必須包含數字';
     } else if (!rule3.test(content)) {
         passwordMsg.value =
-            '<i class="fa-solid fa-circle-xmark"></i> 密碼必須包含特殊字元!@#$%^*';
+            '密碼必須包含特殊字元!@#$%^*';
     } else {
         passwordMsg.value = '';
     }
@@ -176,13 +169,9 @@ function passwordCheck() {
 // twId
 const twIdMsg = ref(false)
 function twId() {
-    let content = registerData.member.personalIdNo;
+    let content = registerData.value.member.personalIdNo;
     let result = validateTaiwanID(content);
-    if (!result) {
-        twIdMsg.value = false;
-    } else {
-        twIdMsg.value = true;
-    }
+    twIdMsg.value = !result;
 };
 
 //身分證驗證器 by GPT
@@ -228,8 +217,8 @@ function validateTaiwanID(id) {
         <h2 style="text-align: center; margin: 0">歡迎註冊</h2>
         <br />
         <label for="identity" class="form-label fs-5">身分別</label>
-        <select class="form-select w-25" id="identity" required>
-            <option selected value="native">本國人</option>
+        <select class="form-select w-25" v-model="identity" required>
+            <option value="native">本國人</option>
             <option value="foreigner">外國人</option>
         </select>
         <br />
@@ -239,9 +228,9 @@ function validateTaiwanID(id) {
             <div class="col-md-6">
                 <label for="email" class="form-label fs-5">電子信箱<span
                         style="color: red; font-weight: bold;">*</span></label>
-                <input type="email" class="form-control" v-model="registerData.email" name="email" placeholder="請輸入電子信箱"
-                    required />
-                <span id="EmailMsg" style="visibility: hidden"><i class="fa-solid fa-circle-xmark"></i></span>
+                <input type="email" class="form-control" v-model="registerData.email" @blur="emailCheck()" name="email"
+                    placeholder="請輸入電子信箱" required />
+                <span class="EmailMsg" v-show="eMsgShow" :style="{ color: eMsgColor }" v-html="emailMsg"></span>
                 <br />
 
                 <label for="password" class="form-label fs-5">密碼<span style="color: red; font-weight: bold;">*</span>
@@ -257,15 +246,16 @@ function validateTaiwanID(id) {
                 </div>
                 <div class="row">
                     <div class="col">
-                        <input type="password" class="form-control" v-model="registerData.password" name="password"
+                        <input :type="passAttr" class="form-control" v-model="registerData.password" name="password"
                             placeholder="請輸入密碼" minlength="8" maxlength="64" @blur="passwordCheck()" required />
                     </div>
                     <div class="col-1">
-                        <i id="checkEye" class="fa-solid fa-eye fa-lg"></i>
+                        <v-icon class="checkEye" @click="checkEye()">{{ showPassword ? 'mdi-eye-off' : 'mdi-eye'
+                            }}</v-icon>
                     </div>
                 </div>
 
-                <span id="passwordMsg" v-show="passwordMsg.length != 0 ? true : false" v-html="passwordMsg"></span>
+                <span class="passwordMsg" v-if="passwordMsg.length > 0" v-html="passwordMsg"></span>
                 <br />
 
                 <label for="name" class="form-label fs-5">姓名<span
@@ -299,25 +289,25 @@ function validateTaiwanID(id) {
                 <br />
 
                 <label for="personal-id-no" class="form-label fs-5">身分證字號<span class="per-sp"
-                        style="font-weight: bold;"></span></label>
+                        v-show="nativeRequired">*</span></label>
                 <input type="text" class="form-control" v-model="registerData.member.personalIdNo" name="personal_id_no"
-                    placeholder="請輸入身分證字號" @blur="twId()" required />
-                <span id="twIdMsg" v-show="twIdMsg"><i class="fa-solid fa-circle-xmark"></i> 身分證字號錯誤</span>
+                    placeholder="請輸入身分證字號" @blur="twId()" :required="nativeRequired" />
+                <span class="twIdMsg" v-show="twIdMsg">身分證字號錯誤</span>
                 <br />
 
                 <label for="country" class="form-label fs-5">國家<span
                         style="color: red; font-weight: bold;">*</span></label>
                 <select class="form-select" v-model="registerData.member.country" name="country" required>
-                    <option v-for="country in countrys" :value="country.cca3">
-                        {{ country.name.common }}
+                    <option v-for="countrys in countryArray" :value="countrys.cca3">
+                        {{ countrys.name.common }}
                     </option>
                 </select>
                 <br />
 
                 <label for="passport-no" class="form-label fs-5">護照號碼<span class="pass-sp"
-                        style="font-weight: bold;"></span></label>
+                        v-show="foreignerRequired">*</span></label>
                 <input type="text" class="form-control" v-model="registerData.member.passportNo" name="passport_no"
-                    placeholder="請輸入護照號碼" required />
+                    placeholder="請輸入護照號碼" :required="foreignerRequired" />
                 <br />
             </div>
 
@@ -332,12 +322,32 @@ function validateTaiwanID(id) {
 
             <!-- 按鈕 -->
             <div class="col-12 text-center">
-                <button @click.stop.prevent="submitRegister()"
+                <button type="button" @click="submitRegister()"
                     class="btn btn-primary btn-lg px-5 text-white">註冊</button>
-                <button @click="autoKeyin()" class="btn btn-primary btn-lg px-5 text-white mx-2">一鍵帶入</button>
+                <button type="button" @click="autoKeyin()"
+                    class="btn btn-primary btn-lg px-5 text-white mx-2">一鍵帶入</button>
             </div>
         </form>
     </div>
 </template>
 
-<style lang="css" scoped></style>
+<style lang="css" scoped>
+.twIdMsg,
+.passwordMsg,
+.EmailMsg {
+    color: #c70000;
+    font-weight: bold;
+}
+
+.checkEye {
+    position: relative;
+    top: 20%;
+    right: 10px;
+}
+
+.per-sp,
+.pass-sp {
+    color: red;
+    font-weight: bold;
+}
+</style>

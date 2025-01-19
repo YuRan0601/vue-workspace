@@ -71,7 +71,7 @@ const loginStatus = () => {
             <label for="password" class="form-label fs-5">密碼</label>
             <input v-model="loginData.password" :type="passAttr" class="form-control" id="password" name="password"
                 placeholder="請輸入密碼" minlength="8" maxlength="64" required />
-            <input v-model="passHidden" type="checkbox" class="my-3" @change="checkHidden()"> 顯示密碼</input>
+            <input v-model="passHidden" type="checkbox" class="my-3" @change="checkHidden"> 顯示密碼</input>
             <br>
             <div class="d-grid gap-2 mx-auto">
                 <button @click.prevent="loginStatus()" class="btn btn-primary">登入</button>
