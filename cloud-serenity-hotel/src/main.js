@@ -1,6 +1,6 @@
 import { createApp } from "vue";
 import { createPinia } from "pinia";
-import 'sweetalert2/dist/sweetalert2.min.css';
+import "sweetalert2/dist/sweetalert2.min.css";
 
 // 引入 Bootstrap 样式
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -27,18 +27,21 @@ import * as directives from "vuetify/directives";
 import { zhHant } from "vuetify/locale";
 import "@mdi/font/css/materialdesignicons.css";
 import customZhHant from "./assets/common/js/customZhHant";
-
+import { VDateInput } from "vuetify/labs/VDateInput";
 
 const vuetify = createVuetify({
-  components,
+  components: {
+    ...components,
+    VDateInput,
+  },
   directives,
   icons: {
     defaultSet: "mdi", // This is already the default value - only for display purposes
   },
   locale: {
-    locale: 'zhHant',
-    messages: { zhHant: customZhHant }
-  }
+    locale: "zhHant",
+    messages: { zhHant: customZhHant },
+  },
 });
 
 app.use(vuetify);
