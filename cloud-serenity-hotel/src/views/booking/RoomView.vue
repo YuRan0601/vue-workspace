@@ -17,7 +17,7 @@ function resetInsert() {
 
 
 const headers = [
-  { title: "房間ID", key: "roomTypeId" },
+  { title: "房間ID", key: "roomId" },
   { title: "房間名稱", key: "roomName" },
   { title: "房間類型", key: "roomTypeName" },
   { title: "房間狀態", key: "status" },
