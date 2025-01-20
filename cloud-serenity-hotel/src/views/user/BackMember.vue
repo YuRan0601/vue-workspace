@@ -17,7 +17,6 @@ const members = ref([]);
 
 onMounted(async () => {
     const { data } = await axios.get('/api/admin/queryAllMemberTojson');
-    console.log(data);
     members.value = data.map(member => ({
         ...member,
         showPassword: false // 預設密碼不顯示

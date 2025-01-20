@@ -8,8 +8,11 @@ import FrontMember from "@/layouts/user/FrontMember.vue";
 import RoomTypeView from "@/views/booking/RoomTypeView.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import BackAdmin from "@/views/user/BackAdmin.vue";
-import Login from "@/views/user/login.vue";
-import Register from "@/views/user/register.vue";
+import Login from "@/views/user/Login.vue";
+import Register from "@/views/user/Register.vue";
+import MemberOverview from "@/views/user/MemberOverview.vue";
+import MemberInfo from "@/views/user/MemberInfo.vue";
+
 
 const router = createRouter({
     history: createWebHistory(),
@@ -35,17 +38,29 @@ const router = createRouter({
                     component: FrontMember,
                     children: [
                         {
-                            path: '/login',
-                            name: 'login',
-                            component: Login
+                            path: '/front/member/Overview',
+                            name: 'memberOverview',
+                            component: MemberOverview
                         },
                         {
-                            path: '/register',
-                            name: 'register',
-                            component: Register
-                        }
+                            path: '/front/member/info',
+                            name: 'memberInfo',
+                            component: MemberInfo
+                        },
+
                     ]
+                },
+                {
+                    path: '/front/login',
+                    name: 'login',
+                    component: Login
+                },
+                {
+                    path: '/front/register',
+                    name: 'register',
+                    component: Register
                 }
+
             ]
         },
         {

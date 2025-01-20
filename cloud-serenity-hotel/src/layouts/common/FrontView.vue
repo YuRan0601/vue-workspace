@@ -19,7 +19,7 @@
                         <ul class="nav navbar-nav menu_nav ml-auto">
                             <li class="nav-item"><a class="nav-link" href="index.html">首頁</a></li>
                             <li class="nav-item">
-                                <RouterLink class="nav-link" :to="{ name: 'memberFront' }">會員中心</RouterLink>
+                                <RouterLink class="nav-link" :to="{ name: 'memberOverview' }">會員中心</RouterLink>
                             </li>
                             <li class="nav-item">
                                 <RouterLink class="nav-link" :to="{ name: 'roomFront' }">房型介紹</RouterLink>
@@ -27,6 +27,9 @@
                             <li class="nav-item active"><a class="nav-link" href="gallery.html">商城</a></li>
                             <li class="nav-item"><a class="nav-link" href="elements.html">周邊景點介紹</a></li>
                             <li class="nav-item"><a class="nav-link" href="contact.html">租車服務</a></li>
+                            <li class="nav-item">
+                                <RouterLink class="nav-link" :to="{ name: 'login' }">登入會員</RouterLink>
+                            </li>
                         </ul>
                     </div>
                 </nav>

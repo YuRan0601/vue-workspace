@@ -61,38 +61,51 @@ const loginStatus = () => {
 
 <template>
     <div class="login container">
-        <form class="loginform" id="login" method="post">
-            <h2 style='text-align: center; margin: 0;'>歡迎登入</h2>
-            <br>
-            <label for="email" class="form-label fs-5">電子信箱</label>
-            <input v-model="loginData.email" type="email" class="form-control" id="email" name="email"
-                placeholder="請輸入電子信箱" required />
-            <br>
-            <label for="password" class="form-label fs-5">密碼</label>
-            <input v-model="loginData.password" :type="passAttr" class="form-control" id="password" name="password"
-                placeholder="請輸入密碼" minlength="8" maxlength="64" required />
-            <input v-model="passHidden" type="checkbox" class="my-3" @change="checkHidden"> 顯示密碼</input>
-            <br>
-            <div class="d-grid gap-2 mx-auto">
-                <button @click.prevent="loginStatus()" class="btn btn-primary">登入</button>
-            </div>
-            <div class="row my-2">
-                <!-- 一鍵登入 -->
-                <div class="col-2"><button @click.prevent="adminKeyin()"
-                        class="btn btn-outline-dark bg-white text-dark"><v-icon>mdi-account-tie</v-icon></button>
+        <div class="row logindiv">
+            <form class="loginform" id="login" method="post">
+                <h2 style='text-align: center; margin: 0;'>歡迎登入</h2>
+                <br>
+                <label for="email" class="form-label fs-5">電子信箱</label>
+                <input v-model="loginData.email" type="email" class="form-control" id="email" name="email"
+                    placeholder="請輸入電子信箱" required />
+                <br>
+                <label for="password" class="form-label fs-5">密碼</label>
+                <input v-model="loginData.password" :type="passAttr" class="form-control" id="password" name="password"
+                    placeholder="請輸入密碼" minlength="8" maxlength="64" required />
+                <input v-model="passHidden" type="checkbox" class="my-3" @change="checkHidden"> 顯示密碼</input>
+                <br>
+                <div class="d-grid gap-2 mx-auto">
+                    <button @click.prevent="loginStatus()" class="btn btn-primary">登入</button>
                 </div>
-                <div class="col-2"><button @click.prevent="memberKeyin()"
-                        class="btn btn-outline-dark bg-white text-dark"><v-icon>mdi-account</v-icon></button>
+                <div class="row my-2">
+                    <!-- 一鍵登入 -->
+                    <div class="col-2"><button @click.prevent="adminKeyin()"
+                            class="btn btn-outline-dark bg-white text-dark"><v-icon>mdi-account-tie</v-icon></button>
+                    </div>
+                    <div class="col-2"><button @click.prevent="memberKeyin()"
+                            class="btn btn-outline-dark bg-white text-dark"><v-icon>mdi-account</v-icon></button>
+                    </div>
                 </div>
+                <p v-show="isError" class="pt-2" id="errorMessage">
+                    <v-icon>mdi-alert</v-icon>
+                    <span v-text="errorMsg"></span>
+                </p>
+                <p style='text-align: center; margin: 0;'>
+                    沒有帳號? <RouterLink :to="{ name: 'register' }">立即註冊</RouterLink>
+                </p>
+            </form>
+            <div class="col ssodiv border-start">
+                <div class="row g-4">
+                    <button type="button" class="btn btn-outline-dark btn-lg "><v-icon>mdi-google</v-icon> Google
+                        登入</button>
+                    <button type="button" class="btn btn-outline-dark btn-lg "><v-icon>mdi-facebook</v-icon>
+                        Facebook
+                        登入</button>
+
+                </div>
+
             </div>
-            <p v-show="isError" class="pt-2" id="errorMessage">
-                <v-icon>mdi-alert</v-icon>
-                <span v-text="errorMsg"></span>
-            </p>
-            <p style='text-align: center; margin: 0;'>
-                沒有帳號? <RouterLink :to="{ name: 'register' }">立即註冊</RouterLink>
-            </p>
-        </form>
+        </div>
     </div>
 </template>
 
@@ -108,12 +121,19 @@ const loginStatus = () => {
     padding: 35px 35px;
     width: 400px;
     display: block;
-    border-radius: 50px;
-    background-color: skyblue;
 }
 
-.nav-bgc {
-    background-color: lightblue;
+.logindiv {
+    padding: 10px 0;
+    border-radius: 50px;
+    border: 1px solid gray;
+}
+
+.ssodiv {
+    padding: 35px 35px;
+    width: 350px;
+    display: flex;
+    align-items: center;
 }
 
 #errorMessage {
