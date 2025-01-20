@@ -94,11 +94,11 @@ const loginStatus = () => {
                     沒有帳號? <RouterLink :to="{ name: 'register' }">立即註冊</RouterLink>
                 </p>
             </form>
-            <div class="col ssodiv border-start">
+            <div class="col ssodiv border-start border-light">
                 <div class="row g-4">
-                    <button type="button" class="btn btn-outline-dark btn-lg "><v-icon>mdi-google</v-icon> Google
+                    <button type="button" class="btn btn-primary text-white btn-lg "><v-icon>mdi-google</v-icon> Google
                         登入</button>
-                    <button type="button" class="btn btn-outline-dark btn-lg "><v-icon>mdi-facebook</v-icon>
+                    <button type="button" class="btn btn-primary text-white btn-lg "><v-icon>mdi-facebook</v-icon>
                         Facebook
                         登入</button>
 
@@ -126,7 +126,7 @@ const loginStatus = () => {
 .logindiv {
     padding: 10px 0;
     border-radius: 50px;
-    border: 1px solid gray;
+    background-color: skyblue;
 }
 
 .ssodiv {
