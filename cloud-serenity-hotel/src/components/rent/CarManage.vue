@@ -1,6 +1,7 @@
 <script setup>
-    import button from '@/components/rent/CarManage.vue'
+  
 </script>
+
 
 <template>
  <div>
@@ -13,7 +14,7 @@
         </button>
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
           <div class="navbar-nav">
-            <RouterLink class="nav-link" :to="{ name: 'carType' }">車型</RouterLink>
+            <RouterLink class="nav-link" :to="{ name: 'carHome' }">車型</RouterLink>
             <RouterLink class="nav-link" :to="{ name: 'back' }">後台</RouterLink>
           </div>
         </div>

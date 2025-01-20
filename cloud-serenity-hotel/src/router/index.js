@@ -1,10 +1,13 @@
 import BookingBack from "@/components/booking/BookingBack.vue";
+import CarImage from "@/components/rent/CarImage.vue";
 import BookingHome from "@/layouts/booking/BookingHome.vue";
 import RoomFront from "@/layouts/booking/RoomFront.vue";
 import BackView from "@/layouts/common/BackView.vue";
 import FrontView from "@/layouts/common/FrontView.vue";
 import CarHome from "@/layouts/rent/CarHome.vue";
+import ModelOperate from "@/layouts/rent/modelOperate.vue";
 import RoomTypeView from "@/views/booking/RoomTypeView.vue";
+import CarInfo from "@/views/rent/CarInfo.vue";
 import CarTypeView from "@/views/rent/CarTypeView.vue";
 import { createRouter, createWebHistory } from "vue-router";
 const router = createRouter({
@@ -41,19 +44,24 @@ const router = createRouter({
               path: '/booking/roomType',
               name: 'roomType',
               component: RoomTypeView
-            },
-            { path:'/rent/carHome', name:'carHome',component:CarHome,
-              children: [
-                { path: '/rent/carType',name: 'carType',component: CarTypeView }
-              ]
-    
             }
+          ]
+        },
+        { path:'/rent/carHome', name:'carHome',component:CarHome,
+          children: [
+            { path: '/rent/carType',name: 'carType',component: CarTypeView }
+          ]
+        },
+        { path:'/rent/modelOperate/:id',name:'modelOperate',component:ModelOperate, props:true,
+          children: [
+            { path: '/rent/carInfo/:id',name: 'carInfo',component: CarInfo, props:true},
+            { path: '/rent/carImage/',name: 'carImage',component: CarImage}
+           
           ]
         }
       ]
     },
-
-  ],
+    ]
 });
 
 export default router;
