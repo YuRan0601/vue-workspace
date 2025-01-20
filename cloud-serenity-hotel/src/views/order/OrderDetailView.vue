@@ -31,7 +31,7 @@ const formatDateTime = (dateTime) => {
 // 查詢單筆訂單
 const fetchOrderDetail = async () => {
     try {
-        const response = await axios.get(`/api/Order/findOrderById/${props.orderId}`);
+        const response = await axios.get(`/api/Order/findOrderDetails/${props.orderId}`);
         // 按細項編號排序 orderItemsBeans
         response.data.orderItemsBeans.sort((a, b) => a.orderitemId - b.orderitemId);
         orderDetail.value = response.data;

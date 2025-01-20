@@ -26,30 +26,31 @@ const formatDateTime = (dateTime) => {
     return date.toLocaleDateString("zh-TW", options); // **保留台灣地區語言格式**
 };
 
-// 從後端獲取所有訂單資料
 const fetchOrders = async () => {
     try {
         const response = await axios.get("/api/Order/findAllOrders");
-        console.log("返回資料：", response.data);
-        // 過濾掉 orderItemsBeans
-        orders.value = response.data.map(order => {
-            const { orderItemsBeans, ...filteredOrder } = order;
-            return filteredOrder;
-        });
+        console.log("返回的完整資料：", response.data);
+
+        // 強制檢查類型，防止意外轉換
+        let data = response.data;
+        if (typeof data === "string") {
+            data = JSON.parse(data); // 如果是字符串，強制解析
+        }
+
+        // 判斷是否為數組
+        if (Array.isArray(data)) {
+            orders.value = data.map(order => {
+                const { orderItemsBeans, ...filteredOrder } = order;
+                return filteredOrder;
+            });
+        } else {
+            console.error("API 返回的不是數組：", data);
+        }
     } catch (error) {
         console.error("API 請求失敗：", error);
     }
 };
 
-// 查詢單筆訂單資料
-/*const fetchOrderById = async (orderId) => {
-    try {
-        const response = await axios.get(`/api/Order/findOrderById/${orderId}`);
-        console.log("單筆資料：", response.data);
-    } catch (error) {
-        console.error("查詢單筆資料失敗：", error);
-    }
-};*/
 // 查詢單筆訂單是否存在
 const validateOrderId = async () => {
     if (!searchOrderId.value) return;
@@ -134,20 +135,20 @@ onMounted(fetchOrders);
                     <td>{{ order.orderId }}</td>
                     <td>{{ order.orderStatus }}</td>
                     <td>{{ order.paymentMethod }}</td>
-                    <td>{{ order.pointsDiscount }}</td>
+                    <td>{{ order.discountAmount }}</td> <!-- 修改為正確的字段名稱 -->
                     <td>{{ order.finalAmount }}</td>
-                    <td>{{ formatDateTime(order.orderDate) }}</td> <!-- **應用了 24 小時制的時間格式** -->
-                    <td>{{ formatDateTime(order.updatedAt) }}</td> <!-- **應用了 24 小時制的時間格式** -->
+                    <td>{{ formatDateTime(order.orderDate) }}</td>
+                    <td>{{ formatDateTime(order.updatedAt) }}</td>
                     <td>
                         <!-- 操作按鈕 -->
-                        <!-- 跳轉到 OrderDetailView.vue -->
                         <RouterLink :to="{ name: 'orderdetail', query: { orderId: order.orderId } }"
-                            class="btn btn-primary btn-sm me-1"> <!-- tag="button" -->
+                            class="btn btn-primary btn-sm me-1">
                             <i class="bi bi-eye"></i>
                         </RouterLink>
-                        <button class="btn btn-warning btn-sm me-1" @click="fetchOrderById(order.orderId)">
+                        <RouterLink :to="{ name: 'orderedit', query: { orderId: order.orderId } }"
+                            class="btn btn-warning btn-sm me-1">
                             <i class="bi bi-pencil-square"></i>
-                        </button>
+                        </RouterLink>
                         <button class="btn btn-danger btn-sm" @click="openDeleteModal(order)">
                             <i class="bi bi-trash"></i>
                         </button>
@@ -157,6 +158,7 @@ onMounted(fetchOrders);
                     <td colspan="8" class="text-center">目前沒有訂單資料</td>
                 </tr>
             </tbody>
+
         </table>
         <!-- 錯誤訊息的彈窗 -->
         <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">

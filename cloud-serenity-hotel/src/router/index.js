@@ -66,7 +66,8 @@ const router = createRouter({
             {
               path: '/order/orderedit',
               name: 'orderedit',
-              component: OrderEditView
+              component: OrderEditView,
+              props: (route) => ({ orderId: route.query.orderId }), // 將 query 作為 props 傳入
             }
           ]
         }
