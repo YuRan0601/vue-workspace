@@ -9,6 +9,9 @@ import Start from '@/components/common/Start.vue'
       <RouterView></RouterView>
     </div>
   </div>
+  <div id="app">
+    <AttractionComponent />
+  </div>
 </template>
 
 <style lang="css" scoped>
@@ -28,3 +31,13 @@ import Start from '@/components/common/Start.vue'
     padding: 0;
   }
 </style>
+
+<script>
+import AttractionComponent from './components/Attraction/AttractionComponent.vue';
+
+export default {
+  components: {
+    AttractionComponent,
+  },
+};
+</script>
