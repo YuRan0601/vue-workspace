@@ -14,14 +14,6 @@ const props = defineProps({
 // 訂單詳細資料
 const orderDetail = ref({});
 const errorMessage = ref(""); // 錯誤訊息，用於顯示錯誤
-// 各欄位的錯誤訊息
-const errors = ref({
-    receiveName: "",
-    email: "",
-    phoneNumber: "",
-    address: "",
-});
-
 
 // 格式化時間函數
 const formatDateTime = (dateTime) => {
@@ -29,69 +21,27 @@ const formatDateTime = (dateTime) => {
     return isNaN(date.getTime()) ? "" : date.toLocaleString("zh-TW");
 };
 
-// 表單驗證邏輯
-const validateForm = () => {
-    let isValid = true;
-
-    // 驗證收件人
-    if (!orderDetail.value.receiveName || !orderDetail.value.receiveName.trim()) {
-        errors.value.receiveName = "收件人欄位不得為空！";
-        isValid = false;
-    } else {
-        errors.value.receiveName = "";
-    }
-
-    // 驗證 Email
-    if (!orderDetail.value.email || !orderDetail.value.email.trim()) {
-        errors.value.email = "Email 欄位不得為空！";
-        isValid = false;
-    } else {
-        errors.value.email = "";
-    }
-
-    // 驗證電話號碼
-    if (!orderDetail.value.phoneNumber || !orderDetail.value.phoneNumber.trim()) {
-        errors.value.phoneNumber = "電話號碼欄位不得為空！";
-        isValid = false;
-    } else {
-        errors.value.phoneNumber = "";
-    }
-
-    // 驗證收貨地址
-    if (!orderDetail.value.address || !orderDetail.value.address.trim()) {
-        errors.value.address = "收貨地址欄位不得為空！";
-        isValid = false;
-    } else {
-        errors.value.address = "";
-    }
-
-    return isValid;
-};
-
-
 // SweetAlert2 更新警告
 const showUpdateAlert = () => {
-    if (validateForm()) { // 表單驗證
-        Swal.fire({
-            title: "確定要修改此訂單嗎？",
-            text: "確認後將保存更改！",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#3085d6",
-            cancelButtonColor: "#6c757d",
-            confirmButtonText: "確定",
-            cancelButtonText: "取消",
-            buttonsStyling: false,
-            customClass: {
-                confirmButton: "btn btn-primary text-white me-2",
-                cancelButton: "btn btn-secondary text-white",
-            },
-        }).then((result) => {
-            if (result.isConfirmed) {
-                updateOrder(); // 執行更新操作
-            }
-        });
-    }
+    Swal.fire({
+        title: "確定要修改此訂單嗎？",
+        text: "確認後將保存更改！",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6", // 確認按鈕顏色
+        cancelButtonColor: "#6c757d", // 取消按鈕顏色
+        confirmButtonText: "確定",
+        cancelButtonText: "取消",
+        buttonsStyling: false, // 停用 SweetAlert2 預設樣式
+        customClass: {
+            confirmButton: "btn btn-primary text-white me-2", // 自定義確認按鈕
+            cancelButton: "btn btn-secondary text-white", // 自定義取消按鈕
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            updateOrder(); // 執行更新操作
+        }
+    });
 };
 
 // 更新訂單的邏輯
@@ -104,7 +54,9 @@ const updateOrder = async () => {
         await axios.put(
             `/api/Order/update/${orderDetail.value.orderId}`,
             orderDetail.value, // 傳遞整理後的訂單數據
-            { headers: { "Content-Type": "application/json" } }
+            {
+                headers: { "Content-Type": "application/json" },
+            }
         );
 
         // 更新成功的提示
@@ -139,20 +91,22 @@ const updateOrder = async () => {
 
 // 整理訂單數據，避免空值
 const prepareOrderData = () => {
+    // 確保訂單細項的折扣和數量欄位有預設值
+    orderDetail.value.orderItemsBeans.forEach((item) => {
+        item.discount = item.discount || 0; // 如果折扣為空，設為 0
+        item.quantity = item.quantity || 1; // 如果數量為空，設為 1
+    });
+
+    // 確保只讀欄位的數據不變
+    orderDetail.value.orderId = orderDetail.value.orderId; // 訂單 ID
+    orderDetail.value.userId = orderDetail.value.userId; // 使用者 ID
+    orderDetail.value.orderDate = orderDetail.value.orderDate; // 建立日期
+    orderDetail.value.updatedAt = new Date().toISOString(); // 自動更新更新日期
+
     // 確保其他欄位有合理預設值
-    orderDetail.value.pointsDiscount = orderDetail.value.pointsDiscount || 0;
-    orderDetail.value.discountAmount = orderDetail.value.discountAmount || 0;
-    orderDetail.value.finalAmount = orderDetail.value.finalAmount || 0;
-    // 處理 orderItemsBeans
-    if (orderDetail.value.orderItemsBeans) {
-        orderDetail.value.orderItemsBeans.forEach((item) => {
-            // 如果 unitPrice 或 discount 是 null，補成 0
-            item.unitPrice = item.unitPrice || 0;
-            item.discount = item.discount || 0;
-            // 如果 subtotal 是 null，也補成 0（此處假設後端不計算 subtotal）
-            item.subtotal = item.subtotal || 0;
-        });
-    }
+    orderDetail.value.pointsDiscount = orderDetail.value.pointsDiscount || 0; // 點數折扣
+    orderDetail.value.discountAmount = orderDetail.value.discountAmount || 0; // 折扣金額
+    orderDetail.value.finalAmount = orderDetail.value.finalAmount || 0; // 最終金額
 };
 
 
@@ -168,10 +122,42 @@ const fetchOrderDetail = async () => {
         // 按細項編號排序 orderItemsBeans
         response.data.orderItemsBeans.sort((a, b) => a.orderitemId - b.orderitemId);
         orderDetail.value = response.data;
+
+        // 初始化 subtotal
+        orderDetail.value.orderItemsBeans.forEach((item) => {
+            updateSubtotal(item); // 初始化小計
+        });
     } catch (error) {
         console.error("無法取得訂單資料：", error);
         errorMessage.value = "無法取得訂單資料，請稍後再試。";
     }
+};
+
+// 計算小計的方法
+const updateSubtotal = (item) => {
+    const discount = item.discount || 0; // 如果折扣為空，預設為 0
+    const unitPrice = item.products.price; // 確保單價來自產品資料
+    item.subtotal = item.quantity * unitPrice - discount; // 計算小計
+
+    // 更新總金額與最終金額
+    calculateTotalAmount();
+};
+
+// 計算總金額
+const calculateTotalAmount = () => {
+    let total = 0;
+    orderDetail.value.orderItemsBeans.forEach(item => {
+        total += item.subtotal;
+    });
+    orderDetail.value.totalAmount = total; // 更新總金額
+    calculateFinalAmount(); // 總金額變化後，計算最終金額
+};
+
+// 計算最終金額
+const calculateFinalAmount = () => {
+    const pointsDiscount = orderDetail.value.pointsDiscount || 0;
+    const discountAmount = orderDetail.value.discountAmount || 0;
+    orderDetail.value.finalAmount = orderDetail.value.totalAmount - pointsDiscount - discountAmount;
 };
 
 // 初始化時拉取資料
@@ -219,7 +205,6 @@ watch(() => props.orderId, (newOrderId) => {
                         <option value="處理中">處理中</option>
                         <option value="已出貨">已出貨</option>
                         <option value="已取消">已取消</option>
-                        <option value="已取消">到物流</option>
                     </select>
                 </div>
             </div>
@@ -240,15 +225,13 @@ watch(() => props.orderId, (newOrderId) => {
             <div class="row mb-3 justify-content-center">
                 <div class="col-lg-8">
                     <label for="pointsDiscount" class="form-label">點數折抵</label>
-                    <input type="text" class="form-control" id="pointsDiscount" v-model="orderDetail.pointsDiscount"
-                        disabled />
+                    <input type="text" class="form-control" id="pointsDiscount" v-model="orderDetail.pointsDiscount" />
                 </div>
             </div>
             <div class="row mb-3 justify-content-center">
                 <div class="col-lg-8">
                     <label for="discountAmount" class="form-label">折扣金額</label>
-                    <input type="text" class="form-control" id="discountAmount" v-model="orderDetail.discountAmount"
-                        disabled />
+                    <input type="text" class="form-control" id="discountAmount" v-model="orderDetail.discountAmount" />
                 </div>
             </div>
             <div class="row mb-3 justify-content-center">
@@ -278,38 +261,26 @@ watch(() => props.orderId, (newOrderId) => {
             <h4 class="mb-3">收件人資訊</h4>
             <div class="row mb-3 justify-content-center">
                 <div class="col-lg-8">
-                    <label for="receiveName" class="form-label">收件人
-                        <small v-if="errors.receiveName" class="text-danger ms-2">{{ errors.receiveName }}</small>
-                    </label>
-                    <input type="text" class="form-control" id="receiveName" v-model="orderDetail.receiveName"
-                        @blur="validateForm" />
+                    <label for="receiveName" class="form-label">收件人</label>
+                    <input type="text" class="form-control" id="receiveName" v-model="orderDetail.receiveName" />
                 </div>
             </div>
             <div class="row mb-3 justify-content-center">
                 <div class="col-lg-8">
-                    <label for="email" class="form-label">Email
-                        <small v-if="errors.email" class="text-danger ms-2">{{ errors.email }}</small>
-                    </label>
-                    <input type="email" class="form-control" id="email" v-model="orderDetail.email"
-                        @blur="validateForm" />
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" class="form-control" id="email" v-model="orderDetail.email" />
                 </div>
             </div>
             <div class="row mb-3 justify-content-center">
                 <div class="col-lg-8">
-                    <label for="phoneNumber" class="form-label">電話號碼
-                        <small v-if="errors.phoneNumber" class="text-danger ms-2">{{ errors.phoneNumber }}</small>
-                    </label>
-                    <input type="text" class="form-control" id="phoneNumber" v-model="orderDetail.phoneNumber"
-                        @blur="validateForm" />
+                    <label for="phoneNumber" class="form-label">電話號碼</label>
+                    <input type="text" class="form-control" id="phoneNumber" v-model="orderDetail.phoneNumber" />
                 </div>
             </div>
             <div class="row mb-3 justify-content-center">
                 <div class="col-lg-8">
-                    <label for="address" class="form-label">收貨地址
-                        <small v-if="errors.address" class="text-danger ms-2">{{ errors.address }}</small>
-                    </label>
-                    <input type="text" class="form-control" id="address" v-model="orderDetail.address"
-                        @blur="validateForm" />
+                    <label for="address" class="form-label">收貨地址</label>
+                    <input type="text" class="form-control" id="address" v-model="orderDetail.address" />
                 </div>
             </div>
         </div>
@@ -337,18 +308,22 @@ watch(() => props.orderId, (newOrderId) => {
                         <td>{{ item.products.name }}</td>
                         <input type="hidden" :name="'product_id_' + item.orderitemId"
                             :value="item.products.productId" />
-                        <!-- 數量（顯示不可編輯，並隱藏回傳原數量） -->
-                        <td>{{ item.quantity }}</td>
-                        <input type="hidden" :name="'quantity_' + item.orderitemId" :value="item.quantity" />
+                        <!-- 數量 -->
+                        <td>
+                            <input type="number" class="form-control" v-model.number="item.quantity"
+                                @input="updateSubtotal(item)" />
+                        </td>
                         <!-- 單價 -->
                         <td>{{ item.products.price }}</td> <!-- 使用 products.price 來顯示單價 -->
                         <input type="hidden" :name="'unit_price_' + item.orderitemId" :value="item.products.price" />
-                        <!-- 折扣（顯示不可編輯，並隱藏回傳原折扣） -->
-                        <td>{{ item.discount || 0 }}</td>
-                        <input type="hidden" :name="'discount_' + item.orderitemId" :value="item.discount || 0" />
-                        <!-- 小計（顯示並回傳隱藏欄位） -->
-                        <td>{{ item.subtotal.toFixed(2) }}</td>
-                        <input type="hidden" :name="'subtotal_' + item.orderitemId" :value="item.subtotal.toFixed(2)" />
+                        <!-- 折扣 -->
+                        <td>
+                            <input type="number" class="form-control" v-model.number="item.discount"
+                                @input="updateSubtotal(item)" @blur="item.discount = item.discount || 0" />
+                            <!-- @blur="item.discount = item.discount || 0" =>當欄位為空時自動填上 0 -->
+                        </td>
+                        <!-- 小計 -->
+                        <td>{{ item.subtotal.toFixed(2) }}</td> <!-- 顯示小計 -->
                     </tr>
                 </tbody>
             </table>
@@ -399,12 +374,5 @@ input[type="number"] {
 .border-top {
     border-top: 1px solid #ddd;
     /* 添加一條淡灰色的頂部邊框 */
-}
-
-small.text-danger {
-    font-size: 0.875rem;
-    /* 調整字體大小 */
-    margin-left: 0.5rem;
-    /* 與標籤的間距 */
 }
 </style>
