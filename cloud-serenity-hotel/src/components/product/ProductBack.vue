@@ -21,7 +21,7 @@ import ProductHome from '../../views/product/ProductHome.vue';
                 </div>
             </div>
         </nav>
-        <div class="container">
+        <div class="container" >
             <ProductHome></ProductHome>
         </div>
     </div>

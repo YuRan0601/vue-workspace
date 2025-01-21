@@ -45,14 +45,41 @@ const headers = [
     { title: "操作", key: "actions" }
 ]
 
-// 處理圖片 URL
 
+// 處理圖片 URL
 function getImageUrl(imageUrl) {
     const Url = `${BASE_URL}${imageUrl}`;
     return Url;
     
     // return ${BASE_URL}${imageUrl};
 }
+
+//變更上下架狀態
+async function updateListingStatus(productId, newStatus) {
+    const url = `${BASE_URL}Product/updateStatus/${productId}?status=${newStatus}`;
+    
+    const response = await fetch(url, {
+        method: 'PUT',  
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    });
+
+    if (response.ok) {
+        loadProduct();
+    }
+}
+
+//點按鈕更改(變更上下架狀態)
+function listingStatus(item){
+    console.log('上架狀態:',item);
+    const newStatus = item.status === 1 ? 0 : 1;
+    updateListingStatus(item.productId, newStatus);
+    
+}
+
+
+
 
 function editItem(item) {
     console.log('编辑项目：', item);
@@ -87,8 +114,8 @@ function deleteItem(item) {
             </template>
 
             <template #item.listingStatus="{ item }">
-                <v-btn color="primary" class="mr-2" @click="listingStatus(item)">
-                    上架
+                <v-btn :color="item.status === 0 ? 'grey' : 'primary'"  class="mr-2" @click="listingStatus(item)">
+                {{ item.status === 0 ? '下架' : '上架' }} 
                 </v-btn>
             </template>
 
