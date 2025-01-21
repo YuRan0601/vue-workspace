@@ -19,6 +19,7 @@ onMounted(async () => {
     const carModelId = route.params.id;
     const response = await axios.get(`/api/CarModel/queryOne/${carModelId}`);  // 使用 `carModelId` 來請求資料
     carData.value = response.data;  // 將資料存儲到 `carDate`
+    
   } catch (error) {
     console.error('Error fetching data:', error);
     Swal.fire({
@@ -104,6 +105,32 @@ const updateCarData = () => {
     });
 };
 
+const deleteModel = () => {
+  Swal.fire({
+    title: '確定刪除該車型資料嗎?',
+    text: "這將刪除所選車型資料！",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: '刪除',
+    cancelButtonText: '取消'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      // 這裡添加刪除車型資料的邏輯，假設有一個刪除車型資料的 API
+      axios.post('/api/CarModel/delete', { carId: carData.value.carId })
+        .then(() => {
+          Swal.fire('刪除成功', '車型資料已成功刪除！', 'success');
+          updateCarData(); // 更新頁面顯示的資料
+          // 刪除成功後跳轉至 CarHome 頁面
+          window.location.href = '/rent/carHome';
+        })
+        .catch((error) => {
+          Swal.fire('刪除失敗', '車型資料刪除過程中發生錯誤', 'error');
+          console.error(error);
+        });
+    }
+  });
+  closeDialogimage(); // 操作後關閉對話框
+};
 
 const showDialog = ref(false); // 控制對話框顯示/隱藏
 const imageUrls = ref([]); // 用來儲存多張圖片的 URL
@@ -175,39 +202,28 @@ const addImage = () => {
 };
 
 // 修改圖片
-const editImage = () => {
-  if (imageFile.value) {
-    uploadImages(); // 使用相同的上傳邏輯來更新圖片
-  } else {
-    Swal.fire('未選擇圖片', '請選擇要修改的圖片！', 'warning');
-  }
-  closeDialogimage(); // 操作後關閉對話框
-};
+const setMainImage = async () => {
+  if (selectedIndexesDB.value.length > 0) {
+    const selectedImage = selectedIndexesDB.value[0];  // 取第一張選中的圖片
+    console.log('選中的圖片:', selectedImage);  // 查看選中的圖片資訊
 
-// 刪除圖片
-const deleteImage = () => {
-  Swal.fire({
-    title: '確定刪除圖片嗎?',
-    text: "這將刪除所選的圖片!",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: '刪除',
-    cancelButtonText: '取消'
-  }).then((result) => {
-    if (result.isConfirmed) {
-      // 這裡添加刪除圖片的邏輯，假設有一個刪除 API
-      axios.post('/api/ImageCar/delete', { carId: carData.value.carId })
-        .then(() => {
-          Swal.fire('刪除成功', '圖片已成功刪除！', 'success');
-          updateCarData(); // 更新頁面顯示的資料
-        })
-        .catch((error) => {
-          Swal.fire('刪除失敗', '圖片刪除過程中發生錯誤', 'error');
-          console.error(error);
-        });
+    // 提取所需的 carId 和 imageId
+    const imageId = selectedImage.id;  // 假設 selectedImage 包含 id 和 modelId
+    const carId = carData.value.carId;  // 從 carData 中提取 carId
+
+    // 送出 API 請求來更新主圖
+    try {
+      const response = await axios.post('/api/ImageCar/update',  {  
+        carId: carId,
+        imageId: imageId });
+
+      console.log(response.data);  // 輸出返回的結果
+    } catch (error) {
+      console.error('錯誤:', error.response);
     }
-  });
-  closeDialogimage(); // 操作後關閉對話框
+  } else {
+    console.error('未選擇圖片');
+  }
 };
 
 // 觸發圖片選擇框
@@ -240,15 +256,17 @@ const addModelImage = () => {
     formData.append("images", file);  // 新增選中的圖片
   });
 
-  // 發送圖片上傳請求
   axios.post("/api/ImageCar/addImage", formData, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    }
+  headers: {
+    "Content-Type": "multipart/form-data",
+  }
   })
   .then(response => {
     Swal.fire('圖片上傳成功', '圖片已成功上傳！', 'success');
     updateCarData();  // 更新車型資料顯示
+
+    // 圖片上傳成功後刷新頁面
+    window.location.reload(); // 重新加載頁面
   })
   .catch(error => {
     Swal.fire('圖片上傳失敗', '圖片上傳過程中發生錯誤', 'error');
@@ -371,7 +389,7 @@ const toggleSelectionDB = (index) => {
         <button type="button" class="btn btn-outline-success hover-text-color ms-2" style="background-color: var(--bs-success-bg-subtle);" @click="editCarData(carData)">
           <i class="bi bi-pencil-square icon-size"></i>
         </button>
-        <button type="button" class="btn btn-danger hover-text-color ms-2" style="background-color: var(--bs-danger-border-subtle);" @click="deleteImage">
+        <button type="button" class="btn btn-danger hover-text-color ms-2" style="background-color: var(--bs-danger-border-subtle);" @click="deleteModel">
           <i class="bi bi-trash icon-size"></i>
         </button>
         <button type="button" class="btn btn-outline-success hover-text-color ms-2" style="background-color: var(--bs-primary-bg-subtle);" @click="openDialog(carData)">
@@ -409,7 +427,7 @@ const toggleSelectionDB = (index) => {
             </div>
           </div>
           <div>
-          <div v-if="imageUrlsDB.length > 0" class="image-preview-container">
+          <div v-if="imageUrlsDB.length > 0" class="imageDB-preview-container">
             <div v-for="(image, index) in imageUrlsDB" :key="index" class="image-preview-item">
               <!-- 顯示圖片，並且當圖片被點擊時切換勾選狀態 -->
               <img :src="getImageSrc(image)" alt="Image Preview" class="image-preview" @click="toggleSelectionDB(index)"/>
@@ -421,8 +439,7 @@ const toggleSelectionDB = (index) => {
           <div class="button-group">
             <button type="button" class="btn btn-outline-success hover-text-color ms-2" style="background-color: var(--bs-success-bg-subtle);" @click="addModelImage">新增圖片</button>
             <input type="file" ref="fileInput" style="display: none;" @change="handleImageChange" accept="image/*" multiple />
-          <button type="button" class="btn btn-outline-success hover-text-color ms-2" style="background-color: var(--bs-danger-bg-subtle);" @click="editImage">選擇主圖
-          </button>
+            <button type="button" class="btn btn-outline-success hover-text-color ms-2" style="background-color: var(--bs-danger-bg-subtle);" @click="setMainImage">選擇主圖</button>
           <button type="button" class="btn btn-outline-success hover-text-color ms-2" style="background-color: var(--bs-primary-bg-subtle);" @click="deleteImage">刪除選擇
           </button>
           <button 
@@ -445,11 +462,24 @@ const toggleSelectionDB = (index) => {
   flex-wrap: wrap;
   gap: 10px;
   border: none; /* 移除邊框 */
+  width: 100%;
+  box-sizing: border-box;
+}
+.imageDB-preview-container{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  border: none; /* 移除邊框 */
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .image-preview-item {
+  top: 15px;
   margin: 10px;
   position: relative;
+  width: calc(33.333% - 20px); /* 3 列顯示 */
+  box-sizing: border-box;
 }
 
 .image-preview {
@@ -490,6 +520,7 @@ icon-size-image {
   padding: 40px;
   border-radius: 8px;
   height: 75%;
+  height: 80%;
 }
 
 /* 調整按鈕組為單行並設置適當的間距 */

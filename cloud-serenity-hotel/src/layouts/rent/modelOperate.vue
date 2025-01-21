@@ -11,7 +11,7 @@
 <template>
   
   <div>
-    <CarImage></CarImage>
+    <CarImage :id="id" />
     <carInfo></carInfo>
     
   </div>

@@ -55,7 +55,7 @@ const router = createRouter({
         { path:'/rent/modelOperate/:id',name:'modelOperate',component:ModelOperate, props:true,
           children: [
             { path: '/rent/carInfo/:id',name: 'carInfo',component: CarInfo, props:true},
-            { path: '/rent/carImage/',name: 'carImage',component: CarImage}
+            { path: 'carImage/:id',name: 'carImage',component: CarImage, props: true}
            
           ]
         }
