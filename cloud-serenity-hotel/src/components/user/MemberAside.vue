@@ -69,7 +69,7 @@ function logout(){
                     </div>
                 </li>
 
-                <div class="d-grid gap-2 mt-4 mx-auto"><a @click="logout()" class="btn btn-primary">登出帳號</a>
+                <div class="d-grid gap-2 mt-4 mx-auto"><a href="#"  @click="logout()" class="btn btn-primary">登出帳號</a>
                 </div>
             </ul>
         </div>

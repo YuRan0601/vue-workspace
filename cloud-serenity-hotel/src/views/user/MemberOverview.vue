@@ -1,5 +1,11 @@
 <script setup>
+import { useAuthStore } from "@/stores/authStore";
+const useStores = useAuthStore()
 
+function logout() {
+    useStores.logout()
+    window.location.href = '/front'
+}
 </script>
 
 <template>
@@ -26,7 +32,7 @@
                     </div>
                     <h5>修改信箱與密碼</h5>
                 </RouterLink>
-                <a href="/logout" class="col m-2 p-5 btn btn-light">登出</a>
+                <a href="#" @click="logout()" class="col m-2 p-5 btn btn-light">登出</a>
             </div>
         </div>
     </div>

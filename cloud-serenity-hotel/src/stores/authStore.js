@@ -33,6 +33,7 @@ export const useAuthStore = defineStore('auth', {
             } catch (error) {
                 console.error('Fetch user failed:', error);
                 this.user = null;
+                throw error;
             }
         },
 
@@ -41,7 +42,7 @@ export const useAuthStore = defineStore('auth', {
             try {
                 console.log("logout");
 
-                await axios.post('/user/logout'); // 通知后端销毁会话
+                await axios.get('/user/logout'); // 通知后端销毁会话
             } catch (error) {
                 console.error('Logout failed:', error);
             } finally {
@@ -55,6 +56,8 @@ export const useAuthStore = defineStore('auth', {
                 await this.fetchUser(); // 尝试从后端获取用户信息
             } catch (error) {
                 console.error('Session check failed:', error);
+                console.log('session fail');
+
                 this.logout(); // 会话失效，清空状态
             }
         },
