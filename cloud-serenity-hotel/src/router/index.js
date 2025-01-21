@@ -12,6 +12,7 @@ import Login from "@/views/user/Login.vue";
 import Register from "@/views/user/Register.vue";
 import MemberOverview from "@/views/user/MemberOverview.vue";
 import MemberInfo from "@/views/user/MemberInfo.vue";
+import { useAuthStore } from "@/stores/authStore";
 
 
 const router = createRouter({
@@ -22,6 +23,11 @@ const router = createRouter({
         //   name: 'home',
         //   component: HomeView,
         // }
+        {
+            path: '/login',
+            name: 'login',
+            component: Login
+        },
         {
             path: '/front',
             name: 'front',
@@ -36,6 +42,26 @@ const router = createRouter({
                     path: '/front/member',
                     name: 'memberFront',
                     component: FrontMember,
+                    beforeEnter: async (to, from, next) => {
+                        const useStores = useAuthStore()
+                        // 检查登录状态
+                        if (!useStores.user) {
+                            try {
+                                await useStores.checkSession(); // 尝试从后端获取会话状态
+                                next(); // 会话有效，继续导航
+                            } catch (error) {
+                                console.error('Session invalid, redirecting to login...');
+                                next('/login'); // 未登录或会话无效时跳转到登录页
+                            }
+                        } else {
+                            if (useStores.user.userIdentity == "user") {
+                                next('/front/member/Overview');
+                            } else {
+                                next('/logout');
+                            }
+                            // 已登录，继续导航
+                        }
+                    },
                     children: [
                         {
                             path: '/front/member/Overview',
@@ -51,11 +77,6 @@ const router = createRouter({
                     ]
                 },
                 {
-                    path: '/front/login',
-                    name: 'login',
-                    component: Login
-                },
-                {
                     path: '/front/register',
                     name: 'register',
                     component: Register
@@ -67,6 +88,28 @@ const router = createRouter({
             path: '/back',
             name: 'back',
             component: BackView,
+            beforeEnter: async (to, from, next) => {
+                const useStores = useAuthStore()
+                // 检查登录状态
+                if (!useStores.user) {
+                    try {
+                        await useStores.checkSession(); // 尝试从后端获取会话状态
+                        next(); // 会话有效，继续导航
+                    } catch (error) {
+                        console.error('Session invalid, redirecting to login...');
+                        next('/login'); // 未登录或会话无效时跳转到登录页
+                    }
+                } else {
+                    if (useStores.user.userIdentity == "admin") {
+                        next();
+                    } else {
+                        alert('你不是管理員!')
+                        useStores.logout();
+                        next();
+                    }
+                    // 已登录，继续导航
+                }
+            },
             children: [
                 {
                     path: '/bookingBack',

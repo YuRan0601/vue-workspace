@@ -1,6 +1,8 @@
 <script setup>
+import { useAuthStore } from '@/stores/authStore';
 import axios from 'axios';
 import { ref, computed } from 'vue';
+const useStores = useAuthStore()
 
 const loginData = ref({
     email: '',
@@ -39,22 +41,20 @@ function memberKeyin() {
     loginData.value.password = "Lin33#033"
 }
 
-const loginStatus = () => {
+const loginStatus = async () => {
     //發送請求給後端
-    axios.post('/api/user/checklogin', loginData.value)
-        .then(function (response) {
-            console.log(response.data);
-            let data = response.data
-            if (data == "admin") {
-                window.location.href = '/back';
-            } else if (data == "member") {
-                window.location.href = '/front/member';
-            }
-        })
-        .catch(function (error) {
-            console.log(error.response.data);
-            showErrorMsg(error.response.data);
-        });
+    let data = await useStores.login(loginData)
+    console.log(data);
+
+    if (data == "admin") {
+        window.location.href = '/back';
+    } else if (data == "user") {
+        window.location.href = '/front/member';
+    } else {
+        let dataMsg = await data;
+        // console.log(dataMsg.response.data);
+        showErrorMsg(dataMsg.response.data);
+    }
 }
 
 </script>

@@ -1,5 +1,5 @@
 import { createApp } from "vue";
-import { createPinia } from "pinia";
+
 import 'sweetalert2/dist/sweetalert2.min.css';
 
 // 引入 Bootstrap 样式
@@ -16,7 +16,13 @@ import router from "./router";
 
 const app = createApp(App);
 
-app.use(createPinia());
+import { createPinia } from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
+
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
+
+app.use(pinia);
 app.use(router);
 
 // Vuetify
@@ -27,11 +33,11 @@ import * as directives from "vuetify/directives";
 import "@mdi/font/css/materialdesignicons.css";
 
 const vuetify = createVuetify({
-  components,
-  directives,
-  icons: {
-    defaultSet: "mdi", // This is already the default value - only for display purposes
-  },
+    components,
+    directives,
+    icons: {
+        defaultSet: "mdi", // This is already the default value - only for display purposes
+    },
 });
 
 app.use(vuetify);

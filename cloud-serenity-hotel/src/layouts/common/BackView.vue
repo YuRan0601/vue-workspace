@@ -2,6 +2,14 @@
 import Start from "@/components/common/Start.vue";
 import { RouterView } from "vue-router";
 // import './sidebars';
+
+import { useAuthStore } from "@/stores/authStore";
+const useStores = useAuthStore()
+
+function logout() {
+    useStores.logout()
+    window.location.href = '/back'
+}
 </script>
 
 <template>
@@ -114,10 +122,10 @@ import { RouterView } from "vue-router";
                             <li>
                                 <RouterLink :to="{ name: 'adminBack' }">Overview</RouterLink>
                             </li>
-                            <li>
+                            <!-- <li>
                                 <RouterLink :to="{ name: '' }">Settings</RouterLink>
-                            </li>
-                            <li><a href="/api/user/logout">Sign out</a>
+                            </li> -->
+                            <li><a @click="logout()">Sign out</a>
                             </li>
                         </ul>
                     </div>

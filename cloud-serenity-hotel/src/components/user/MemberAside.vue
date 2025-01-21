@@ -1,4 +1,11 @@
 <script setup>
+import { useAuthStore } from "@/stores/authStore";
+const useStores = useAuthStore()
+
+function logout(){
+    useStores.logout()
+    window.location.href = '/front'
+}
 
 </script>
 
@@ -62,7 +69,7 @@
                     </div>
                 </li>
 
-                <div class="d-grid gap-2 mt-4 mx-auto"><a href="/api/user/logout" class="btn btn-primary">登出帳號</a>
+                <div class="d-grid gap-2 mt-4 mx-auto"><a @click="logout()" class="btn btn-primary">登出帳號</a>
                 </div>
             </ul>
         </div>
