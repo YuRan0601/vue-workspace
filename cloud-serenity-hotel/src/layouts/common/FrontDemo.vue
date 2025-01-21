@@ -12,7 +12,6 @@
                 </div>
             </div>
         </section>
-        <main></main>
     </div>
 
     <div class="container">

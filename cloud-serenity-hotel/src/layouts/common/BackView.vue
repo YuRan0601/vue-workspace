@@ -33,22 +33,21 @@ function logout() {
                     </div>
                 </li>
                 <li class="mb-1">
-                    <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse"
-                        data-bs-target="#booking-collapse" aria-expanded="false">
-                        訂房
-                    </button>
-                    <div class="collapse" id="booking-collapse">
-                        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                            <li>
-                                <RouterLink :to="{ name: 'bookingBack' }">home</RouterLink>
-                            </li>
-                            <li><a href="#" class="link-dark rounded">Overview</a></li>
-                            <li><a href="#" class="link-dark rounded">Weekly</a></li>
-                            <li><a href="#" class="link-dark rounded">Monthly</a></li>
-                            <li><a href="#" class="link-dark rounded">Annually</a></li>
-                        </ul>
-                    </div>
-                </li>
+				  <button
+					class="btn btn-toggle align-items-center rounded collapsed"
+					data-bs-toggle="collapse"
+					data-bs-target="#booking-collapse"
+					aria-expanded="false"
+				  >
+					訂房
+				  </button>
+				  <div class="collapse" id="booking-collapse">
+					<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+					  <li><RouterLink :to="{name: 'roomType'}">房型、房間</RouterLink></li>
+					  <li><a href="#" class="link-dark rounded">Overview</a></li>
+					</ul>
+				  </div>
+				</li>
 
                 <li class="mb-1">
                     <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse"
@@ -144,9 +143,12 @@ function logout() {
 @import url("./sidebars.css");
 
 .content {
-    margin-left: 280px;
-    margin-top: 66px;
-    border: 1px solid;
+  margin-left: 280px;
+  margin-top: 66px;
+}
+
+.container {
+  max-width: 1500px;
 }
 
 .aside {

@@ -30,14 +30,24 @@ import "vuetify/styles";
 import { createVuetify } from "vuetify";
 import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
+import { zhHant } from "vuetify/locale";
 import "@mdi/font/css/materialdesignicons.css";
+import customZhHant from "./assets/common/js/customZhHant";
+import { VDateInput } from "vuetify/labs/VDateInput";
 
 const vuetify = createVuetify({
-    components,
-    directives,
-    icons: {
-        defaultSet: "mdi", // This is already the default value - only for display purposes
-    },
+  components: {
+    ...components,
+    VDateInput,
+  },
+  directives,
+  icons: {
+    defaultSet: "mdi", // This is already the default value - only for display purposes
+  },
+  locale: {
+    locale: "zhHant",
+    messages: { zhHant: customZhHant },
+  },
 });
 
 app.use(vuetify);
