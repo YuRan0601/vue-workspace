@@ -192,9 +192,9 @@ const deleteOrder = async () => {
             </div>
         </div>
 
-        <!-- 商品明細 -->
+        <!-- 訂品明細 -->
         <div class="mb-4">
-            <h4 class="mb-3">商品明細</h4>
+            <h4 class="mb-3">訂單明細</h4>
             <table class="table table-hover table-bordered">
                 <thead class="table-light text-center">
                     <tr>

@@ -22,11 +22,18 @@ const errors = ref({
     address: "",
 });
 
-
-// 格式化時間函數
+// 格式化時間函數 (24 小時制)
 const formatDateTime = (dateTime) => {
     const date = new Date(dateTime);
-    return isNaN(date.getTime()) ? "" : date.toLocaleString("zh-TW");
+    const options = {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+    };
+    return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleDateString("zh-TW", options);
 };
 
 // 表單驗證邏輯

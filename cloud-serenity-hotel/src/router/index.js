@@ -5,6 +5,7 @@ import RoomFront from "@/layouts/booking/RoomFront.vue";
 import BackView from "@/layouts/common/BackView.vue";
 import FrontView from "@/layouts/common/FrontView.vue";
 import RoomTypeView from "@/views/booking/RoomTypeView.vue";
+import OrderAddView from "@/views/order/OrderAddView.vue";
 import OrderDetailView from "@/views/order/OrderDetailView.vue";
 import OrderEditView from "@/views/order/OrderEditView.vue";
 import OrderListView from "@/views/order/OrderListView.vue";
@@ -46,6 +47,18 @@ const router = createRouter({
             }
           ]
         },
+        // {
+        //   path: '/productBack',
+        //   name: 'productBack',
+        //   component: ProductBack,
+        //   children: [
+        //     {
+        //       path: '/ProductAll',
+        //       name: 'ProductAll',
+        //       component: ProductHome
+        //     }
+        //   ]
+        // },
         {
           path: '/orderBack',
           name: 'orderBack',
@@ -68,6 +81,11 @@ const router = createRouter({
               name: 'orderedit',
               component: OrderEditView,
               props: (route) => ({ orderId: route.query.orderId }), // 將 query 作為 props 傳入
+            },
+            {
+              path: '/order/orderadd',
+              name: 'orderadd',
+              component: OrderAddView,
             }
           ]
         }

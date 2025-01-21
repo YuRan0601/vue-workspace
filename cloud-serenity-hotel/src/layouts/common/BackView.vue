@@ -73,8 +73,8 @@ import { RouterView } from "vue-router";
               <li>
                 <RouterLink :to="{ name: 'orderBack' }">訂單總表</RouterLink>
               </li>
-              <li><a href="#" class="link-dark rounded">新增訂單</a></li>
               <li><a href="#" class="link-dark rounded">熱銷商品</a></li>
+              <li><a href="#" class="link-dark rounded">Shipped</a></li>
               <li><a href="#" class="link-dark rounded">Returned</a></li>
             </ul>
           </div>

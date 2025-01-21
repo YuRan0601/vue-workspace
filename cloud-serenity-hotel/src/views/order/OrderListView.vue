@@ -108,13 +108,18 @@ onMounted(fetchOrders);
 <template>
     <div class="container mt-5">
         <h2 class="text-center">訂單總表</h2>
-
-        <!-- 新增訂單編號查詢輸入框 -->
-        <div class="input-group mb-4">
-            <input type="text" class="form-control" placeholder="請輸入訂單編號" v-model="searchOrderId" />
-            <button class="btn btn-primary" :disabled="!searchOrderId" @click="validateOrderId">
-                查詢
-            </button>
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <!-- 新增訂單編號查詢輸入框 -->
+            <div class="input-group mb-4">
+                <input type="text" class="form-control" placeholder="請輸入訂單編號" v-model="searchOrderId" />
+                <button class="btn btn-primary" :disabled="!searchOrderId" @click="validateOrderId">
+                    查詢
+                </button>
+            </div>
+            <!-- 新增訂單按鈕 -->
+            <RouterLink :to="{ name: 'orderadd' }" class="button-48" role="button">
+                <span class="text">新增訂單</span>
+            </RouterLink>
         </div>
 
         <table class="table table-hover table-bordered mt-3">
@@ -205,5 +210,70 @@ onMounted(fetchOrders);
 .input-group {
     max-width: 400px;
     margin: 0 auto;
+}
+
+.button-48 {
+    appearance: none;
+    background-color: #FFFFFF;
+    border-width: 0;
+    box-sizing: border-box;
+    color: #000000;
+    cursor: pointer;
+    display: inline-block;
+    font-family: Clarkson, Helvetica, sans-serif;
+    font-size: 18px;
+    /* 調整字體大小 */
+    font-weight: 600;
+    /* 增加字體粗細 */
+    letter-spacing: 0;
+    line-height: 1.5em;
+    margin: 0;
+    opacity: 1;
+    outline: 0;
+    padding: 1em 2em;
+    /* 調整內邊距 */
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+    text-rendering: geometricprecision;
+    text-transform: uppercase;
+    transition: opacity 300ms cubic-bezier(.694, 0, 0.335, 1),
+        background-color 100ms cubic-bezier(.694, 0, 0.335, 1),
+        color 100ms cubic-bezier(.694, 0, 0.335, 1);
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    vertical-align: baseline;
+    white-space: nowrap;
+}
+
+.button-48:before {
+    animation: opacityFallbackOut 0.5s step-end forwards;
+    backface-visibility: hidden;
+    background-color: #ebebeb;
+    clip-path: polygon(-1% 0, 0 0, -25% 100%, -1% 100%);
+    content: "";
+    height: 100%;
+    left: 0;
+    position: absolute;
+    top: 0;
+    transform: translateZ(0);
+    transition: clip-path 0.5s cubic-bezier(.165, 0.84, 0.44, 1),
+        -webkit-clip-path 0.5s cubic-bezier(.165, 0.84, 0.44, 1);
+    width: 100%;
+}
+
+.button-48:hover:before {
+    animation: opacityFallbackIn 0s step-start forwards;
+    clip-path: polygon(0 0, 101% 0, 101% 101%, 0 101%);
+}
+
+.button-48:after {
+    background-color: #ffffff;
+}
+
+.button-48 span {
+    z-index: 1;
+    position: relative;
 }
 </style>
