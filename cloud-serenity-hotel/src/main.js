@@ -1,5 +1,5 @@
 import { createApp } from "vue";
-import { createPinia } from "pinia";
+
 import 'sweetalert2/dist/sweetalert2.min.css';
 
 // 引入 Bootstrap 样式
@@ -16,7 +16,13 @@ import router from "./router";
 
 const app = createApp(App);
 
-app.use(createPinia());
+import { createPinia } from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
+
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
+
+app.use(pinia);
 app.use(router);
 
 // Vuetify
@@ -24,13 +30,23 @@ import "vuetify/styles";
 import { createVuetify } from "vuetify";
 import * as components from "vuetify/components";
 import * as directives from "vuetify/directives";
+import { zhHant } from "vuetify/locale";
 import "@mdi/font/css/materialdesignicons.css";
+import customZhHant from "./assets/common/js/customZhHant";
+import { VDateInput } from "vuetify/labs/VDateInput";
 
 const vuetify = createVuetify({
-  components,
+  components: {
+    ...components,
+    VDateInput,
+  },
   directives,
   icons: {
     defaultSet: "mdi", // This is already the default value - only for display purposes
+  },
+  locale: {
+    locale: "zhHant",
+    messages: { zhHant: customZhHant },
   },
 });
 

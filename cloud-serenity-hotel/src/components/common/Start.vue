@@ -11,7 +11,6 @@
           <div class="navbar-nav">
             <RouterLink class="nav-link" :to="{ name: 'front' }">前台</RouterLink>
             <RouterLink class="nav-link" :to="{ name: 'back' }">後台</RouterLink>
-             <!-- <a class="nav-link" href="http:localhost:8080/static/common/adminPage.html" target="_blank">後台</a> -->
           </div>
         </div>
       </div>
