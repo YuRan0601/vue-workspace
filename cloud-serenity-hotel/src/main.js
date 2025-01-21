@@ -1,6 +1,6 @@
 import { createApp } from "vue";
-import { createPinia } from "pinia";
-import "sweetalert2/dist/sweetalert2.min.css";
+
+import 'sweetalert2/dist/sweetalert2.min.css';
 
 // 引入 Bootstrap 样式
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -16,7 +16,13 @@ import router from "./router";
 
 const app = createApp(App);
 
-app.use(createPinia());
+import { createPinia } from 'pinia';
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate';
+
+const pinia = createPinia();
+pinia.use(piniaPluginPersistedstate);
+
+app.use(pinia);
 app.use(router);
 
 // Vuetify
