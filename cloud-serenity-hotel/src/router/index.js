@@ -5,6 +5,7 @@ import BackView from "@/layouts/common/BackView.vue";
 import FrontView from "@/layouts/common/FrontView.vue";
 import RoomTypeView from "@/views/booking/RoomTypeView.vue";
 import { createRouter, createWebHistory } from "vue-router";
+import AttractionComponent from '@/components/Attraction/AttractionComponent.vue';
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -19,9 +20,14 @@ const router = createRouter({
       component: FrontView,
       children: [
         {
-          path: '/front/booking/roomType',
+          path: 'booking/roomType',
           name: 'roomFront',
           component: RoomFront,
+        },
+        {
+          path: 'Attraction/AttractionType',
+          name: 'attractionFront',
+          component: AttractionComponent,
         },
       ]
     },
@@ -44,7 +50,6 @@ const router = createRouter({
         }
       ]
     },
-
   ],
 });
 

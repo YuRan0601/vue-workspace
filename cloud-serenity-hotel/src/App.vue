@@ -9,12 +9,10 @@ import Start from '@/components/common/Start.vue'
       <RouterView></RouterView>
     </div>
   </div>
-  <div id="app">
-    <AttractionComponent />
-  </div>
 </template>
 
 <style lang="css" scoped>
+@import '@/assets/css/style.css';
   .header {
     position: fixed;
     top: 0;

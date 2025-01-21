@@ -237,8 +237,16 @@
   }
   
   #gtco-header {
-    background: #4d4d4d;
+    position: relative;
+    background: url('/images/Background1.jpeg') no-repeat center center;
+    background-size: cover;
+    height: 400px; /* 可根據需求調整 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
+  
   @media screen and (max-width: 992px) {
     #gtco-header.gtco-cover {
       height: inherit !important;
@@ -1904,4 +1912,7 @@
       color: #555;
       text-align: left; /* 文字左對齊 */
     }
+      .gtco-heading h2 {
+    color: #09C6AB;
+  }
   
