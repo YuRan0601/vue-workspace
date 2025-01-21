@@ -1,5 +1,4 @@
 import BookingBack from "@/layouts/booking/BookingBack.vue";
-import BookingBack from "@/components/booking/BookingBack.vue";
 import BackMember from "@/views/user/BackMember.vue";
 import BookingHome from "@/layouts/booking/BookingHome.vue";
 import RoomFront from "@/layouts/booking/RoomFront.vue";
@@ -25,11 +24,11 @@ const router = createRouter({
     //   name: 'home',
     //   component: HomeView,
     // }
-	{
-		path: '/login',
-		name: 'login',
-		component: Login
-	},
+    {
+      path: '/login',
+      name: 'login',
+      component: Login
+    },
     {
       path: '/front',
       name: 'front',
@@ -40,85 +39,85 @@ const router = createRouter({
           name: 'roomFront',
           component: RoomFront,
         },
-		 {
-			path: '/front/member',
-			name: 'memberFront',
-			component: FrontMember,
-			beforeEnter: async (to, from, next) => {
-				const useStores = useAuthStore()
-				// 检查登录状态
-				if (useStores.user == null) {
-					try {
-						await useStores.fetchUser(); // 尝试从后端获取会话状态
-						next(); // 会话有效，继续导航
-					} catch (error) {
-						console.error('Session invalid, redirecting to login...');
-						next('/login'); // 未登录或会话无效时跳转到登录页
-					}
-				} else {
-					if (useStores.user.userIdentity == "user") {
-						next();
-					} else {
-						alert('管理員不能去會員中心!')
-						// useStores.logout();
-						next('/back');
-					}
-					// 已登录，继续导航
-				}
-			},
-			children: [
-				{
-					path: '/front/member/Overview',
-					name: 'memberOverview',
-					component: MemberOverview
-				},
-				{
-					path: '/front/member/info',
-					name: 'memberInfo',
-					component: MemberInfo
-				},
+        {
+          path: '/front/member',
+          name: 'memberFront',
+          component: FrontMember,
+          beforeEnter: async (to, from, next) => {
+            const useStores = useAuthStore()
+            // 检查登录状态
+            if (useStores.user == null) {
+              try {
+                await useStores.fetchUser(); // 尝试从后端获取会话状态
+                next(); // 会话有效，继续导航
+              } catch (error) {
+                console.error('Session invalid, redirecting to login...');
+                next('/login'); // 未登录或会话无效时跳转到登录页
+              }
+            } else {
+              if (useStores.user.userIdentity == "user") {
+                next();
+              } else {
+                alert('管理員不能去會員中心!')
+                // useStores.logout();
+                next('/back');
+              }
+              // 已登录，继续导航
+            }
+          },
+          children: [
+            {
+              path: '/front/member/Overview',
+              name: 'memberOverview',
+              component: MemberOverview
+            },
+            {
+              path: '/front/member/info',
+              name: 'memberInfo',
+              component: MemberInfo
+            },
 
-			]
-		},
-		{
-			path: '/front/register',
-			name: 'register',
-			component: Register
-		}
+          ]
+        },
+        {
+          path: '/front/register',
+          name: 'register',
+          component: Register
+        }
       ]
     },
     {
       path: '/back',
       name: 'back',
       component: BackView,
-	  beforeEnter: async (to, from, next) => {
-                const useStores = useAuthStore()
-                console.log(useStores.user);
+      beforeEnter: async (to, from, next) => {
+        const useStores = useAuthStore()
+        console.log(useStores.user);
 
-                // 检查登录状态
-                if (useStores.user == null) {
-                    try {
-                        await useStores.fetchUser(); // 尝试从后端获取会话状态
-                        next(); // 会话有效，继续导航
-                        console.log("session ok");
+        // 检查登录状态
+        if (useStores.user == null) {
+          try {
+            await useStores.fetchUser(); // 尝试从后端获取会话状态
+            next(); // 会话有效，继续导航
+            console.log("session ok");
 
-                    } catch (error) {
-                        console.log(error);
+          } catch (error) {
+            console.log(error);
 
-                        // console.error('Session invalid, redirecting to login...');
-                        next('/login'); // 未登录或会话无效时跳转到登录页
-                    }
-                } else {
-                    if (useStores.user.userIdentity == "admin") {
-                        next();
-                    } else {
-                        alert('你不是管理員!')
-                        // useStores.logout();
-                        next('/front');
-                    }
-                    // 已登录，继续导航
-                }
-            },
+            // console.error('Session invalid, redirecting to login...');
+            next('/login'); // 未登录或会话无效时跳转到登录页
+          }
+        } else {
+          if (useStores.user.userIdentity == "admin") {
+            next();
+          } else {
+            alert('你不是管理員!')
+            // useStores.logout();
+            next('/front');
+          }
+          // 已登录，继续导航
+        }
+      },
       children: [
         {
           path: '/bookingBack',
@@ -137,16 +136,16 @@ const router = createRouter({
             },
           ]
         },
-		{
-			path: '/memberBack',
-			name: 'memberBack',
-			component: BackMember
-		},
-		{
-			path: '/adminBack',
-			name: 'adminBack',
-			component: BackAdmin
-		},
+        {
+          path: '/memberBack',
+          name: 'memberBack',
+          component: BackMember
+        },
+        {
+          path: '/adminBack',
+          name: 'adminBack',
+          component: BackAdmin
+        },
       ]
     },
     {
@@ -161,5 +160,7 @@ const router = createRouter({
         }
       ]
     }
+  ]
+})
 
 export default router;
