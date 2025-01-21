@@ -45,9 +45,9 @@ const router = createRouter({
                     beforeEnter: async (to, from, next) => {
                         const useStores = useAuthStore()
                         // 检查登录状态
-                        if (!useStores.user) {
+                        if (useStores.user == null) {
                             try {
-                                await useStores.checkSession(); // 尝试从后端获取会话状态
+                                await useStores.fetchUser(); // 尝试从后端获取会话状态
                                 next(); // 会话有效，继续导航
                             } catch (error) {
                                 console.error('Session invalid, redirecting to login...');
@@ -55,9 +55,11 @@ const router = createRouter({
                             }
                         } else {
                             if (useStores.user.userIdentity == "user") {
-                                next('/front/member/Overview');
+                                next();
                             } else {
-                                next('/logout');
+                                alert('管理員不能去會員中心!')
+                                // useStores.logout();
+                                next('/back');
                             }
                             // 已登录，继续导航
                         }
@@ -90,13 +92,19 @@ const router = createRouter({
             component: BackView,
             beforeEnter: async (to, from, next) => {
                 const useStores = useAuthStore()
+                console.log(useStores.user);
+
                 // 检查登录状态
-                if (!useStores.user) {
+                if (useStores.user == null) {
                     try {
-                        await useStores.checkSession(); // 尝试从后端获取会话状态
+                        await useStores.fetchUser(); // 尝试从后端获取会话状态
                         next(); // 会话有效，继续导航
+                        console.log("session ok");
+
                     } catch (error) {
-                        console.error('Session invalid, redirecting to login...');
+                        console.log(error);
+
+                        // console.error('Session invalid, redirecting to login...');
                         next('/login'); // 未登录或会话无效时跳转到登录页
                     }
                 } else {
@@ -104,8 +112,8 @@ const router = createRouter({
                         next();
                     } else {
                         alert('你不是管理員!')
-                        useStores.logout();
-                        next();
+                        // useStores.logout();
+                        next('/front');
                     }
                     // 已登录，继续导航
                 }

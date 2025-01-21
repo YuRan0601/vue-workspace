@@ -8,7 +8,7 @@ const useStores = useAuthStore()
 
 function logout() {
     useStores.logout()
-    window.location.href = '/back'
+    window.location.href = '/login'
 }
 </script>
 
@@ -125,7 +125,7 @@ function logout() {
                             <!-- <li>
                                 <RouterLink :to="{ name: '' }">Settings</RouterLink>
                             </li> -->
-                            <li><a @click="logout()">Sign out</a>
+                            <li><a href="#" @click="logout()">Sign out</a>
                             </li>
                         </ul>
                     </div>
