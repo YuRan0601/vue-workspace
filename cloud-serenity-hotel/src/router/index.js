@@ -1,9 +1,11 @@
 import BookingBack from "@/components/booking/BookingBack.vue";
+import ProductBack from "@/components/product/ProductBack.vue";
 import BookingHome from "@/layouts/booking/BookingHome.vue";
 import RoomFront from "@/layouts/booking/RoomFront.vue";
 import BackView from "@/layouts/common/BackView.vue";
 import FrontView from "@/layouts/common/FrontView.vue";
 import RoomTypeView from "@/views/booking/RoomTypeView.vue";
+import ProductHome from "@/views/product/ProductHome.vue";
 import { createRouter, createWebHistory } from "vue-router";
 const router = createRouter({
   history: createWebHistory(),
@@ -39,6 +41,18 @@ const router = createRouter({
               path: '/booking/roomType',
               name: 'roomType',
               component: RoomTypeView
+            },
+          ]
+        },
+        {
+          path: '/productBack',
+          name: 'productBack',
+          component: ProductBack,
+          children: [
+            {
+              path: '/ProductAll',
+              name: 'ProductAll',
+              component: ProductHome
             }
           ]
         }
