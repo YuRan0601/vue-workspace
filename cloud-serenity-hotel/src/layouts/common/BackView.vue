@@ -66,22 +66,23 @@ function logout() {
 				  </div>
 				</li>
 
-          <li class="mb-1">
-              <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse"
-                  data-bs-target="#order-collapse" aria-expanded="false">
-                  訂單
-              </button>
-              <div class="collapse" id="order-collapse">
-                  <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                      <li><a href="#" class="link-dark rounded">New</a></li>
-                      <li><a href="#" class="link-dark rounded">Processed</a></li>
-                      <li><a href="#" class="link-dark rounded">Shipped</a></li>
-                      <li><a href="#" class="link-dark rounded">Returned</a></li>
-                  </ul>
-              </div>
-          </li>
+        <li class="mb-1">
+          <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse"
+            data-bs-target="#order-collapse" aria-expanded="false">
+            訂單
+          </button>
+          <div class="collapse" id="order-collapse">
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+              <li>
+                <RouterLink :to="{ name: 'orderBack' }">訂單總表</RouterLink>
+              </li>
+              <li><a href="#" class="link-dark rounded">熱銷商品</a></li>
+              <li><a href="#" class="link-dark rounded">Shipped</a></li>
+              <li><a href="#" class="link-dark rounded">Returned</a></li>
+            </ul>
+          </div>
+        </li>
 
-                
         <li class="mb-1">
           <button
           class="btn btn-toggle align-items-center rounded collapsed"
@@ -90,6 +91,7 @@ function logout() {
           aria-expanded="false"
           >
           景點
+
           </button>
           <div class="collapse" id="attraction-collapse">
           <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
@@ -169,6 +171,7 @@ function logout() {
     top: 55px;
     bottom: 0;
     overflow-y: auto;
+
 }
 
 #logo {

@@ -2,6 +2,7 @@ import BookingBack from "@/layouts/booking/BookingBack.vue";
 import BackMember from "@/views/user/BackMember.vue";
 import ProductBack from "@/components/product/ProductBack.vue";
 import CarImage from "@/components/rent/CarImage.vue";
+import OrderBack from "@/components/order/OrderBack.vue";
 import BookingHome from "@/layouts/booking/BookingHome.vue";
 import RoomFront from "@/layouts/booking/RoomFront.vue";
 import BackView from "@/layouts/common/BackView.vue";
@@ -17,6 +18,10 @@ import VehicleDetails from "@/layouts/rent/VehicleDetails.vue";
 import CarInfo from "@/views/rent/CarInfo.vue";
 import CarTypeView from "@/views/rent/CarTypeView.vue";
 import VehicleList from "@/views/rent/VehicleList.vue";
+import OrderAddView from "@/views/order/OrderAddView.vue";
+import OrderDetailView from "@/views/order/OrderDetailView.vue";
+import OrderEditView from "@/views/order/OrderEditView.vue";
+import OrderListView from "@/views/order/OrderListView.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import BackAdmin from "@/views/user/BackAdmin.vue";
 import Login from "@/views/user/Login.vue";
@@ -67,6 +72,7 @@ const router = createRouter({
                     name: 'memberFront',
                     component: FrontMember,
                     beforeEnter: async (to, from, next) => {
+
 
                         const useStores = useAuthStore()
                         useStores.fetchUser();
@@ -210,7 +216,37 @@ const router = createRouter({
                     children: [
                         { path: '/rent/VehicleList', name: 'vehicleList', component: VehicleList }
                     ]
-                }
+                },
+                {
+                    path: '/orderBack',
+                    name: 'orderBack',
+                    component: OrderBack, // 訂單後台的主組件
+                    redirect: '/order/orderList', // 自動跳轉到 OrderListView
+                    children: [
+                      {
+                        path: '/order/orderList',
+                        name: 'orderList',
+                        component: OrderListView
+                      },
+                      {
+                        path: '/order/orderdetail',
+                        name: 'orderdetail',
+                        component: OrderDetailView,
+                        props: (route) => ({ orderId: route.query.orderId }), // 將 query 作為 props 傳入
+                      },
+                      {
+                        path: '/order/orderedit',
+                        name: 'orderedit',
+                        component: OrderEditView,
+                        props: (route) => ({ orderId: route.query.orderId }), // 將 query 作為 props 傳入
+                      },
+                      {
+                        path: '/order/orderadd',
+                        name: 'orderadd',
+                        component: OrderAddView,
+                      }
+                    ]
+                  }
             ]
         },
     ]
