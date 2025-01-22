@@ -2,7 +2,7 @@
 import { useAuthStore } from "@/stores/authStore";
 const useStores = useAuthStore()
 
-function logout(){
+function logout() {
     useStores.logout()
     window.location.href = '/front'
 }
@@ -26,6 +26,10 @@ function logout(){
                             </li>
                             <li>
                                 <RouterLink class="link-dark rounded" :to="{ name: 'memberInfo' }">個人資料</RouterLink>
+                            </li>
+                            <li>
+                                <RouterLink class="link-dark rounded" :to="{ name: 'memberAccount' }">修改信箱與密碼
+                                </RouterLink>
                             </li>
                         </ul>
                     </div>
@@ -69,7 +73,7 @@ function logout(){
                     </div>
                 </li>
 
-                <div class="d-grid gap-2 mt-4 mx-auto"><a href="#"  @click="logout()" class="btn btn-primary">登出帳號</a>
+                <div class="d-grid gap-2 mt-4 mx-auto"><a href="#" @click="logout()" class="btn btn-primary">登出帳號</a>
                 </div>
             </ul>
         </div>
