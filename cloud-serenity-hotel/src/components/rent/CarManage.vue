@@ -141,9 +141,9 @@
 
 /* 設置按鈕的背景顏色及樣式 */
 .btn-success {
-  background-color: var(--bs-success-bg-subtle); /* 使用 CSS 變數來設置背景顏色 */
+  background-color: var(--bs-success-bg-subtle-hover, #8ebe8e); /* 使用 CSS 變數來設置背景顏色 */
   border: none; /* 取消按鈕邊框 */
-  color: rgb(154, 146, 146); /* 設置文字顏色 */
+  color: rgb(0, 0, 0); /* 設置文字顏色 */
   padding: 10px 15px; /* 設定內邊距 */
   font-size: 15px; /* 調整按鈕字體大小 */
   border-radius: 10px; /* 設置圓角 */
@@ -152,7 +152,7 @@
 
 /* 當滑鼠懸停在按鈕上時 */
 .btn-success:hover {
-  background-color: var(--bs-success-bg-subtle-hover, #b3e8b3); /* 假設你有定義 hover 顏色，否則可以直接寫 #4cae4c 或使用其他顏色 */
+  background-color: var(--bs-success-bg-subtle-hover, #a9dfa9); /* 假設你有定義 hover 顏色，否則可以直接寫 #4cae4c 或使用其他顏色 */
   transform: scale(1.03); /* 按鈕放大效果 */
 }
 

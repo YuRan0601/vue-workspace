@@ -129,7 +129,7 @@ import { RouterView } from "vue-router";
           <div class="collapse" id="rent-collapse">
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">             
               <li><RouterLink :to="{name: 'carHome'}">車型管理</RouterLink></li>
-              <li><a href="#" class="link-dark rounded">車輛管理</a></li>
+              <li><RouterLink :to="{name: 'vehicleDetails'}">車型管理</RouterLink></li>
               <li><a href="#" class="link-dark rounded">訂單管理</a></li>
             </ul>
           </div>

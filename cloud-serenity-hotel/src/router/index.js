@@ -6,9 +6,11 @@ import BackView from "@/layouts/common/BackView.vue";
 import FrontView from "@/layouts/common/FrontView.vue";
 import CarHome from "@/layouts/rent/CarHome.vue";
 import ModelOperate from "@/layouts/rent/modelOperate.vue";
+import VehicleDetails from "@/layouts/rent/VehicleDetails.vue";
 import RoomTypeView from "@/views/booking/RoomTypeView.vue";
 import CarInfo from "@/views/rent/CarInfo.vue";
 import CarTypeView from "@/views/rent/CarTypeView.vue";
+import VehicleList from "@/views/rent/VehicleList.vue";
 import { createRouter, createWebHistory } from "vue-router";
 const router = createRouter({
   history: createWebHistory(),
@@ -55,10 +57,13 @@ const router = createRouter({
         { path:'/rent/modelOperate/:id',name:'modelOperate',component:ModelOperate, props:true,
           children: [
             { path: '/rent/carInfo/:id',name: 'carInfo',component: CarInfo, props:true},
-            { path: 'carImage/:id',name: 'carImage',component: CarImage, props: true}
-           
+            { path: 'carImage/:id',name: 'carImage',component: CarImage, props: true}          
           ]
-        }
+        },{ path: '/rent/VehicleDetails',name: 'vehicleDetails',component: VehicleDetails,
+          children:[
+            { path: '/rent/VehicleList',name: 'vehicleList',component: VehicleList }
+          ]
+         }
       ]
     },
     ]
