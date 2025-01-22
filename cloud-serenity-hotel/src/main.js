@@ -34,20 +34,21 @@ import { zhHant } from "vuetify/locale";
 import "@mdi/font/css/materialdesignicons.css";
 import customZhHant from "./assets/common/js/customZhHant";
 import { VDateInput } from "vuetify/labs/VDateInput";
+import '@fortawesome/fontawesome-free/css/all.css'
 
 const vuetify = createVuetify({
-  components: {
-    ...components,
-    VDateInput,
-  },
-  directives,
-  icons: {
-    defaultSet: "mdi", // This is already the default value - only for display purposes
-  },
-  locale: {
-    locale: "zhHant",
-    messages: { zhHant: customZhHant },
-  },
+    components: {
+        ...components,
+        VDateInput,
+    },
+    directives,
+    icons: {
+        defaultSet: "mdi", // This is already the default value - only for display purposes
+    },
+    locale: {
+        locale: "zhHant",
+        messages: { zhHant: customZhHant },
+    },
 });
 
 app.use(vuetify);
