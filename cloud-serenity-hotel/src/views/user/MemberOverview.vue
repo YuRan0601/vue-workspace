@@ -10,10 +10,10 @@ function logout() {
 
 <template>
     <div>
-        <h2>會員總覽</h2>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Architecto veritatis itaque iste harum ex eos totam
-            eaque repellendus accusamus, quos id error accusantium molestiae fugiat, consequuntur velit ad nihil autem!
-        </p>
+        <h2>會員中心總覽</h2>
+        <h5>歡迎來到會員中心！</h5>
+        <h5>在這裡，您可以輕鬆管理您的個人資料、查詢訂單和預訂紀錄，並隨時查看您的租車和訂房狀況。</h5>
+        <h5>透過下方的快速連結，您可以方便地進行操作!</h5>
         <div class="container">
             <div class="row row-col-3">
                 <RouterLink class="function-card btn btn-light" :to="{ name: '' }">
@@ -28,11 +28,11 @@ function logout() {
                     <v-icon class="fa-solid fa-car icon"></v-icon>
                     <h4 class="mt-2">租車</h4>
                 </RouterLink>
-                <RouterLink class="function-card btn btn-light" :to="{ name: '' }">
+                <RouterLink class="function-card btn btn-light" :to="{ name: 'memberInfo' }">
                     <v-icon class="fa-solid fa-circle-user icon"></v-icon>
                     <h4 class="mt-2">個人資料</h4>
                 </RouterLink>
-                <RouterLink class="function-card btn btn-light" :to="{ name: '' }">
+                <RouterLink class="function-card btn btn-light" :to="{ name: 'memberAccount' }">
                     <v-icon class="fa-solid fa-gears icon"></v-icon>
                     <h4 class="mt-2">修改信箱與密碼</h4>
                 </RouterLink>

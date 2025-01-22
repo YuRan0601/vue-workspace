@@ -16,9 +16,15 @@ watch(() => useStores.user, () => {
     } else {
         isLogin.value = false
     }
-    console.log(isLogin.value);
+    // console.log(isLogin.value);
 },
     { immediate: true })
+
+function logout() {
+    useStores.logout()
+    window.location.href = '/front'
+}
+
 </script>
 
 <template>
@@ -52,12 +58,15 @@ watch(() => useStores.user, () => {
                                 <RouterLink class="nav-link" :to="{ name: 'bookingSearch' }">立即訂房</RouterLink>
                             </li>
                             <li class="nav-item">
-                                <div v-if="isLogin">
-                                    <p>會員 {{ userData.userName }}</p>
+                                <div v-if="isLogin" class="nav-link active">
+                                    <span>會員 {{ userData.userName }}</span>
                                 </div>
                                 <div v-else>
                                     <RouterLink class="nav-link" :to="{ name: 'login' }">登入會員</RouterLink>
                                 </div>
+                            </li>
+                            <li v-if="isLogin" class="nav-item">
+                                <a href="#" @click="logout()" class="nav-link">登出帳號</a>
                             </li>
                         </ul>
                     </div>
