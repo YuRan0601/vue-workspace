@@ -100,37 +100,37 @@ export default {
         {
           title: "士林科教館",
           description: "感受科學的魅力，開啟無限的可能。",
-          image: "/images/士林科學教育館.jpg",
+          image: "/Attraction/images/士林科學教育館.jpg",
         },
         {
           title: "台北市立天文館",
           description: "穿越星河，探索無垠宇宙。",
-          image: "/images/天文科學博物館.jpg",
+          image: "/Attraction/images/天文科學博物館.jpg",
         },
         {
           title: "台北兒童新樂園",
           description: "孩子的冒險世界，快樂永不停歇。",
-          image: "/images/兒童新樂園.jpg",
+          image: "/Attraction/images/兒童新樂園.jpg",
         },
         {
           title: "士林官邸",
           description: "歷史與自然的完美融合。",
-          image: "/images/士林官邸.jpg",
+          image: "/Attraction/images/士林官邸.jpg",
         },
         {
           title: "原住民文化主題公園",
           description: "傳統與自然的完美結合。",
-          image: "/images/原住民文化主題公園.jpg",
+          image: "/Attraction/images/原住民文化主題公園.jpg",
         },
         {
           title: "美麗華摩天輪",
           description: "夜景燦爛，夢幻情調。",
-          image: "/images/美麗華摩天輪.jpg",
+          image: "/Attraction/images/美麗華摩天輪.jpg",
         },
         {
           title: "內湖碧湖公園",
           description: "湖光山色，都市中的綠洲。",
-          image: "/images/碧湖公園.jpg",
+          image: "/Attraction/images/碧湖公園.jpg",
         },
       ],
     };
@@ -174,7 +174,7 @@ export default {
 </script>
 
 <style scoped>
-@import "@/assets/css/style.css";
+@import "@/assets/css/Attraction/style.css";
 
 /* 搜索框樣式，調整位置 */
 .search-bar {
