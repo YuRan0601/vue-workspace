@@ -4,7 +4,6 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 
 // 引入 Bootstrap 样式
 import "bootstrap/dist/css/bootstrap.min.css";
-import './assets/css/style.css';
 // 可选：引入 Bootstrap JS（包括依赖的 Popper.js）
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 

@@ -1,6 +1,7 @@
 import BookingBack from "@/layouts/booking/BookingBack.vue";
 import BackMember from "@/views/user/BackMember.vue";
 import ProductBack from "@/components/product/ProductBack.vue";
+import CarImage from "@/components/rent/CarImage.vue";
 import BookingHome from "@/layouts/booking/BookingHome.vue";
 import RoomFront from "@/layouts/booking/RoomFront.vue";
 import BackView from "@/layouts/common/BackView.vue";
@@ -10,6 +11,12 @@ import FrontMember from "@/layouts/user/FrontMember.vue";
 import RoomTypeView from "@/views/booking/RoomTypeView.vue";
 import RoomView from "@/views/booking/RoomView.vue";
 import ProductHome from "@/views/product/ProductHome.vue";
+import CarHome from "@/layouts/rent/CarHome.vue";
+import ModelOperate from "@/layouts/rent/modelOperate.vue";
+import VehicleDetails from "@/layouts/rent/VehicleDetails.vue";
+import CarInfo from "@/views/rent/CarInfo.vue";
+import CarTypeView from "@/views/rent/CarTypeView.vue";
+import VehicleList from "@/views/rent/VehicleList.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import BackAdmin from "@/views/user/BackAdmin.vue";
 import Login from "@/views/user/Login.vue";
@@ -199,6 +206,22 @@ const router = createRouter({
           name: 'adminBack',
           component: BackAdmin
         },
+		{ path:'/rent/carHome', name:'carHome',component:CarHome,
+          children: [
+            { path: '/rent/carType',name: 'carType',component: CarTypeView }
+          ]
+        },
+        { path:'/rent/modelOperate/:id',name:'modelOperate',component:ModelOperate, props:true,
+          children: [
+            { path: '/rent/carInfo/:id',name: 'carInfo',component: CarInfo, props:true},
+            { path: 'carImage/:id',name: 'carImage',component: CarImage, props: true}          
+          ]
+        },
+		{ path: '/rent/VehicleDetails',name: 'vehicleDetails',component: VehicleDetails,
+          children:[
+            { path: '/rent/VehicleList',name: 'vehicleList',component: VehicleList }
+          ]
+         }
       ]
     },
   ]

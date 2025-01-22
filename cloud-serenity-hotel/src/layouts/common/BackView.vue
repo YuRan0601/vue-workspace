@@ -96,20 +96,24 @@ function logout() {
                     </div>
                 </li>
 
+
                 <li class="mb-1">
-                    <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse"
-                        data-bs-target="#rent-collapse" aria-expanded="false">
-                        租車
-                    </button>
-                    <div class="collapse" id="rent-collapse">
-                        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                            <li><a href="#" class="link-dark rounded">New</a></li>
-                            <li><a href="#" class="link-dark rounded">Processed</a></li>
-                            <li><a href="#" class="link-dark rounded">Shipped</a></li>
-                            <li><a href="#" class="link-dark rounded">Returned</a></li>
-                        </ul>
-                    </div>
-                </li>
+				  <button
+					class="btn btn-toggle align-items-center rounded collapsed"
+					data-bs-toggle="collapse"
+					data-bs-target="#rent-collapse"
+					aria-expanded="false"
+				  >
+					租車
+				  </button>
+				  <div class="collapse" id="rent-collapse">
+					<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">             
+					  <li><RouterLink :to="{name: 'carHome'}">車型管理</RouterLink></li>
+					  <li><RouterLink :to="{name: 'vehicleDetails'}">車型管理</RouterLink></li>
+					  <li><a href="#" class="link-dark rounded">訂單管理</a></li>
+					</ul>
+				  </div>
+				</li>
 
 
                 <li class="border-top my-3"></li>
