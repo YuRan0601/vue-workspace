@@ -14,6 +14,11 @@ const props = defineProps({
 // 訂單詳細資料
 const orderDetail = ref(null);
 
+// 格式化數字為整數
+const formatNumberToInteger = (number) => {
+    return Math.round(number); // 四捨五入至整數
+};
+
 // 格式化時間函數 (24 小時制)
 const formatDateTime = (dateTime) => {
     const date = new Date(dateTime);
@@ -29,11 +34,15 @@ const formatDateTime = (dateTime) => {
 };
 
 // 查詢單筆訂單
-const fetchOrderDetail = async () => {
+const fetchOrderDetail = async (orderId) => {
     try {
         const response = await axios.get(`/api/Order/findOrderDetails/${props.orderId}`);
-        // 按細項編號排序 orderItemsBeans
-        response.data.orderItemsBeans.sort((a, b) => a.orderitemId - b.orderitemId);
+
+        // 確認 orderItemsBeans 存在並為數組
+        if (response.data.orderItemsBeans && Array.isArray(response.data.orderItemsBeans)) {
+            response.data.orderItemsBeans.sort((a, b) => a.orderitemId - b.orderitemId);
+        }
+
         orderDetail.value = response.data;
         console.log("訂單詳細資料：", response.data);
     } catch (error) {
@@ -41,9 +50,10 @@ const fetchOrderDetail = async () => {
     }
 };
 
+
 // 初始化
 onMounted(() => {
-    fetchOrderDetail();
+    fetchOrderDetail(props.orderId);
 });
 
 // SweetAlert2 刪除警告
@@ -128,7 +138,8 @@ const deleteOrder = async () => {
             <div class="row mb-3 justify-content-center">
                 <div class="col-lg-8">
                     <label class="form-label">總金額</label>
-                    <input type="text" class="form-control" :value="orderDetail?.totalAmount" disabled />
+                    <input type="text" class="form-control" :value="formatNumberToInteger(orderDetail?.totalAmount)"
+                        disabled />
                 </div>
             </div>
             <div class="row mb-3 justify-content-center">
@@ -140,13 +151,15 @@ const deleteOrder = async () => {
             <div class="row mb-3 justify-content-center">
                 <div class="col-lg-8">
                     <label class="form-label">折扣金額</label>
-                    <input type="text" class="form-control" :value="orderDetail?.discountAmount || '無'" disabled />
+                    <input type="text" class="form-control"
+                        :value="formatNumberToInteger(orderDetail?.discountAmount || '無')" disabled />
                 </div>
             </div>
             <div class="row mb-3 justify-content-center">
                 <div class="col-lg-8">
                     <label class="form-label">最終金額</label>
-                    <input type="text" class="form-control" :value="orderDetail?.finalAmount" disabled />
+                    <input type="text" class="form-control" :value="formatNumberToInteger(orderDetail?.finalAmount)"
+                        disabled />
                 </div>
             </div>
             <div class="row mb-3 justify-content-center">
@@ -207,10 +220,10 @@ const deleteOrder = async () => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="item in orderDetail?.orderItemsBeans || []" :key="item.orderitemId"
+                    <tr v-for="item in orderDetail?.orderItemsDtos || []" :key="item.orderitemId"
                         class="text-center align-middle">
                         <td>{{ item.orderitemId }}</td>
-                        <td>{{ item.products?.name }}</td>
+                        <td>{{ item.productName || '無產品名稱' }}</td>
                         <td>{{ item.quantity }}</td>
                         <td>{{ item.unitPrice === 0 ? "無" : item.unitPrice }}</td>
                         <td>{{ item.discount || "無" }}</td>

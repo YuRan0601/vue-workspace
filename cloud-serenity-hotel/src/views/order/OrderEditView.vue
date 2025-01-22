@@ -339,23 +339,38 @@ watch(() => props.orderId, (newOrderId) => {
                         class="text-center align-middle">
                         <!-- 細項編號 -->
                         <td>{{ item.orderitemId }}</td>
-                        <input type="hidden" :name="'order_item_id_' + item.orderitemId" :value="item.orderitemId" />
+                        <td>
+                            <input type="hidden" :name="'order_item_id_' + item.orderitemId"
+                                :value="item.orderitemId" />
+                        </td>
                         <!-- 產品名稱 -->
                         <td>{{ item.products.name }}</td>
-                        <input type="hidden" :name="'product_id_' + item.orderitemId"
-                            :value="item.products.productId" />
+                        <td>
+                            <input type="hidden" :name="'product_id_' + item.orderitemId"
+                                :value="item.products.productId" />
+                        </td>
                         <!-- 數量（顯示不可編輯，並隱藏回傳原數量） -->
                         <td>{{ item.quantity }}</td>
-                        <input type="hidden" :name="'quantity_' + item.orderitemId" :value="item.quantity" />
+                        <td>
+                            <input type="hidden" :name="'quantity_' + item.orderitemId" :value="item.quantity" />
+                        </td>
                         <!-- 單價 -->
                         <td>{{ item.products.price }}</td> <!-- 使用 products.price 來顯示單價 -->
-                        <input type="hidden" :name="'unit_price_' + item.orderitemId" :value="item.products.price" />
+                        <td>
+                            <input type="hidden" :name="'unit_price_' + item.orderitemId"
+                                :value="item.products.price" />
+                        </td>
                         <!-- 折扣（顯示不可編輯，並隱藏回傳原折扣） -->
                         <td>{{ item.discount || 0 }}</td>
-                        <input type="hidden" :name="'discount_' + item.orderitemId" :value="item.discount || 0" />
+                        <td>
+                            <input type="hidden" :name="'discount_' + item.orderitemId" :value="item.discount || 0" />
+                        </td>
                         <!-- 小計（顯示並回傳隱藏欄位） -->
                         <td>{{ item.subtotal.toFixed(2) }}</td>
-                        <input type="hidden" :name="'subtotal_' + item.orderitemId" :value="item.subtotal.toFixed(2)" />
+                        <td>
+                            <input type="hidden" :name="'subtotal_' + item.orderitemId"
+                                :value="item.subtotal.toFixed(2)" />
+                        </td>
                     </tr>
                 </tbody>
             </table>

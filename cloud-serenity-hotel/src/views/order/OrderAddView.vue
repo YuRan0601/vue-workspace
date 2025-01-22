@@ -46,23 +46,28 @@ onMounted(() => {
 // ===== 3. 數據更新邏輯 =====
 const updatePrice = (index) => {
     const product = products.value.find((p) => p.id === orderItems[index].productId);
-    orderItems[index].price = product ? product.price : 0;
+    orderItems[index].price = product ? Math.round(product.price) : 0; // 確保單價為整數
     updateSubtotal(index);
 };
 
 const updateSubtotal = (index) => {
     const item = orderItems[index];
-    item.subtotal = item.price * item.quantity - item.discount;
+    // 計算小計，並四捨五入到整數
+    item.subtotal = Math.round(item.price * item.quantity - item.discount);
     updateTotalAmount();
 };
 
 const updateTotalAmount = () => {
-    order.totalAmount = orderItems.reduce((sum, item) => sum + item.subtotal, 0);
+    // 累加所有小計，並四捨五入到整數
+    order.totalAmount = Math.round(
+        orderItems.reduce((sum, item) => sum + item.subtotal, 0)
+    );
     updateFinalAmount();
 };
 
 const updateFinalAmount = () => {
-    order.finalAmount = order.totalAmount - order.discount;
+    // 確保最終金額為整數
+    order.finalAmount = Math.round(order.totalAmount - order.discount);
 };
 
 // ===== 4. 訂單明細操作 =====
@@ -89,12 +94,28 @@ const validateForm = () => {
         showErrorAlert("使用者ID未填寫！", "請輸入使用者ID！");
         return false;
     }
-    if (!order.receiveName) {
-        showErrorAlert("收件人姓名未填寫！", "請輸入收件人姓名！");
+    if (!order.status) { // 新增的檢查邏輯
+        showErrorAlert("訂單狀態未選擇！", "請選擇訂單狀態！");
         return false;
     }
     if (!order.paymentMethod) {
         showErrorAlert("付費方式未選擇！", "請選擇付費方式！");
+        return false;
+    }
+    if (!order.receiveName) {
+        showErrorAlert("收件人姓名未填寫！", "請輸入收件人姓名！");
+        return false;
+    }
+    if (!order.email) {
+        showErrorAlert("收件人email！", "請輸入收件人email！");
+        return false;
+    }
+    if (!order.phoneNumber) {
+        showErrorAlert("收件人電話號碼未填寫！", "請輸入收件人電話號碼！");
+        return false;
+    }
+    if (!order.address) {
+        showErrorAlert("收件人收貨地址未填寫！", "請輸入收件人收貨地址！");
         return false;
     }
     if (orderItems.length === 0) {
@@ -115,6 +136,7 @@ const validateForm = () => {
 };
 
 
+
 const showAddOrderAlert = () => {
     if (validateForm()) {
         Swal.fire({
@@ -133,7 +155,8 @@ const showAddOrderAlert = () => {
             },
         }).then((result) => {
             if (result.isConfirmed) {
-                addOrder();
+                // 注意：需要將 `order` 和 `orderItems` 合併為一個物件發送給後端
+                addOrder({ ...order, orderItems });
             }
         });
     }
@@ -308,33 +331,35 @@ const showErrorAlert = (title, text) => {
         </div>
 
         <!-- 收件人資訊 -->
-        <div class="row mb-3 justify-content-center">
-            <div class="col-lg-8">
-                <label for="receiveName" class="form-label">收件人</label>
-                <input type="text" class="form-control" id="receiveName" placeholder="請輸入收件人姓名"
-                    v-model="order.receiveName" />
+        <div class="mb-4">
+            <div class="row mb-3 justify-content-center">
+                <div class="col-lg-8">
+                    <label for="receiveName" class="form-label">收件人</label>
+                    <input type="text" class="form-control" id="receiveName" placeholder="請輸入收件人姓名"
+                        v-model="order.receiveName" />
+                </div>
+            </div>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-lg-8">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="text" class="form-control" id="email" placeholder="請輸入Email" v-model="order.email" />
+                </div>
+            </div>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-lg-8">
+                    <label for="phoneNumber" class="form-label">電話號碼</label>
+                    <input type="text" class="form-control" id="phoneNumber" placeholder="請輸入電話號碼"
+                        v-model="order.phoneNumber" />
+                </div>
+            </div>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-lg-8">
+                    <label for="address" class="form-label">收貨地址</label>
+                    <input type="text" class="form-control" id="address" placeholder="請輸入收貨地址"
+                        v-model="order.address" />
+                </div>
             </div>
         </div>
-        <div class="row mb-3 justify-content-center">
-            <div class="col-lg-8">
-                <label for="email" class="form-label">Email</label>
-                <input type="text" class="form-control" id="email" placeholder="請輸入Email" v-model="order.email" />
-            </div>
-        </div>
-        <div class="row mb-3 justify-content-center">
-            <div class="col-lg-8">
-                <label for="phoneNumber" class="form-label">電話號碼</label>
-                <input type="text" class="form-control" id="phoneNumber" placeholder="請輸入電話號碼"
-                    v-model="order.phoneNumber" />
-            </div>
-        </div>
-        <div class="row mb-3 justify-content-center">
-            <div class="col-lg-8">
-                <label for="address" class="form-label">收貨地址</label>
-                <input type="text" class="form-control" id="address" placeholder="請輸入收貨地址" v-model="order.address" />
-            </div>
-        </div>
-
 
         <!-- 商品明細 -->
         <div class="mb-4">

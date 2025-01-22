@@ -12,6 +12,11 @@ const selectedOrder = ref(null);
 // 綁定輸入框的值，用於查詢單筆訂單
 const searchOrderId = ref("");
 
+// 格式化數字為整數
+const formatNumberToInteger = (number) => {
+    return Math.round(number); // 四捨五入至整數
+};
+
 // 格式化時間函數 (24 小時制)
 const formatDateTime = (dateTime) => {
     const date = new Date(dateTime);
@@ -33,16 +38,11 @@ const fetchOrders = async () => {
 
         // 強制檢查類型，防止意外轉換
         let data = response.data;
-        if (typeof data === "string") {
-            data = JSON.parse(data); // 如果是字符串，強制解析
-        }
-
-        // 判斷是否為數組
         if (Array.isArray(data)) {
-            orders.value = data.map(order => {
-                const { orderItemsBeans, ...filteredOrder } = order;
-                return filteredOrder;
-            });
+            orders.value = data.map(order => ({
+                ...order,
+                orderItemsBeans: undefined // 不需要顯示細項時移除
+            }));
         } else {
             console.error("API 返回的不是數組：", data);
         }
@@ -51,13 +51,14 @@ const fetchOrders = async () => {
     }
 };
 
+
 // 查詢單筆訂單是否存在
 const validateOrderId = async () => {
     if (!searchOrderId.value) return;
 
     try {
-        const response = await axios.get(`/api/Order/findOrderById/${searchOrderId.value}`);
-        if (response.data) {
+        const response = await axios.get(`/api/Order/findOrderDetails/${searchOrderId.value}`);
+        if (response.data && response.data.orderId) {
             // 如果找到訂單，跳轉到詳細頁面
             window.location.href = `/order/orderdetail?orderId=${searchOrderId.value}`;
         } else {
@@ -69,6 +70,7 @@ const validateOrderId = async () => {
         showModal("查無此訂單", "請確認訂單編號是否正確！");
     }
 };
+
 
 // 顯示彈窗
 const showModal = (title, body) => {
@@ -140,8 +142,8 @@ onMounted(fetchOrders);
                     <td>{{ order.orderId }}</td>
                     <td>{{ order.orderStatus }}</td>
                     <td>{{ order.paymentMethod }}</td>
-                    <td>{{ order.discountAmount }}</td> <!-- 修改為正確的字段名稱 -->
-                    <td>{{ order.finalAmount }}</td>
+                    <td>{{ formatNumberToInteger(order.discountAmount) }}</td> <!-- 修改為正確的字段名稱 -->
+                    <td>{{ formatNumberToInteger(order.finalAmount) }}</td>
                     <td>{{ formatDateTime(order.orderDate) }}</td>
                     <td>{{ formatDateTime(order.updatedAt) }}</td>
                     <td>
