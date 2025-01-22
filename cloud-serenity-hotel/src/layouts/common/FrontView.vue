@@ -1,4 +1,25 @@
-<script setup></script>
+<script setup>
+import { useAuthStore } from '@/stores/authStore';
+import { ref, watch } from 'vue';
+const useStores = useAuthStore()
+const isLogin = ref()
+const userData = ref({
+    userId: null,
+    userName: ''
+})
+//判斷是否已有登入
+watch(() => useStores.user, () => {
+    if (useStores.user != null) {
+        isLogin.value = true
+        userData.value.userId = useStores.user.userId
+        userData.value.userName = useStores.user.userName
+    } else {
+        isLogin.value = false
+    }
+    console.log(isLogin.value);
+},
+    { immediate: true })
+</script>
 
 <template>
     <div>
@@ -27,9 +48,16 @@
                             <li class="nav-item active"><a class="nav-link" href="gallery.html">商城</a></li>
                             <li class="nav-item"><a class="nav-link" href="elements.html">周邊景點介紹</a></li>
                             <li class="nav-item"><a class="nav-link" href="contact.html">租車服務</a></li>
-                            <li class="nav-item"><RouterLink class="nav-link" :to="{name: 'bookingSearch'}">立即訂房</RouterLink></li>
                             <li class="nav-item">
-                                <RouterLink class="nav-link" :to="{ name: 'login' }">登入會員</RouterLink>
+                                <RouterLink class="nav-link" :to="{ name: 'bookingSearch' }">立即訂房</RouterLink>
+                            </li>
+                            <li class="nav-item">
+                                <div v-if="isLogin">
+                                    <p>會員 {{ userData.userName }}</p>
+                                </div>
+                                <div v-else>
+                                    <RouterLink class="nav-link" :to="{ name: 'login' }">登入會員</RouterLink>
+                                </div>
                             </li>
                         </ul>
                     </div>
