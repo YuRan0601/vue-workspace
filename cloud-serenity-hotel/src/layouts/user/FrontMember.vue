@@ -12,7 +12,7 @@ import MemberAside from '@/components/user/MemberAside.vue';
                 <MemberAside></MemberAside>
             </div>
             <div class="col border-start">
-                <div class="container">
+                <div class="container mt-4">
                     <RouterView></RouterView>
                 </div>
             </div>

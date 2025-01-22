@@ -49,7 +49,7 @@ const loginStatus = async () => {
     if (data == "admin") {
         window.location.href = '/back';
     } else if (data == "member") {
-        window.location.href = '/front/member/';
+        window.location.href = '/front/member/Overview';
     } else {
         let dataMsg = await data;
         // console.log(dataMsg.response.data);

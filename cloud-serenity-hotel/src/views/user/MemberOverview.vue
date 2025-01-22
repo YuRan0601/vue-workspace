@@ -17,28 +17,28 @@ function logout() {
         <div class="container">
             <div class="row row-col-3">
                 <RouterLink class="function-card btn btn-light" :to="{ name: '' }">
-                    <v-icon class=""></v-icon>
-                    <h5>訂房</h5>
+                    <v-icon class="fa-solid fa-hotel icon"></v-icon>
+                    <h4 class="mt-2">訂房</h4>
                 </RouterLink>
                 <RouterLink class="function-card btn btn-light" :to="{ name: '' }">
-                    <v-icon class=""></v-icon>
-                    <h5>訂單</h5>
+                    <v-icon class="fa-solid fa-receipt icon"></v-icon>
+                    <h4 class="mt-2">訂單</h4>
                 </RouterLink>
                 <RouterLink class="function-card btn btn-light" :to="{ name: '' }">
-                    <v-icon class=""></v-icon>
-                    <h5>租車</h5>
+                    <v-icon class="fa-solid fa-car icon"></v-icon>
+                    <h4 class="mt-2">租車</h4>
                 </RouterLink>
                 <RouterLink class="function-card btn btn-light" :to="{ name: '' }">
-                    <v-icon class=""></v-icon>
-                    <h5>個人資料</h5>
+                    <v-icon class="fa-solid fa-circle-user icon"></v-icon>
+                    <h4 class="mt-2">個人資料</h4>
                 </RouterLink>
                 <RouterLink class="function-card btn btn-light" :to="{ name: '' }">
-                    <v-icon class="fa-solid fa-gears fa-2xl icon"></v-icon>
-                    <h5>修改信箱與密碼</h5>
+                    <v-icon class="fa-solid fa-gears icon"></v-icon>
+                    <h4 class="mt-2">修改信箱與密碼</h4>
                 </RouterLink>
                 <div class="function-card btn btn-light" @click="logout()">
-                    <v-icon class=""></v-icon>
-                    <h5>登出</h5>
+                    <v-icon class="icon">mdi-logout</v-icon>
+                    <h4 class="mt-2">登出</h4>
                 </div>
             </div>
         </div>
@@ -47,8 +47,8 @@ function logout() {
 
 <style lang="css" scoped>
 .icon {
-    font-size: 50px;
-    margin: 5px;
+    font-size: 60px;
+    margin: 10px;
 }
 
 .function-card {
