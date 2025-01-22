@@ -66,38 +66,43 @@ function logout() {
 				  </div>
 				</li>
 
-                <li class="mb-1">
-                    <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse"
-                        data-bs-target="#order-collapse" aria-expanded="false">
-                        訂單
-                    </button>
-                    <div class="collapse" id="order-collapse">
-                        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                            <li><a href="#" class="link-dark rounded">New</a></li>
-                            <li><a href="#" class="link-dark rounded">Processed</a></li>
-                            <li><a href="#" class="link-dark rounded">Shipped</a></li>
-                            <li><a href="#" class="link-dark rounded">Returned</a></li>
-                        </ul>
-                    </div>
-                </li>
+          <li class="mb-1">
+              <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse"
+                  data-bs-target="#order-collapse" aria-expanded="false">
+                  訂單
+              </button>
+              <div class="collapse" id="order-collapse">
+                  <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                      <li><a href="#" class="link-dark rounded">New</a></li>
+                      <li><a href="#" class="link-dark rounded">Processed</a></li>
+                      <li><a href="#" class="link-dark rounded">Shipped</a></li>
+                      <li><a href="#" class="link-dark rounded">Returned</a></li>
+                  </ul>
+              </div>
+          </li>
 
-                <li class="mb-1">
-                    <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse"
-                        data-bs-target="#attraction-collapse" aria-expanded="false">
-                        景點
-                    </button>
-                    <div class="collapse" id="attraction-collapse">
-                        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                            <li><a href="#" class="link-dark rounded">New</a></li>
-                            <li><a href="#" class="link-dark rounded">Processed</a></li>
-                            <li><a href="#" class="link-dark rounded">Shipped</a></li>
-                            <li><a href="#" class="link-dark rounded">Returned</a></li>
-                        </ul>
-                    </div>
-                </li>
+                
+        <li class="mb-1">
+          <button
+          class="btn btn-toggle align-items-center rounded collapsed"
+          data-bs-toggle="collapse"
+          data-bs-target="#attraction-collapse"
+          aria-expanded="false"
+          >
+          景點
+          </button>
+          <div class="collapse" id="attraction-collapse">
+          <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+            <li><a href="#" class="link-dark rounded">查詢所有景點</a></li>
+            <li><a href="#" class="link-dark rounded">查詢所有圖片</a></li>
+            <li><a href="#" class="link-dark rounded">景點1</a></li>
+            <li><a href="#" class="link-dark rounded">景點2</a></li>
+          </ul>
+          </div>
+        </li>
 
 
-                <li class="mb-1">
+        <li class="mb-1">
 				  <button
 					class="btn btn-toggle align-items-center rounded collapsed"
 					data-bs-toggle="collapse"
@@ -116,25 +121,25 @@ function logout() {
 				</li>
 
 
-                <li class="border-top my-3"></li>
-                <li class="mb-1">
-                    <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse"
-                        data-bs-target="#account-collapse" aria-expanded="false">
-                        Account
-                    </button>
-                    <div class="collapse" id="account-collapse">
-                        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                            <li>
-                                <RouterLink :to="{ name: 'adminBack' }">Overview</RouterLink>
-                            </li>
-                            <!-- <li>
-                                <RouterLink :to="{ name: '' }">Settings</RouterLink>
-                            </li> -->
-                            <li><a href="#" @click="logout()">Sign out</a>
-                            </li>
-                        </ul>
-                    </div>
-                </li>
+        <li class="border-top my-3"></li>
+        <li class="mb-1">
+            <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse"
+                data-bs-target="#account-collapse" aria-expanded="false">
+                Account
+            </button>
+            <div class="collapse" id="account-collapse">
+                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+                    <li>
+                        <RouterLink :to="{ name: 'adminBack' }">Overview</RouterLink>
+                    </li>
+                    <!-- <li>
+                        <RouterLink :to="{ name: '' }">Settings</RouterLink>
+                    </li> -->
+                    <li><a href="#" @click="logout()">Sign out</a>
+                    </li>
+                </ul>
+            </div>
+        </li>
             </ul>
         </div>
 

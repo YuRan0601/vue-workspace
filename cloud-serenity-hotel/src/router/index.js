@@ -24,6 +24,7 @@ import Register from "@/views/user/Register.vue";
 import MemberOverview from "@/views/user/MemberOverview.vue";
 import MemberInfo from "@/views/user/MemberInfo.vue";
 import { useAuthStore } from "@/stores/authStore";
+import AttractionComponent from "@/components/Attraction/AttractionComponent.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -118,7 +119,13 @@ const router = createRouter({
           path: '/front/register',
           name: 'register',
           component: Register
-        }
+        },
+
+        {
+          path: 'Attraction/AttractionType',
+          name: 'attractionFront',
+          component: AttractionComponent,
+        },
       ]
     },
     {
@@ -206,22 +213,25 @@ const router = createRouter({
           name: 'adminBack',
           component: BackAdmin
         },
-		{ path:'/rent/carHome', name:'carHome',component:CarHome,
+        {
+          path: '/rent/carHome', name: 'carHome', component: CarHome,
           children: [
-            { path: '/rent/carType',name: 'carType',component: CarTypeView }
+            { path: '/rent/carType', name: 'carType', component: CarTypeView }
           ]
         },
-        { path:'/rent/modelOperate/:id',name:'modelOperate',component:ModelOperate, props:true,
+        {
+          path: '/rent/modelOperate/:id', name: 'modelOperate', component: ModelOperate, props: true,
           children: [
-            { path: '/rent/carInfo/:id',name: 'carInfo',component: CarInfo, props:true},
-            { path: 'carImage/:id',name: 'carImage',component: CarImage, props: true}          
+            { path: '/rent/carInfo/:id', name: 'carInfo', component: CarInfo, props: true },
+            { path: 'carImage/:id', name: 'carImage', component: CarImage, props: true }
           ]
         },
-		{ path: '/rent/VehicleDetails',name: 'vehicleDetails',component: VehicleDetails,
-          children:[
-            { path: '/rent/VehicleList',name: 'vehicleList',component: VehicleList }
+        {
+          path: '/rent/VehicleDetails', name: 'vehicleDetails', component: VehicleDetails,
+          children: [
+            { path: '/rent/VehicleList', name: 'vehicleList', component: VehicleList }
           ]
-         }
+        }
       ]
     },
   ]

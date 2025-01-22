@@ -25,7 +25,7 @@
                                 <RouterLink class="nav-link" :to="{ name: 'roomFront' }">房型介紹</RouterLink>
                             </li>
                             <li class="nav-item active"><a class="nav-link" href="gallery.html">商城</a></li>
-                            <li class="nav-item"><a class="nav-link" href="elements.html">周邊景點介紹</a></li>
+                            <li class="nav-item"><RouterLink class="nav-link" :to="{name: 'attractionFront'}">周邊介紹</RouterLink></li>
                             <li class="nav-item"><a class="nav-link" href="contact.html">租車服務</a></li>
                             <li class="nav-item"><RouterLink class="nav-link" :to="{name: 'bookingSearch'}">立即訂房</RouterLink></li>
                             <li class="nav-item">
@@ -49,3 +49,4 @@ nav a img {
     background-color: #ecf0d6;
 }
 </style>
+
