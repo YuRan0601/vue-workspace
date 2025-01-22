@@ -1,10 +1,10 @@
 <script setup>
-    
+
 </script>
 
 <template>
-    <div>
-        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+  <div>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
       <div class="container-fluid">
         <a class="navbar-brand" href="#">Cloud Serenity Hotel</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup"
@@ -20,11 +20,9 @@
       </div>
     </nav>
     <div class="container">
-        <RouterView></RouterView>
+      <RouterView></RouterView>
     </div>
-    </div>
+  </div>
 </template>
 
-<style lang="css" scoped>
-
-</style>
+<style lang="css" scoped></style>

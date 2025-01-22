@@ -49,20 +49,22 @@ function logout() {
 				  </div>
 				</li>
 
-                <li class="mb-1">
-                    <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse"
-                        data-bs-target="#product-collapse" aria-expanded="false">
-                        商品
-                    </button>
-                    <div class="collapse" id="product-collapse">
-                        <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                            <li><a href="#" class="link-dark rounded">New</a></li>
-                            <li><a href="#" class="link-dark rounded">Processed</a></li>
-                            <li><a href="#" class="link-dark rounded">Shipped</a></li>
-                            <li><a href="#" class="link-dark rounded">Returned</a></li>
-                        </ul>
-                    </div>
-                </li>
+				<li class="mb-1">
+				  <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse"
+					data-bs-target="#product-collapse" aria-expanded="false">
+					商品
+				  </button>
+				  <div class="collapse" id="product-collapse">
+					<ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+					  <li>
+						<RouterLink :to="{ name: 'productBack' }">home</RouterLink>
+					  </li>
+					  <li><a href="#" class="link-dark rounded">Processed</a></li>
+					  <li><a href="#" class="link-dark rounded">Shipped</a></li>
+					  <li><a href="#" class="link-dark rounded">Returned</a></li>
+					</ul>
+				  </div>
+				</li>
 
                 <li class="mb-1">
                     <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse"
@@ -139,6 +141,7 @@ function logout() {
         </div>
     </div>
 </template>
+
 <style lang="css" scoped>
 @import url("./sidebars.css");
 

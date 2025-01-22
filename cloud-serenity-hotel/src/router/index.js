@@ -1,5 +1,6 @@
 import BookingBack from "@/layouts/booking/BookingBack.vue";
 import BackMember from "@/views/user/BackMember.vue";
+import ProductBack from "@/components/product/ProductBack.vue";
 import BookingHome from "@/layouts/booking/BookingHome.vue";
 import RoomFront from "@/layouts/booking/RoomFront.vue";
 import BackView from "@/layouts/common/BackView.vue";
@@ -8,6 +9,7 @@ import BookingSearchView from "@/views/booking/BookingSearchView.vue";
 import FrontMember from "@/layouts/user/FrontMember.vue";
 import RoomTypeView from "@/views/booking/RoomTypeView.vue";
 import RoomView from "@/views/booking/RoomView.vue";
+import ProductHome from "@/views/product/ProductHome.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import BackAdmin from "@/views/user/BackAdmin.vue";
 import Login from "@/views/user/Login.vue";
@@ -173,6 +175,18 @@ const router = createRouter({
               name: 'room',
               component: RoomView
             },
+          ]
+        },
+        {
+          path: '/productBack',
+          name: 'productBack',
+          component: ProductBack,
+          children: [
+            {
+              path: '/ProductAll',
+              name: 'ProductAll',
+              component: ProductHome
+            }
           ]
         },
         {
