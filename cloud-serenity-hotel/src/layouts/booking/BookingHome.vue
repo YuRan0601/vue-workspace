@@ -12,7 +12,7 @@
         ></div>
         <div class="container-fluid">
           <div class="page-cover text-center">
-            <h2 class="page-cover-tittle">訂房系統</h2>
+            <h2 class="page-cover-tittle">訂房</h2>
           </div>
         </div>
       </section>

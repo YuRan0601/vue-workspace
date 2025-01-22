@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import axios from '../axios';
+import { useRouter } from 'vue-router';
 
 export const useAuthStore = defineStore('auth', {
     state: () => ({
@@ -59,6 +60,46 @@ export const useAuthStore = defineStore('auth', {
                 console.log('session fail');
 
                 this.logout(); // 会话失效，清空状态
+            }
+        },
+
+        async checkMember() {
+            const router = useRouter();
+            try {
+                await this.fetchUser(); // 尝试从后端获取用户信息
+
+                if (this.user.userIdentity === "admin") {
+                    alert("此部分只能由會員操作，請重新登入!")
+                    this.logout();
+                    router.push("/login");
+                }
+            } catch (error) {
+                console.error('Session check failed:', error);
+                console.log('session fail');
+
+                this.logout(); // 会话失效，清空状态
+
+                router.push("/login");
+            }
+        },
+
+        async checkAdmin() {
+            const router = useRouter();
+            try {
+                await this.fetchUser(); // 尝试从后端获取用户信息
+
+                if (this.user.userIdentity === "user") {
+                    alert("此部分只能由管理員操作，請重新登入!")
+                    this.logout();
+                    router.push("/login");
+                }
+            } catch (error) {
+                console.error('Session check failed:', error);
+                console.log('session fail');
+
+                this.logout(); // 会话失效，清空状态
+
+                router.push("/login");
             }
         },
     },

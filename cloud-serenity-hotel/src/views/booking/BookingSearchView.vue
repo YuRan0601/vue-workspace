@@ -4,6 +4,44 @@ import { ref } from "vue";
 
 const checkInDate = ref(null);
 const checkOutDate = ref(null);
+const roomTypeDialog = ref(false);
+
+const roomTypeDetail = ref({
+  imgsUrl : [],
+  typeName : "",
+  typeDesc : "",
+  typeId : null,
+  roomCount : null,
+  price : null
+});
+
+function seeRoomTypeDetail(item) {
+  roomTypeDialog.value = true;
+
+  const detail = roomTypeDetail.value;
+
+  let imgArray = [];
+
+  if(item.prImg) {
+    imgArray.push(item.prImg.imgUrl);
+  }
+  
+  for(let i = 0; i < item.imgs.length; i++) {
+    imgArray.push(item.imgs[i].imgUrl);
+  }
+
+  detail.imgsUrl = imgArray;
+
+  detail.typeName = item.typeName;
+
+  detail.typeId = item.typeId;
+  detail.price = item.price;
+  detail.typeDesc = item.typeDesc;
+  detail.roomCount = item.roomCount;
+
+  roomTypeDialog = true;
+  
+} 
 
 const searchRoomTypes = ref([]);
 
@@ -12,14 +50,6 @@ function onSelectCheckInDate() {
     checkOutDate.value = new Date(checkInDate.value);
     checkOutDate.value.setDate(checkOutDate.value.getDate() + 1);
   }
-}
-
-function dateFormatter(date) {
-  let year = date.getFullYear();
-  let month = date.getMonth() + 1;
-  let day = date.getDate();
-
-  return year + "-" + month + "-" + day;
 }
 
 async function searchRoomTypeByDate() {
@@ -85,39 +115,68 @@ async function searchRoomTypeByDate() {
           >
           </v-img>
           <v-card-title class="bg-gradient">{{ item.typeName }}    NT${{ item.price }}</v-card-title>
-          <v-card-text>價格：{{ item.price }}</v-card-text>
           <v-card-text>剩餘房間數：{{ item.roomCount }}</v-card-text>
 
           <v-card-actions>
-            <v-btn color="purple-accent-1" prepend-icon="mdi-home-search" @click="handleClick(item)">查看</v-btn>
+            <v-btn color="purple-accent-1" prepend-icon="mdi-home-search" @click="seeRoomTypeDetail(item)">查看</v-btn>
             <v-btn color="primary" @click="handleClick(item)">查看</v-btn>
           </v-card-actions>
         </v-card>
       </v-col>
     </v-row>
   </v-container>
-    <!-- <v-container>
-      <v-row justify="center">
-        <v-col cols="12" md="5">
-          <v-date-picker
-            v-model="selectedStartDate"
-            title="選擇訂房日期"
-            header="選擇訂房日期"
-            locale="zh-Hant"
-          ></v-date-picker>
-        </v-col>
+   <div class="pa-4 text-center">
+      <v-dialog v-model="roomTypeDialog" max-width="600">
+        <v-card>
+          <v-card-text>
+            <v-row dense>
+              <v-col cols="12">
+                <v-img :src="roomTypeDetail.imgsUrl[0]"></v-img>
+              </v-col>
 
-        <v-col cols="12" md="2"> </v-col>
+              <v-col cols="12">
+                <h2>{{ roomTypeDetail.typeName }}</h2>
+              </v-col>
 
-        <v-col cols="12" md="5">
-          <v-date-picker
-            v-model="selectedEndDate"
-            title="選擇退房日期"
-            header="選擇退房日期"
-          ></v-date-picker>
-        </v-col>
-      </v-row>
-    </v-container> -->
+              <v-col cols="12">
+                <h5>每晚房價： NT${{roomTypeDetail.price}}</h5>
+              </v-col>
+
+              <v-col cols="12">
+                <p></p>
+              </v-col>
+
+              <v-col cols="12">
+                <p></p>
+              </v-col>
+
+              <v-col cols="12">
+                <p></p>
+              </v-col>
+            </v-row>
+          </v-card-text>
+
+          <v-divider></v-divider>
+
+          <v-card-actions>
+            <v-spacer></v-spacer>
+
+            <v-btn
+              text="關閉視窗"
+              variant="plain"
+              @click="roomTypeDialog = false"
+            ></v-btn>
+
+            <v-btn
+              color="primary"
+              text="訂房"
+              variant="tonal"
+              @click="updateRoomHandler"
+            ></v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </div> 
   </div>
 </template>
 

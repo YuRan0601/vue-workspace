@@ -35,6 +35,18 @@ const router = createRouter({
       component: FrontView,
       children: [
         {
+          path: '/front/bookingHome',
+          name: 'bookingHome',
+          component: BookingHome,
+          children: [
+            {
+              path: '/bookingSearch',
+              name: 'bookingSearch',
+              component: BookingSearchView,
+            }
+          ]
+        },
+        {
           path: '/front/booking/roomType',
           name: 'roomFront',
           component: RoomFront,
@@ -44,7 +56,21 @@ const router = createRouter({
           name: 'memberFront',
           component: FrontMember,
           beforeEnter: async (to, from, next) => {
+
+            // const useStores = useAuthStore()
+
+            // useStores.checkMember();
+
+            // if (useStores.user !== null) {
+            //   next();
+            // } else {
+            //   console.log("請先登入管理員!");
+            //   next("/login");
+            // }
+
             const useStores = useAuthStore()
+
+            useStores.fetchUser();
             // 检查登录状态
             if (useStores.user == null) {
               try {
@@ -91,7 +117,20 @@ const router = createRouter({
       name: 'back',
       component: BackView,
       beforeEnter: async (to, from, next) => {
+        // const useStores = useAuthStore()
+
+        // useStores.checkAdmin();
+
+        // if (useStores.user !== null) {
+        //   next();
+        // } else {
+        //   alert("請先登入管理員!");
+        //   next("/login");
+        // }
+
         const useStores = useAuthStore()
+
+        useStores.fetchUser();
         console.log(useStores.user);
 
         // 检查登录状态
@@ -148,18 +187,6 @@ const router = createRouter({
         },
       ]
     },
-    {
-      path: '/bookingHome',
-      name: 'bookingHome',
-      component: BookingHome,
-      children: [
-        {
-          path: '/bookingSearch',
-          name: 'bookingSearch',
-          component: BookingSearchView,
-        }
-      ]
-    }
   ]
 })
 
