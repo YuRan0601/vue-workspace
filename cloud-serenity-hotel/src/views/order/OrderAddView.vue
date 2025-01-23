@@ -13,7 +13,7 @@ const order = reactive({
     status: "", // 訂單狀態預設為空白
     paymentMethod: "", // 付費方式
     totalAmount: 0,
-    discountPoints: 0, // 點數
+    discountPoints: 0, // 點數折抵 (10點1元)
     discount: 0, // 折扣金額
     finalAmount: 0,
 });
@@ -62,6 +62,12 @@ const updateTotalAmount = () => {
     order.totalAmount = Math.round(
         orderItems.reduce((sum, item) => sum + item.subtotal, 0)
     );
+    updateDiscount();
+};
+
+const updateDiscount = () => {
+    // 計算折扣金額 (10點折抵1元)
+    order.discount = Math.floor(order.discountPoints / 10);
     updateFinalAmount();
 };
 
@@ -69,6 +75,9 @@ const updateFinalAmount = () => {
     // 確保最終金額為整數
     order.finalAmount = Math.round(order.totalAmount - order.discount);
 };
+
+// ===== 監聽點數折抵變化 =====
+watch(() => order.discountPoints, updateDiscount);
 
 // ===== 4. 訂單明細操作 =====
 // 新增一行商品明細

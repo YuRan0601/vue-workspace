@@ -12,7 +12,9 @@ const props = defineProps({
 });
 
 // 訂單詳細資料
-const orderDetail = ref({});
+const orderDetail = ref({
+    orderItemsBeans: [], // 確保 orderItemsBeans 有初始值
+});
 const errorMessage = ref(""); // 錯誤訊息，用於顯示錯誤
 // 各欄位的錯誤訊息
 const errors = ref({
@@ -21,6 +23,11 @@ const errors = ref({
     phoneNumber: "",
     address: "",
 });
+
+// 格式化數字為整數
+const formatNumberToInteger = (number) => {
+    return Math.round(number); // 四捨五入至整數
+};
 
 // 格式化時間函數 (24 小時制)
 const formatDateTime = (dateTime) => {
@@ -75,7 +82,6 @@ const validateForm = () => {
     return isValid;
 };
 
-
 // SweetAlert2 更新警告
 const showUpdateAlert = () => {
     if (validateForm()) { // 表單驗證
@@ -104,16 +110,14 @@ const showUpdateAlert = () => {
 // 更新訂單的邏輯
 const updateOrder = async () => {
     try {
-        // 整理數據，避免空值
-        prepareOrderData();
-
-        // 發送更新請求
-        await axios.put(
-            `/api/Order/update/${orderDetail.value.orderId}`,
-            orderDetail.value, // 傳遞整理後的訂單數據
-            { headers: { "Content-Type": "application/json" } }
-        );
-
+        const payload = {
+            orderStatus: orderDetail.value.orderStatus,
+            receiveName: orderDetail.value.receiveName,
+            email: orderDetail.value.email,
+            phoneNumber: orderDetail.value.phoneNumber,
+            address: orderDetail.value.address,
+        };
+        await axios.put(`/api/Order/update/${orderDetail.value.orderId}`, payload);
         // 更新成功的提示
         Swal.fire({
             icon: "success",
@@ -125,12 +129,10 @@ const updateOrder = async () => {
                 confirmButton: "btn btn-primary text-white",
             },
         }).then(() => {
-            // 確認後導回查詢單筆畫面
             window.location.href = `/order/orderdetail?orderId=${orderDetail.value.orderId}`;
         });
     } catch (error) {
         console.error("訂單更新失敗：", error);
-
         // 更新失敗的提示
         Swal.fire({
             icon: "error",
@@ -144,37 +146,11 @@ const updateOrder = async () => {
     }
 };
 
-// 整理訂單數據，避免空值
-const prepareOrderData = () => {
-    // 確保其他欄位有合理預設值
-    orderDetail.value.pointsDiscount = orderDetail.value.pointsDiscount || 0;
-    orderDetail.value.discountAmount = orderDetail.value.discountAmount || 0;
-    orderDetail.value.finalAmount = orderDetail.value.finalAmount || 0;
-    // 處理 orderItemsBeans
-    if (orderDetail.value.orderItemsBeans) {
-        orderDetail.value.orderItemsBeans.forEach((item) => {
-            // 如果 unitPrice 或 discount 是 null，補成 0
-            item.unitPrice = item.unitPrice || 0;
-            item.discount = item.discount || 0;
-            // 如果 subtotal 是 null，也補成 0（此處假設後端不計算 subtotal）
-            item.subtotal = item.subtotal || 0;
-        });
-    }
-};
-
-
-// 根據傳遞的 orderId 拉取訂單資料
+// 獲取訂單詳細資料
 const fetchOrderDetail = async () => {
-    if (!props.orderId) {
-        errorMessage.value = "缺少訂單 ID，無法獲取訂單資料。";
-        return;
-    }
     try {
-        errorMessage.value = ""; // 清除之前的錯誤訊息
-        const response = await axios.get(`/api/Order/getUpdateOrderById/${props.orderId}`);
-        // 按細項編號排序 orderItemsBeans
-        response.data.orderItemsBeans.sort((a, b) => a.orderitemId - b.orderitemId);
-        orderDetail.value = response.data;
+        const response = await axios.get(`/api/Order/findOrderDetails/${props.orderId}`);
+        orderDetail.value = response.data || { orderItemsBeans: [] };
     } catch (error) {
         console.error("無法取得訂單資料：", error);
         errorMessage.value = "無法取得訂單資料，請稍後再試。";
@@ -186,12 +162,8 @@ onMounted(() => {
     fetchOrderDetail();
 });
 
-// 監控 orderId 的變化，確保組件重新加載資料
-watch(() => props.orderId, (newOrderId) => {
-    if (newOrderId) {
-        fetchOrderDetail();
-    }
-});
+// 監控 orderId 變化
+watch(() => props.orderId, fetchOrderDetail);
 </script>
 
 
@@ -210,7 +182,8 @@ watch(() => props.orderId, (newOrderId) => {
             <div class="row mb-3 justify-content-center">
                 <div class="col-lg-8">
                     <label for="orderId" class="form-label">訂單ID</label>
-                    <input type="text" class="form-control" id="orderId" :value="orderDetail.orderId" disabled />
+                    <input type="text" class="form-control" id="orderId" :value="orderDetail.orderId || 'N/A'"
+                        disabled />
                 </div>
             </div>
             <div class="row mb-3 justify-content-center">
@@ -225,8 +198,9 @@ watch(() => props.orderId, (newOrderId) => {
                     <select class="form-select" id="orderStatus" v-model="orderDetail.orderStatus">
                         <option value="處理中">處理中</option>
                         <option value="已出貨">已出貨</option>
+                        <option value="到物流">到物流</option>
+                        <option value="已完成">已完成</option>
                         <option value="已取消">已取消</option>
-                        <option value="已取消">到物流</option>
                     </select>
                 </div>
             </div>
@@ -240,8 +214,8 @@ watch(() => props.orderId, (newOrderId) => {
             <div class="row mb-3 justify-content-center">
                 <div class="col-lg-8">
                     <label for="totalAmount" class="form-label">總金額</label>
-                    <input type="text" class="form-control" id="totalAmount" :value="orderDetail.totalAmount"
-                        disabled />
+                    <input type="text" class="form-control" id="totalAmount"
+                        :value="formatNumberToInteger(orderDetail.totalAmount)" disabled />
                 </div>
             </div>
             <div class="row mb-3 justify-content-center">
@@ -254,15 +228,15 @@ watch(() => props.orderId, (newOrderId) => {
             <div class="row mb-3 justify-content-center">
                 <div class="col-lg-8">
                     <label for="discountAmount" class="form-label">折扣金額</label>
-                    <input type="text" class="form-control" id="discountAmount" v-model="orderDetail.discountAmount"
-                        disabled />
+                    <input type="text" class="form-control" id="discountAmount"
+                        :value="formatNumberToInteger(orderDetail.discountAmount)" disabled />
                 </div>
             </div>
             <div class="row mb-3 justify-content-center">
                 <div class="col-lg-8">
                     <label for="finalAmount" class="form-label">最終金額</label>
-                    <input type="text" class="form-control" id="finalAmount" :value="orderDetail.finalAmount"
-                        disabled />
+                    <input type="text" class="form-control" id="finalAmount"
+                        :value="formatNumberToInteger(orderDetail.finalAmount)" disabled />
                 </div>
             </div>
             <div class="row mb-3 justify-content-center">
@@ -335,42 +309,16 @@ watch(() => props.orderId, (newOrderId) => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="item in orderDetail.orderItemsBeans" :key="item.orderitemId"
-                        class="text-center align-middle">
-                        <!-- 細項編號 -->
+                    <tr v-if="!orderDetail.orderItemsDtos || orderDetail.orderItemsDtos.length === 0">
+                        <td colspan="6" class="text-center">無商品明細</td>
+                    </tr>
+                    <tr v-for="item in orderDetail.orderItemsDtos" :key="item.orderitemId" class="text-center">
                         <td>{{ item.orderitemId }}</td>
-                        <td>
-                            <input type="hidden" :name="'order_item_id_' + item.orderitemId"
-                                :value="item.orderitemId" />
-                        </td>
-                        <!-- 產品名稱 -->
-                        <td>{{ item.products.name }}</td>
-                        <td>
-                            <input type="hidden" :name="'product_id_' + item.orderitemId"
-                                :value="item.products.productId" />
-                        </td>
-                        <!-- 數量（顯示不可編輯，並隱藏回傳原數量） -->
+                        <td>{{ item.productName }}</td>
                         <td>{{ item.quantity }}</td>
-                        <td>
-                            <input type="hidden" :name="'quantity_' + item.orderitemId" :value="item.quantity" />
-                        </td>
-                        <!-- 單價 -->
-                        <td>{{ item.products.price }}</td> <!-- 使用 products.price 來顯示單價 -->
-                        <td>
-                            <input type="hidden" :name="'unit_price_' + item.orderitemId"
-                                :value="item.products.price" />
-                        </td>
-                        <!-- 折扣（顯示不可編輯，並隱藏回傳原折扣） -->
-                        <td>{{ item.discount || 0 }}</td>
-                        <td>
-                            <input type="hidden" :name="'discount_' + item.orderitemId" :value="item.discount || 0" />
-                        </td>
-                        <!-- 小計（顯示並回傳隱藏欄位） -->
-                        <td>{{ item.subtotal.toFixed(2) }}</td>
-                        <td>
-                            <input type="hidden" :name="'subtotal_' + item.orderitemId"
-                                :value="item.subtotal.toFixed(2)" />
-                        </td>
+                        <td>{{ formatNumberToInteger(item.productPrice?.toFixed(2) || "0.00") }}</td>
+                        <td>{{ formatNumberToInteger(item.discount?.toFixed(2) || "0.00") }}</td>
+                        <td>{{ formatNumberToInteger(item.subtotal?.toFixed(2) || "0.00") }}</td>
                     </tr>
                 </tbody>
             </table>
