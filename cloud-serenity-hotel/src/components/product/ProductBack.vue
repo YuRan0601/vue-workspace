@@ -14,7 +14,7 @@ import ProductHome from '../../views/product/ProductHome.vue';
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                     <div class="navbar-nav">
-                        <RouterLink class="nav-link" :to="{ name: 'ProductAll' }">全部</RouterLink>
+                        <RouterLink class="nav-link" :to="{ name: 'productAll' }">全部</RouterLink>
                         <RouterLink class="nav-link" :to="{ name: '' }">上架</RouterLink>
                         <RouterLink class="nav-link" :to="{ name: '' }">下架</RouterLink>
                     </div>

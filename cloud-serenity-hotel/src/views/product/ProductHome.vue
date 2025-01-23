@@ -1,6 +1,7 @@
 <script setup>
 import Swal from 'sweetalert2';
 import { ref } from 'vue';
+import { RouterLink } from 'vue-router';
 
 const BASE_URL = import.meta.env.VITE_BACKEND_SERVER_URL;
 const GETALL_URL = `${BASE_URL}Product/selectAll`
@@ -102,8 +103,10 @@ function deleteItem(item) {
                     查詢
                 </button>
             </div>
-
-             <button class="text">新增商品</button>
+            <RouterLink :to="{ name: 'productAdd' }">
+                <button class="text">新增商品</button>
+            </RouterLink>
+             
 
         </div>
     <div>

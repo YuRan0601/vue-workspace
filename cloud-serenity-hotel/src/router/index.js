@@ -11,6 +11,7 @@ import BookingSearchView from "@/views/booking/BookingSearchView.vue";
 import FrontMember from "@/layouts/user/FrontMember.vue";
 import RoomTypeView from "@/views/booking/RoomTypeView.vue";
 import RoomView from "@/views/booking/RoomView.vue";
+import ProductAdd from "@/views/product/ProductAdd.vue";
 import ProductHome from "@/views/product/ProductHome.vue";
 import CarHome from "@/layouts/rent/CarHome.vue";
 import ModelOperate from "@/layouts/rent/modelOperate.vue";
@@ -249,7 +250,25 @@ const router = createRouter({
                   }
             ]
         },
+<<<<<<< HEAD
     ]
 })
+=======
+        {
+          path: '/productBack',
+          name: 'productBack',
+          component: ProductBack,
+          children: [
+            {
+              path: '/productAll',
+              name: 'productAll',
+              component: ProductHome
+            }
+          ]
+        },
+        { path: "/productAdd", component: ProductAdd, name: "productAdd" },
+      ]
+    },
+>>>>>>> product
 
 export default router;
