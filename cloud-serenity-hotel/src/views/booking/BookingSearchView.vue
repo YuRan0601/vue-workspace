@@ -21,7 +21,7 @@ const roomTypeDetail = ref({
 function seeRoomTypeDetail(item) {
   roomTypeDialog.value = true;
 
-  userStore.checkAdmin();
+  userStore.checkMember();
   console.log(userStore.user);
 
   const detail = roomTypeDetail.value;
