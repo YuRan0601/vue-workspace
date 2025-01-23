@@ -7,10 +7,10 @@ const userData = ref({
     userId: null,
     userName: ''
 })
-
+//檢查前先取資料
+useStores.fetchUser()
 watch(() => useStores.user, () => {
-    //檢查前先取資料
-    useStores.fetchUser()
+
     //檢查是否已有登入
     if (useStores.user != null) {
         isLogin.value = true

@@ -1,7 +1,29 @@
 <script setup>
 import { useAuthStore } from '@/stores/authStore';
-import { ref, computed } from 'vue';
+import { ref, computed, watch } from 'vue';
 const useStores = useAuthStore()
+const isLogin = ref()
+const identity = ref()
+
+//檢查前先取資料
+useStores.fetchUser()
+watch(() => useStores.user, () => {
+
+    //檢查是否已有登入
+    if (useStores.user != null) {
+        isLogin.value = true
+        identity.value = useStores.user.userIdentity
+        if (identity.value == 'user') {
+            window.location.href = '/front/member/Overview'
+        } else if (identity.value == 'admin') {
+            window.location.href = '/back';
+        }
+    } else {
+        isLogin.value = false
+    }
+    // console.log(isLogin.value);
+},
+    { immediate: true })
 
 const loginData = ref({
     email: '',
