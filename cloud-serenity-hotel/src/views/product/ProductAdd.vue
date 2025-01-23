@@ -1,7 +1,39 @@
 <script setup>
 import { ref } from 'vue';
-const imagePreview = ref(null);
 
+const BASE_URL = import.meta.env.VITE_BACKEND_SERVER_URL;
+const ADD_URL = `${BASE_URL}Product/insert`
+
+const product = ref({
+  "productName":"",
+  "price":"",
+  "specialPrice":"",
+  "categoriesName":"",
+  "description":""
+})
+const productAdd = async () =>{
+  console.log(product.value);
+  const response = await fetch(ADD_URL,{
+    method: 'POST',
+    body: JSON.stringify(product.value),
+    headers: {'Content-Type': 'application/json'}
+  })
+
+  if (response.ok) {
+    product.value = {
+      "productName":"",
+      "price":"",
+      "specialPrice":"",
+      "categoriesName":"",
+      "description":""
+    }
+  }
+  
+}
+
+
+//上傳時預覽圖片
+const imagePreview = ref(null);
 const previewImage = (event) => {
   const file = event.target.files[0];
   if (file) {
@@ -28,7 +60,7 @@ const previewImage = (event) => {
             <div class="row mb-3 justify-content-center">
                 <div class="col-lg-8">
                     <label for="userId" class="form-label">商品名稱</label>
-                    <input type="text" class="form-control" />
+                    <input type="text" class="form-control" v-model="product.productName"/>
                 </div>
             </div>
         </div>
@@ -50,7 +82,7 @@ const previewImage = (event) => {
             <div class="row mb-3 justify-content-center">
                 <div class="col-lg-8">
                     <label for="userId" class="form-label">分類</label>
-                    <input type="text" class="form-control" />
+                    <input type="text" class="form-control" v-model="product.categoriesName" />
                 </div>
             </div>
         </div>
@@ -58,7 +90,7 @@ const previewImage = (event) => {
             <div class="row mb-3 justify-content-center">
                 <div class="col-lg-8">
                     <label for="userId" class="form-label">售價</label>
-                    <input type="text" class="form-control" />
+                    <input type="text" class="form-control" v-model="product.price" />
                 </div>
             </div>
         </div>
@@ -66,7 +98,7 @@ const previewImage = (event) => {
             <div class="row mb-3 justify-content-center">
                 <div class="col-lg-8">
                     <label for="userId" class="form-label">特價</label>
-                    <input type="text" class="form-control" />
+                    <input type="text" class="form-control" v-model="product.specialPrice"/>
                 </div>
             </div>
         </div>
@@ -75,7 +107,7 @@ const previewImage = (event) => {
                 <!-- class="col-lg-8" 左右邊留大空白 -->
                 <div class="col-lg-8">
                 <label for="exampleFormControlTextarea1" class="form-label">商品描述</label>
-                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3"></textarea>
+                <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" v-model="product.description"></textarea>
             </div>
             </div>
         </div>
@@ -88,7 +120,7 @@ const previewImage = (event) => {
             </RouterLink>
             <div>
             <!-- 新增訂單按鈕 -->
-                <button class="button-29" role="button" @click="showAddOrderAlert">
+                <button class="button-29" role="button" @click.prevent.stop="productAdd">
                     <i class="bi bi-journal-text me-2"></i>新增商品確認
                 </button>
             </div>
