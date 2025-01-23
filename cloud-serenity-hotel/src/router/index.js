@@ -5,6 +5,7 @@ import RoomFront from "@/layouts/booking/RoomFront.vue";
 import BackView from "@/layouts/common/BackView.vue";
 import FrontView from "@/layouts/common/FrontView.vue";
 import RoomTypeView from "@/views/booking/RoomTypeView.vue";
+import ProductAdd from "@/views/product/ProductAdd.vue";
 import ProductHome from "@/views/product/ProductHome.vue";
 import { createRouter, createWebHistory } from "vue-router";
 const router = createRouter({
@@ -50,12 +51,13 @@ const router = createRouter({
           component: ProductBack,
           children: [
             {
-              path: '/ProductAll',
-              name: 'ProductAll',
+              path: '/productAll',
+              name: 'productAll',
               component: ProductHome
             }
           ]
-        }
+        },
+        { path: "/productAdd", component: ProductAdd, name: "productAdd" },
       ]
     },
 
