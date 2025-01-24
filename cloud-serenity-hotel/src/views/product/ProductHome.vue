@@ -48,8 +48,9 @@ const headers = [
 
 
 // 處理圖片 URL
-function getImageUrl(imageUrl) {
-    const Url = `${BASE_URL}${imageUrl}`;
+function getImageUrl(item ) {
+    const imgurl = item.OneToManyProductImages.find(img => img.isPrimary).imageUrl
+    const Url = `${BASE_URL}${imgurl}`;
     return Url;
     
     // return ${BASE_URL}${imageUrl};
@@ -113,7 +114,7 @@ function deleteItem(item) {
         <v-data-table :items="product" :headers="headers" item-value="typeName">
 
             <template #item.imageUrl="{ item }">
-                <img :src="getImageUrl(item.OneToManyProductImages.find(img => img.isPrimary).imageUrl)" alt="Product Image" style="height: 100px; width: 100px; object-fit: cover;" />
+                <img :src="getImageUrl(item )" alt="Product Image" style="height: 100px; width: 100px; object-fit: cover;" />
             </template>
 
             <template #item.listingStatus="{ item }">
