@@ -46,8 +46,6 @@ function seeRoomTypeDetail(item) {
   detail.typeDesc = item.typeDesc;
   detail.roomCount = item.roomCount;
   detail.maxCapacity = item.maxCapacity;
-
-  roomTypeDialog = true;
 }
 
 const searchRoomTypes = ref([]);
