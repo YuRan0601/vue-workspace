@@ -1,5 +1,7 @@
 import BookingBack from "@/components/booking/BookingBack.vue";
 import CarImage from "@/components/rent/CarImage.vue";
+import CarManage from "@/components/rent/CarManage.vue";
+import VehicleHeader from "@/components/rent/VehicleHeader.vue";
 import BookingHome from "@/layouts/booking/BookingHome.vue";
 import RoomFront from "@/layouts/booking/RoomFront.vue";
 import BackView from "@/layouts/common/BackView.vue";
@@ -49,21 +51,60 @@ const router = createRouter({
             }
           ]
         },
-        { path:'/rent/carHome', name:'carHome',component:CarHome,
+        {
+          path: "/rent/carHome",
+          name: "carHome",
+          component: CarHome,
           children: [
-            { path: '/rent/carType',name: 'carType',component: CarTypeView }
-          ]
+            {
+              path: "/rent/carManage", 
+              name: "carManage", 
+              component: CarManage 
+            }
+            ,{ 
+              path: "/rent/carType", 
+              name: "carType", 
+              component: CarTypeView 
+            },
+          ],
         },
-        { path:'/rent/modelOperate/:id',name:'modelOperate',component:ModelOperate, props:true,
+        {
+          path: "/rent/modelOperate/:id",
+          name: "modelOperate",
+          component: ModelOperate,
+          props: true,
           children: [
-            { path: '/rent/carInfo/:id',name: 'carInfo',component: CarInfo, props:true},
-            { path: 'carImage/:id',name: 'carImage',component: CarImage, props: true}          
-          ]
-        },{ path: '/rent/VehicleDetails',name: 'vehicleDetails',component: VehicleDetails,
-          children:[
-            { path: '/rent/VehicleList',name: 'vehicleList',component: VehicleList }
-          ]
-         }
+            {
+              path: "/rent/carInfo/:id",
+              name: "carInfo",
+              component: CarInfo,
+              props: true,
+            },
+            {
+              path: "carImage/:id",
+              name: "carImage",
+              component: CarImage,
+              props: true,
+            },
+          ],
+        },
+        {
+          path: "/rent/VehicleDetails",
+          name: "vehicleDetails",
+          component: VehicleDetails,
+          children: [
+            {
+              path: "/rent/VehicleList",
+              name: "vehicleList",
+              component: VehicleList,
+            },
+            {
+              path: '/rent/VehicleHeader',
+              name: 'VehicleHeader',
+              component: VehicleHeader,
+            }
+          ],
+        },
       ]
     },
     ]
