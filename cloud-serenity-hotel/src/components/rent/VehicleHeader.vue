@@ -1,0 +1,280 @@
+<script setup>
+import { ref } from "vue";
+import axios from "axios";
+
+// 表單資料
+const formData = ref({
+  carModelId: "",
+  carId: "",
+  colorOptions: "",
+  licensePlate: "",
+  year: "",
+  status: "",
+  createdAt: "",
+  updatedAt: "",
+});
+
+// 對話框顯示狀態
+const dialogVisible = ref(false);
+
+// 車型資料
+const carModels = ref([]);
+
+const colorOptions = [
+  { value: "紅色", name: "紅色" },
+  { value: "藍色", name: "藍色" },
+  { value: "黑色", name: "黑色" },
+  { value: "白色", name: "白色" },
+];
+
+// 生成當前的日期時間字串，格式：yyyy-MM-dd HH:mm:ss
+const getCurrentDateTime = () => {
+  const date = new Date();
+  const year = date.getFullYear();
+  const month = ("0" + (date.getMonth() + 1)).slice(-2);
+  const day = ("0" + date.getDate()).slice(-2);
+  const hours = ("0" + date.getHours()).slice(-2);
+  const minutes = ("0" + date.getMinutes()).slice(-2);
+  const seconds = ("0" + date.getSeconds()).slice(-2);
+
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
+
+// 開啟對話框並載入車型資料
+const openDialog = async () => {
+  dialogVisible.value = true;
+  await fetchCarModels(); // 開啟對話框時，執行此函數來載入車型資料
+};
+
+// 關閉對話框
+const closeDialog = () => {
+  dialogVisible.value = false;
+  formData.value = {}; // 清空表單資料
+};
+
+// 點擊對話框外部時也清空內容
+const onClickOutside = () => {
+  closeDialog();
+};
+
+const fetchCarModels = async () => {
+  try {
+    const response = await axios.get("/api/CarModel/queryAll");
+    carModels.value = response.data;
+  } catch (error) {
+    console.error("查詢車型資料失敗:", error);
+  }
+};
+
+// 當車型改變時觸發
+const onCarModelChange = () => {
+  if (formData.value.carModelId) {
+    fetchCarModelCount(formData.value.carModelId);
+  }
+};
+
+// 請求車型數量
+const fetchCarModelCount = async (carModelId) => {
+  try {
+    const response = await axios.get("/api/CarModel/countByCarModel", {
+      params: { carModel: carModelId },
+    });
+    console.log("車型數量:", response.data);
+    // 這裡可以根據需求進行處理，可能是顯示結果或更新狀態等
+  } catch (error) {
+    console.error("查詢失敗:", error);
+  }
+};
+
+// 提交表單的方法
+const submitForm = async () => {
+  try {
+    // 發送 POST 請求到後端 API
+    const response = await axios.post("/api/CarDetails/add", formData.value);
+    console.log("車型資料已新增:", response.data);
+
+    // 提交成功後隱藏對話框並重置表單數據
+    showDialog.value = false;
+    formData.value = {
+      carId: "",
+      carMadelId: "",
+      licensePlate: "",
+      colorOptions: "",
+      year: "",
+      status: " 可租用 ",
+      createdAt: getCurrentDateTime(), // 重設為當前時間
+      updatedAt: getCurrentDateTime(), // 重設為當前時間
+    };
+
+    Swal.fire({
+      icon: "success",
+      title: "車型資料已新增！",
+      text: "資料已成功提交。",
+    }).then(() => {
+      // 提交成功後刷新頁面
+      window.location.reload(); // 這樣會重新加載當前頁面
+      // 或者，若要導向某個頁面，可以使用 Vue Router
+      // router.push({ name: 'modelOperate' });
+    });
+  } catch (error) {
+    console.error("提交表單失敗:", error);
+  }
+};
+</script>
+
+<template>
+  <div>
+    <div>
+      <div>
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+          <div class="container-fluid">
+            <button
+              class="navbar-toggler"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarNavAltMarkup"
+              aria-controls="navbarNavAltMarkup"
+              aria-expanded="false"
+              aria-label="Toggle navigation"
+            >
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+              <div class="navbar-nav">
+                <RouterLink class="nav-link" :to="{ name: 'vehicleDetails' }"
+                  >車輛管理</RouterLink
+                >
+              </div>
+            </div>
+            <!-- 新增按鈕 -->
+            <button type="button" class="btn btn-success" @click="openDialog">
+              <i class="bi bi-plus-lg"></i> 新增
+            </button>
+          </div>
+        </nav>
+      </div>
+    </div>
+    <div>
+      <!-- 使用 v-dialog 顯示表單 -->
+      <v-dialog
+        v-model="dialogVisible"
+        max-width="500px"
+        persistent
+        @click:outside="onClickOutside"
+      >
+        <v-card>
+          <v-card-title>
+            <span class="headline">新增車輛資料</span>
+          </v-card-title>
+          <v-card-text>
+            <form @submit.prevent="submitForm">
+              <!-- 車型選擇 -->
+              <v-select
+                v-model="formData.carModelId"
+                :items="carModels"
+                item-value="carModelId"
+                item-title="carModel"
+                label="選擇車型"
+                :rules="[(v) => !!v || '車型為必填']"
+                required
+                @update:modelValue="onCarModelChange"
+              ></v-select>
+
+              <v-text-field
+                label="車輛編號"
+                v-model="formData.carId"
+                required
+                :rules="[(v) => !!v || '車輛編號為必填']"
+                readonly
+              />
+
+              <v-text-field
+                label="車牌號碼"
+                v-model="formData.licensePlate"
+                required
+                :rules="[(v) => !!v || '車牌號碼為必填']"
+                @input="
+                  formData.licensePlate = formData.licensePlate.toUpperCase()
+                "
+              />
+
+              <v-select
+                label="顏色選項"
+                v-model="formData.colorOptions"
+                :items="colorOptions"
+                required
+                item-text="name"
+                item-title="value"
+                :rules="[(v) => !!v || '顏色選項為必填']"
+              />
+
+              <!-- 汽車年份 -->
+              <v-text-field
+                label="汽車年份"
+                v-model="formData.year"
+                required
+                type="number"
+                :rules="[(v) => !!v || '汽車年份為必填']"
+              />
+
+              <!-- 車輛狀態 -->
+              <v-text-field
+                label="車輛狀態"
+                v-model="formData.status"
+                required
+              />
+
+              <!-- 隱藏創建時間欄位 -->
+              <v-text-field
+                v-model="formData.createdAt"
+                style="display: none"
+                :value="formData.createdAt"
+              />
+
+              <!-- 隱藏更新時間欄位 -->
+              <v-text-field
+                v-model="formData.updatedAt"
+                style="display: none"
+                :value="formData.updatedAt"
+              />
+            </form>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn color="primary" type="submit">送出</v-btn>
+            <v-btn text @click="closeDialog">取消</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </div>
+  </div>
+</template>
+
+<style scoped>
+/* 設置按鈕的背景顏色及樣式 */
+.btn-success {
+  background-color: var(
+    --bs-success-bg-subtle-hover,
+    #8ebe8e
+  ); /* 使用 CSS 變數來設置背景顏色 */
+  border: none; /* 取消按鈕邊框 */
+  color: rgb(0, 0, 0); /* 設置文字顏色 */
+  padding: 10px 15px; /* 設定內邊距 */
+  font-size: 15px; /* 調整按鈕字體大小 */
+  border-radius: 10px; /* 設置圓角 */
+  transition: background-color 0.3s ease, transform 0.2s ease; /* 增加背景顏色變化和縮放的過渡效果 */
+}
+
+/* 當滑鼠懸停在按鈕上時 */
+.btn-success:hover {
+  background-color: var(
+    --bs-success-bg-subtle-hover,
+    #a9dfa9
+  ); /* 假設你有定義 hover 顏色，否則可以直接寫 #4cae4c 或使用其他顏色 */
+  transform: scale(1.03); /* 按鈕放大效果 */
+}
+
+/* 當按鈕被點擊時，按鈕稍微縮小 */
+.btn-success:active {
+  transform: scale(0.98); /* 按鈕縮小效果 */
+}
+</style>
