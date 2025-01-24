@@ -1,7 +1,4 @@
 <script setup>
-// 載入 vue-slick-carousel 相關的樣式
-import VueSlickCarousel from 'vue-slick-carousel';
-import 'vue-slick-carousel/dist/vue-slick-carousel.css';
 
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router'; // 引入 vue-router 來提取路由參數

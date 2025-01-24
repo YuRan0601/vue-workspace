@@ -12,6 +12,7 @@ import Start from '@/components/common/Start.vue'
 </template>
 
 <style lang="css" scoped>
+@import '@/assets/css/style.css';
   .header {
     position: fixed;
     top: 0;
@@ -28,3 +29,13 @@ import Start from '@/components/common/Start.vue'
     padding: 0;
   }
 </style>
+
+<script>
+import AttractionComponent from './components/Attraction/AttractionComponent.vue';
+
+export default {
+  components: {
+    AttractionComponent,
+  },
+};
+</script>
