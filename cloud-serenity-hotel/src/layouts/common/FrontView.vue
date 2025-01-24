@@ -5,7 +5,8 @@ const useStores = useAuthStore()
 const isLogin = ref()
 const userData = ref({
     userId: null,
-    userName: ''
+    userName: '',
+    userIdentity: null
 })
 //檢查前先取資料
 useStores.fetchUser()
@@ -16,6 +17,7 @@ watch(() => useStores.user, () => {
         isLogin.value = true
         userData.value.userId = useStores.user.userId
         userData.value.userName = useStores.user.userName
+        userData.value.userIdentity = useStores.user.userIdentity
     } else {
         isLogin.value = false
     }
@@ -64,7 +66,7 @@ function logout() {
                             </li>
                             <li class="nav-item">
                                 <div v-if="isLogin" class="nav-link active">
-                                    <span>會員 {{ userData.userName }}</span>
+                                    <span><span v-if="userData.userIdentity === 'admin'">管理員</span> <span v-if="userData.userIdentity === 'user'">一般會員</span> {{ userData.userName }}</span>
                                 </div>
                                 <div v-else>
                                     <RouterLink class="nav-link" :to="{ name: 'login' }">登入會員</RouterLink>
