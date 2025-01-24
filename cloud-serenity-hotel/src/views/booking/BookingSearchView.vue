@@ -16,6 +16,7 @@ const roomTypeDetail = ref({
   typeId: null,
   roomCount: null,
   price: null,
+  maxCapacity: null,
 });
 
 function seeRoomTypeDetail(item) {
@@ -44,8 +45,7 @@ function seeRoomTypeDetail(item) {
   detail.price = item.price;
   detail.typeDesc = item.typeDesc;
   detail.roomCount = item.roomCount;
-
-  roomTypeDialog = true;
+  detail.maxCapacity = item.maxCapacity;
 }
 
 const searchRoomTypes = ref([]);
@@ -127,12 +127,16 @@ async function searchRoomTypeByDate() {
               alt="Card Image"
               class="white--text align-end"
               height="200px"
+              v-if="item.prImg.imgUrl"
             >
             </v-img>
+            <div v-else>沒有圖片</div>
             <v-card-title class="bg-gradient"
               >{{ item.typeName }} NT${{ item.price }}</v-card-title
             >
-            <v-card-text>剩餘房間數：{{ item.roomCount }}</v-card-text>
+            <br />
+            <v-card-text>可入住人數：{{ item.maxCapacity }} 人</v-card-text>
+            <v-card-text>剩餘房間數：{{ item.roomCount }} 間</v-card-text>
 
             <v-card-actions>
               <v-btn
@@ -153,7 +157,19 @@ async function searchRoomTypeByDate() {
           <v-card-text>
             <v-row dense>
               <v-col cols="12">
-                <v-img :src="roomTypeDetail.imgsUrl[0]"></v-img>
+                <v-carousel
+                  v-if="roomTypeDetail.imgsUrl"
+                  show-arrows="hover"
+                  hide-delimiter-background
+                  height
+                >
+                  <v-carousel-item
+                    v-for="(item, index) in roomTypeDetail.imgsUrl"
+                    :key="index"
+                    :src="item"
+                  ></v-carousel-item>
+                </v-carousel>
+                <div v-else>沒有圖片</div>
               </v-col>
 
               <v-col cols="12">
@@ -165,15 +181,15 @@ async function searchRoomTypeByDate() {
               </v-col>
 
               <v-col cols="12">
-                <p></p>
+                <p>房間描述：<br />{{ roomTypeDetail.typeDesc }}</p>
               </v-col>
 
               <v-col cols="12">
-                <p></p>
+                <p>可入住人數：{{ roomTypeDetail.maxCapacity }} 人</p>
               </v-col>
 
               <v-col cols="12">
-                <p></p>
+                <p>剩餘房間數： {{ roomTypeDetail.roomCount }} 間</p>
               </v-col>
             </v-row>
           </v-card-text>
