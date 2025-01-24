@@ -38,11 +38,11 @@ const fetchOrderDetail = async (orderId) => {
     try {
         const response = await axios.get(`/api/Order/findOrderDetails/${props.orderId}`);
 
-        // 確認 orderItemsBeans 存在並為數組
-        if (response.data.orderItemsBeans && Array.isArray(response.data.orderItemsBeans)) {
-            response.data.orderItemsBeans.sort((a, b) => a.orderitemId - b.orderitemId);
+        // 確認 orderItemsDtos 存在並為數組
+        if (response.data.orderItemsDtos && Array.isArray(response.data.orderItemsDtos)) {
+            response.data.orderItemsDtos.sort((a, b) => a.orderitemId - b.orderitemId);
         }
-
+        // 將排序後的數據賦值給 orderDetail
         orderDetail.value = response.data;
         console.log("訂單詳細資料：", response.data);
     } catch (error) {

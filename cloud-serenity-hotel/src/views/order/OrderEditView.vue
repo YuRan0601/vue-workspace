@@ -13,7 +13,7 @@ const props = defineProps({
 
 // 訂單詳細資料
 const orderDetail = ref({
-    orderItemsBeans: [], // 確保 orderItemsBeans 有初始值
+    orderItemsDtos: [], // 確保 orderItemsDtos 有初始值
 });
 const errorMessage = ref(""); // 錯誤訊息，用於顯示錯誤
 // 各欄位的錯誤訊息
@@ -150,7 +150,13 @@ const updateOrder = async () => {
 const fetchOrderDetail = async () => {
     try {
         const response = await axios.get(`/api/Order/findOrderDetails/${props.orderId}`);
-        orderDetail.value = response.data || { orderItemsBeans: [] };
+
+        // 確保 orderItemsDtos 存在並為數組
+        if (response.data.orderItemsDtos && Array.isArray(response.data.orderItemsDtos)) {
+            response.data.orderItemsDtos.sort((a, b) => a.orderitemId - b.orderitemId);
+        }
+        // 將排序後的數據賦值給 orderDetail
+        orderDetail.value = response.data || { orderItemsDtos: [] };
     } catch (error) {
         console.error("無法取得訂單資料：", error);
         errorMessage.value = "無法取得訂單資料，請稍後再試。";
