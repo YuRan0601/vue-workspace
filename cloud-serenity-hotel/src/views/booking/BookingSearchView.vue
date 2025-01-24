@@ -1,12 +1,16 @@
 <script setup>
 import { useAuthStore } from "@/stores/authStore";
+import { useBookingOrderStore } from "@/stores/bookingOrderStore";
 import axios from "axios";
+import { storeToRefs } from "pinia";
+import Swal from "sweetalert2";
 import { onMounted, ref } from "vue";
 
 const userStore = useAuthStore();
+const bookingOrderStore = useBookingOrderStore();
 
-const checkInDate = ref(null);
-const checkOutDate = ref(null);
+const selectedCheckInDate = ref(null);
+const selectedCheckOutDate = ref(null);
 const roomTypeDialog = ref(false);
 
 const roomTypeDetail = ref({
@@ -51,27 +55,51 @@ function seeRoomTypeDetail(item) {
 const searchRoomTypes = ref([]);
 
 function onSelectCheckInDate() {
-  if (checkInDate.value) {
-    checkOutDate.value = new Date(checkInDate.value);
-    checkOutDate.value.setDate(checkOutDate.value.getDate() + 1);
+  if (selectedCheckInDate.value) {
+    selectedCheckOutDate.value = new Date(selectedCheckInDate.value);
+    selectedCheckOutDate.value.setDate(
+      selectedCheckOutDate.value.getDate() + 1
+    );
   }
 }
 
 async function searchRoomTypeByDate() {
-  if (checkInDate.value == null || checkOutDate.value == null) {
+  if (selectedCheckInDate.value == null || selectedCheckOutDate.value == null) {
     alert("請選擇日期!");
     return;
   }
 
-  // const {data} = await axios.get(`http://localhost:8080/CloudSerenityHotel/room/${checkInDate.value.toISOString().split('T')[0]}/${checkOutDate.value.toISOString().split('T')[0]}`);
+  // const {data} = await axios.get(`http://localhost:8080/CloudSerenityHotel/room/${selectedCheckInDate.value.toISOString().split('T')[0]}/${selectedCheckOutDate.value.toISOString().split('T')[0]}`);
   const { data } = await axios.get(
-    `http://localhost:8080/CloudSerenityHotel/room/${checkInDate.value.toLocaleDateString(
+    `http://localhost:8080/CloudSerenityHotel/room/${selectedCheckInDate.value.toLocaleDateString(
       "en-CA"
-    )}/${checkOutDate.value.toLocaleDateString("en-CA")}`
+    )}/${selectedCheckOutDate.value.toLocaleDateString("en-CA")}`
   );
 
   console.log(data);
   searchRoomTypes.value = data;
+}
+
+function bookingRoomTypeConfirm(item) {
+  Swal.fire({
+    title: `確定預定 ${item.typeName}?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "確定",
+    cancelButtonText: "取消",
+  }).then(async (res) => {
+    if (res.isConfirmed) {
+      bookingOrderStore.checkInDate = selectedCheckInDate.value;
+      bookingOrderStore.checkOutDate = selectedCheckOutDate.value;
+      bookingOrderStore.totalPrice = item.price;
+      bookingOrderStore.roomTypeId = item.typeId;
+      bookingOrderStore.roomTypeName = item.typeName;
+
+      console.log(bookingOrderStore);
+    }
+  });
 }
 </script>
 
@@ -82,7 +110,7 @@ async function searchRoomTypeByDate() {
         <v-col cols="12" md="5">
           <v-date-input
             label="選擇入住日期"
-            v-model="checkInDate"
+            v-model="selectedCheckInDate"
             :min="new Date().toISOString().split('T')[0]"
             @update:modelValue="onSelectCheckInDate"
           ></v-date-input>
@@ -90,9 +118,9 @@ async function searchRoomTypeByDate() {
         <v-col cols="12" md="5">
           <v-date-input
             label="選擇退房日期"
-            v-model="checkOutDate"
+            v-model="selectedCheckOutDate"
             :min="new Date().toISOString().split('T')[0]"
-            :allowed-dates="(date) => date >= checkInDate"
+            :allowed-dates="(date) => date >= selectedCheckInDate"
           ></v-date-input>
         </v-col>
 
@@ -145,7 +173,9 @@ async function searchRoomTypeByDate() {
                 @click="seeRoomTypeDetail(item)"
                 >查看</v-btn
               >
-              <v-btn color="primary" @click="handleClick(item)">查看</v-btn>
+              <v-btn color="primary" @click="bookingRoomTypeConfirm(item)"
+                >訂房</v-btn
+              >
             </v-card-actions>
           </v-card>
         </v-col>
@@ -209,7 +239,7 @@ async function searchRoomTypeByDate() {
               color="primary"
               text="訂房"
               variant="tonal"
-              @click="updateRoomHandler"
+              @click="bookingRoomTypeConfirm"
             ></v-btn>
           </v-card-actions>
         </v-card>
