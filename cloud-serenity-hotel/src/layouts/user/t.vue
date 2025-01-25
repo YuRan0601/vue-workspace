@@ -1,10 +1,14 @@
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import axios from "axios";
 import { Modal } from "bootstrap"; // 顯式導入 Modal
 
-// 儲存查詢到的訂單資料
-const orders = ref([]);
+// 分頁相關的狀態
+const orders = ref([]); // 儲存查詢到的訂單資料
+const currentPage = ref(1); // 當前頁碼
+const itemsPerPage = ref(10); // 每頁顯示的筆數，0 表示顯示全部
+const totalItems = ref(0); // 總資料筆數
+const totalPages = ref(0); // 總頁數
 
 // 儲存目前選中的訂單資料，用於模態框顯示
 const selectedOrder = ref(null);
@@ -13,41 +17,40 @@ const selectedOrder = ref(null);
 const searchOrderId = ref("");
 
 // 格式化數字為整數
-const formatNumberToInteger = (number) => {
-    return Math.round(number); // 四捨五入至整數
-};
+const formatNumberToInteger = (number) => Math.round(number);
 
 // 格式化時間函數 (24 小時制)
 const formatDateTime = (dateTime) => {
     const date = new Date(dateTime);
-    const options = {
+    return date.toLocaleString("zh-TW", {
         year: "numeric",
         month: "2-digit",
         day: "2-digit",
         hour: "2-digit",
         minute: "2-digit",
-        hour12: false // **新增：使用 24 小時制**
-    };
-    return date.toLocaleDateString("zh-TW", options); // **保留台灣地區語言格式**
+        hour12: false,
+    });
 };
 
+// 載入訂單（支援分頁與全部資料）
 const fetchOrders = async () => {
     try {
-        const response = await axios.get("/api/Order/findAllOrders");
-        console.log("返回的完整資料：", response.data);
+        const params =
+            itemsPerPage.value === 0
+                ? {} // 顯示全部時，不傳遞分頁參數
+                : {
+                    page: currentPage.value - 1, // API 頁碼從 0 開始
+                    size: itemsPerPage.value,
+                };
 
-        // 強制檢查類型，防止意外轉換
-        let data = response.data;
-        if (Array.isArray(data)) {
-            orders.value = data.map(order => ({
-                ...order,
-                orderItemsBeans: undefined // 不需要顯示細項時移除
-            }));
-        } else {
-            console.error("API 返回的不是數組：", data);
-        }
+        const response = await axios.get("/api/Order/paged", { params });
+        const data = response.data;
+
+        orders.value = data.content || []; // 訂單數據
+        totalItems.value = data.totalElements || 0; // 總資料筆數
+        totalPages.value = data.totalPages || 1; // 總頁數
     } catch (error) {
-        console.error("API 請求失敗：", error);
+        console.error("無法獲取訂單數據：", error);
     }
 };
 
@@ -94,7 +97,7 @@ const confirmDelete = async () => {
 
     try {
         await axios.delete(`/api/Order/delete/${selectedOrder.value.orderId}`);
-        console.log(`訂單 ${selectedOrder.value.orderId} 已刪除`);
+        //console.log(`訂單 ${selectedOrder.value.orderId} 已刪除`);
         fetchOrders(); // 刪除成功後重新載入訂單列表
         const modal = Modal.getInstance(document.getElementById("exampleModal"));
         modal.hide(); // 關閉模態框
@@ -103,7 +106,10 @@ const confirmDelete = async () => {
     }
 };
 
-// 頁面載入時自動查詢資料_初始化頁面
+// 監聽分頁參數的變化
+watch([currentPage, itemsPerPage], fetchOrders);
+
+// 初始化
 onMounted(fetchOrders);
 </script>
 
@@ -165,8 +171,33 @@ onMounted(fetchOrders);
                     <td colspan="8" class="text-center">目前沒有訂單資料</td>
                 </tr>
             </tbody>
-
         </table>
+
+        <!-- 分頁控制 -->
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <div>
+                每頁顯示：
+                <select v-model="itemsPerPage" class="form-select d-inline w-auto">
+                    <option :value="10">10</option>
+                    <option :value="25">25</option>
+                    <option :value="50">50</option>
+                </select>
+            </div>
+            <div>{{ totalItems }} 條中第 {{ (currentPage - 1) * itemsPerPage + 1 }} ~ {{ Math.min(currentPage *
+                itemsPerPage, totalItems) }} 條</div>
+            <nav>
+                <ul class="pagination mb-0">
+                    <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                        <button class="page-link" @click="currentPage = Math.max(1, currentPage - 1)">上一頁</button>
+                    </li>
+                    <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                        <button class="page-link"
+                            @click="currentPage = Math.min(totalPages, currentPage + 1)">下一頁</button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
         <!-- 錯誤訊息的彈窗 -->
         <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -277,5 +308,19 @@ onMounted(fetchOrders);
 .button-48 span {
     z-index: 1;
     position: relative;
+}
+
+/* 控制按鈕容器與內容之間的間距 */
+.d-flex {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+/* 讓邊界更清晰 */
+.border-top {
+    border-top: 1px solid #ddd;
+    /* 添加一條淡灰色的頂部邊框 */
 }
 </style>
