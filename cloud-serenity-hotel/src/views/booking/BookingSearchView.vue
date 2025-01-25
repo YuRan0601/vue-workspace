@@ -26,9 +26,6 @@ const roomTypeDetail = ref({
 function seeRoomTypeDetail(item) {
   roomTypeDialog.value = true;
 
-  userStore.checkMember();
-  console.log(userStore.user);
-
   const detail = roomTypeDetail.value;
 
   let imgArray = [];
@@ -81,6 +78,12 @@ async function searchRoomTypeByDate() {
 }
 
 function bookingRoomTypeConfirm(item) {
+  userStore.checkMember();
+
+  if (!userStore.user) {
+    return;
+  }
+
   Swal.fire({
     title: `確定預定 ${item.typeName}?`,
     icon: "warning",
@@ -98,13 +101,15 @@ function bookingRoomTypeConfirm(item) {
       bookingOrderStore.roomTypeName = item.typeName;
 
       console.log(bookingOrderStore);
+
+      bookingOrderStore.toOrderView();
     }
   });
 }
 </script>
 
 <template>
-  <div>
+  <div class="container">
     <v-container>
       <v-row justify="center">
         <v-col cols="12" md="5">
@@ -248,4 +253,8 @@ function bookingRoomTypeConfirm(item) {
   </div>
 </template>
 
-<style lang="css" scoped></style>
+<style lang="css" scoped>
+.container {
+  height: 100vh;
+}
+</style>

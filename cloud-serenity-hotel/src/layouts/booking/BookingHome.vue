@@ -1,7 +1,7 @@
 <script setup></script>
 
 <template>
-  <div>
+  <div class="background">
     <div>
       <section class="breadcrumb_area header">
         <div
@@ -43,7 +43,7 @@
       </nav>
     </div>
 
-    <div class="container">
+    <div class="container bg-white">
       <RouterView></RouterView>
     </div>
   </div>
@@ -59,5 +59,15 @@
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+* {
+  padding: 0;
+}
+
+.background {
+  background-color: #6dc6d6;
+  min-height: 100vh; /* 让背景覆盖整个视窗高度 */
+  box-sizing: border-box; /* 确保 padding 不影响背景宽度 */
 }
 </style>

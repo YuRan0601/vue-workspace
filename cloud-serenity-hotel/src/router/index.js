@@ -32,6 +32,7 @@ import MemberInfo from "@/views/user/MemberInfo.vue";
 import { useAuthStore } from "@/stores/authStore";
 import MemberAccount from "@/views/user/MemberAccount.vue";
 import AttractionComponent from "@/components/Attraction/AttractionComponent.vue";
+import BookingOrderView from "@/views/booking/BookingOrderView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -67,6 +68,11 @@ const router = createRouter({
               name: "bookingSearch",
               component: BookingSearchView,
             },
+            {
+              path: "/bookingOrder",
+              name: "bookingOrder",
+              component: BookingOrderView,
+            }
           ],
         },
         {
