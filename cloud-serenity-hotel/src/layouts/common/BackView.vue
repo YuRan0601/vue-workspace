@@ -138,7 +138,7 @@ function logout() {
               </li>
               <li>
                 <RouterLink :to="{ name: 'vehicleDetails' }"
-                  >車型管理</RouterLink
+                  >車輛管理</RouterLink
                 >
               </li>
               <li><a href="#" class="link-dark rounded">訂單管理</a></li>

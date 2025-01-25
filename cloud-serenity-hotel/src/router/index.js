@@ -33,6 +33,8 @@ import { useAuthStore } from "@/stores/authStore";
 import MemberAccount from "@/views/user/MemberAccount.vue";
 import AttractionComponent from "@/components/Attraction/AttractionComponent.vue";
 import BookingOrderView from "@/views/booking/BookingOrderView.vue";
+import DetailsOperate from "@/layouts/rent/detailsOperate.vue";
+import CarDetails from "@/views/rent/CarDetails.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -273,6 +275,26 @@ const router = createRouter({
               path: "/rent/VehicleList",
               name: "vehicleList",
               component: VehicleList,
+            },
+          ],
+        },{
+          path: "/rent/DetailsOperate/:id/:carId",
+          name: "DetailsOperate",
+          component: DetailsOperate,
+          props: true,
+          children: [
+          {
+            path: "carImage/:id",
+            name: "carImageDetails",
+            component: CarImage,
+            props: true,
+          }
+            ,
+            {
+              path: "CarDetails/:id/:carId",
+              name: "CarDetails",
+              component: CarDetails,
+              props: true,
             },
           ],
         },

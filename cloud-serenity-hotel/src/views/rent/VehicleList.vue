@@ -16,36 +16,46 @@ const toUpperCase = () => {
 // 發送車型資料和車輛資料的請求
 onMounted(async () => {
   try {
-    // 並行發送兩個請求
-    const [carResponse, detailsResponse] = await Promise.all([
-      axios.get("/api/CarModel/queryAll"),
-      axios.get("/api/CarDetails/queryAll"),
-    ]);
-
+    // 發送車型資料請求
+    const carResponse = await axios.get(
+      "http://localhost:8080/CloudSerenityHotel/CarModel/queryAll"
+    );
     // 更新車型資料
     carModels.value = carResponse.data;
     console.log("車型資料已加載", carModels.value);
+  } catch (error) {
+    console.error("車型資料請求失敗:", error);
+    Swal.fire({
+      icon: "error",
+      title: "車型資料載入失敗",
+      text: "無法載入車型資料，請稍後再試",
+    });
+  }
 
+  try {
+    // 發送車輛資料請求
+    const detailsResponse = await axios.get(
+      "http://localhost:8080/CloudSerenityHotel/CarDetails/queryAll"
+    );
     // 更新車輛資料
     formData.value = detailsResponse.data;
     console.log("車輛資料已加載", formData.value);
   } catch (error) {
-    console.error("Error fetching data:", error);
-    Swal.fire({
-      icon: "error",
-      title: "資料載入失敗",
-      text: "無法載入車輛資料或車型資料",
-    });
+    console.error("車輛資料請求失敗:", error);
   }
 });
 
 const getCarModelName = (carModelId) => {
-  const carModel = carModels.value.find((model) => model.id === carModelId);
+  const carModel = carModels.value.find(
+    (model) => model.carModelId === carModelId
+  );
   return carModel ? carModel.carModel : "未知車型";
 };
 
 const getCarBrandName = (carModelId) => {
-  const carModel = carModels.value.find((model) => model.id === carModelId);
+  const carModel = carModels.value.find(
+    (model) => model.carModelId === carModelId
+  );
   return carModel ? carModel.brand : "未知品牌";
 };
 </script>
@@ -66,7 +76,6 @@ const getCarBrandName = (carModelId) => {
         <tr class="table-light" v-for="(car, index) in formData" :key="index">
           <td class="text-center align-middle">{{ car.carId }}</td>
           <!-- 根據 car.carModelId 查找對應的車型名稱 -->
-          <!-- 車型名稱 -->
           <td class="text-center align-middle">
             {{ getCarModelName(car.carModelId) }}
           </td>
@@ -76,6 +85,16 @@ const getCarBrandName = (carModelId) => {
           </td>
           <td class="text-center align-middle">{{ car.colorOptions }}</td>
           <td class="text-center align-middle">{{ car.status }}</td>
+          <td class="text-center align-middle">
+            <RouterLink
+              :to="{
+                name: 'DetailsOperate',
+                params: { id: car.carModelId, carId: car.carId },
+              }"
+            >
+              <label class="btn btn-outline-secondary">查看</label>
+            </RouterLink>
+          </td>
         </tr>
       </tbody>
     </table>
