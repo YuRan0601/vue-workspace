@@ -1,14 +1,14 @@
 <script setup>
-import Swal from 'sweetalert2';
-import 'sweetalert2/dist/sweetalert2.min.css';
-import { onMounted, ref, defineProps } from 'vue';
-import { useRoute } from 'vue-router';
-import axios from 'axios';
+import Swal from "sweetalert2";
+import "sweetalert2/dist/sweetalert2.min.css";
+import { onMounted, ref, defineProps } from "vue";
+import { useRoute } from "vue-router";
+import axios from "axios";
 
 // 定義 props，這裡我們期待傳遞一個 `id`
 defineProps({
-    id:String
-  })
+  id: String,
+});
 
 // 使用 onMounted 來處理組件掛載後的邏輯
 const route = useRoute(); // 使用 useRoute 來取得當前路由的參數
@@ -17,25 +17,26 @@ onMounted(async () => {
   try {
     // 從路由的 `params` 取得 `id`
     const carModelId = route.params.id;
-    const response = await axios.get(`/api/CarModel/queryOne/${carModelId}`);  // 使用 `carModelId` 來請求資料
-    carData.value = response.data;  // 將資料存儲到 `carDate`
-    
+    const response = await axios.get(
+      `http://localhost:8080/CloudSerenityHotel/CarModel/queryOne/${carModelId}`
+    ); // 使用 `carModelId` 來請求資料
+    carData.value = response.data; // 將資料存儲到 `carDate`
   } catch (error) {
-    console.error('Error fetching data:', error);
+    console.error("Error fetching data:", error);
     Swal.fire({
-      icon: 'error',
-      title: '資料載入失敗',
-      text: '無法載入車輛資料'
+      icon: "error",
+      title: "資料載入失敗",
+      text: "無法載入車輛資料",
     });
   }
 });
 
 const formatDate = (date) => {
   const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // 月份從0開始，所以加1
-  const day = String(date.getDate()).padStart(2, '0');
-  const hours = String(date.getHours()).padStart(2, '0');
-  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // 月份從0開始，所以加1
+  const day = String(date.getDate()).padStart(2, "0");
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
 
   return `${year}-${month}-${day} ${hours}:${minutes}`;
 };
@@ -43,18 +44,18 @@ const formatDate = (date) => {
 const dialog = ref(false);
 const valid = ref(false);
 const carData = ref({
-  carId: '', 
-  brand: '', 
-  engineDisplacement: '', 
-  seatCount: '', 
-  carType: '', 
-  carSize: '',
-  updatedAt:''
+  carModelId: "",
+  brand: "",
+  engineDisplacement: "",
+  seatCount: "",
+  carType: "",
+  carSize: "",
+  updatedAt: "",
 });
 
 // 預設的表單驗證規則
 const rules = {
-  required: value => !!value || '此欄位為必填'
+  required: (value) => !!value || "此欄位為必填",
 };
 
 // 點擊按鈕後開啟對話框並加載資料
@@ -68,23 +69,28 @@ const editCarData = (carData) => {
 const submitForm = () => {
   if (valid.value) {
     // 先更新車型資料
-    const currentData = formatDate(new Date()); 
+    const currentData = formatDate(new Date());
     carData.value.updatedAt = currentData;
-    axios.post('/api/CarModel/update', carData.value, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(response => {
-      // 車型資料更新成功
-      Swal.fire('修改成功', '車型資料已成功修改！', 'success');
-      closeDialog();
-      updateCarData();
-    })
-    .catch(error => {
-      console.error("車型資料更新失敗", error);
-      Swal.fire('修改失敗', '車型資料更新失敗，請稍後再試！', 'error');
-    });
+    axios
+      .post(
+        "http://localhost:8080/CloudSerenityHotel/CarModel/update",
+        carData.value,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      )
+      .then((response) => {
+        // 車型資料更新成功
+        Swal.fire("修改成功", "車型資料已成功修改！", "success");
+        closeDialog();
+        updateCarData();
+      })
+      .catch((error) => {
+        console.error("車型資料更新失敗", error);
+        Swal.fire("修改失敗", "車型資料更新失敗，請稍後再試！", "error");
+      });
   }
 };
 // 關閉對話框
@@ -95,36 +101,45 @@ const closeDialog = () => {
 // 更新車型資料
 const updateCarData = () => {
   // 假設你有一個方法來從 API 拉取資料
-  axios.get(`/api/CarModel/queryOne/${carData.value.carId}`)
-    .then(response => {
+  axios
+    .get(
+      `http://localhost:8080/CloudSerenityHotel/CarModel/queryOne/${carData.value.carId}`
+    )
+    .then((response) => {
       // 更新 carDate 來顯示最新的資料
       carData.value = response.data;
     })
-    .catch(error => {
-      console.error('獲取資料失敗:', error.response ? error.response.data : error);
+    .catch((error) => {
+      console.error(
+        "獲取資料失敗:",
+        error.response ? error.response.data : error
+      );
     });
 };
 
 const deleteModel = () => {
   Swal.fire({
-    title: '確定刪除該車型資料嗎?',
+    title: "確定刪除該車型資料嗎?",
     text: "這將刪除所選車型資料！",
-    icon: 'warning',
+    icon: "warning",
     showCancelButton: true,
-    confirmButtonText: '刪除',
-    cancelButtonText: '取消'
+    confirmButtonText: "刪除",
+    cancelButtonText: "取消",
   }).then((result) => {
     if (result.isConfirmed) {
       // 這裡添加刪除車型資料的邏輯，假設有一個刪除車型資料的 API
-      axios.post('/api/CarModel/delete', { carId: carData.value.carId })
+      axios
+        .post("http://localhost:8080/CloudSerenityHotel/CarModel/delete", {
+          carModelId: carData.value.carModelId,
+        })
         .then(() => {
-          Swal.fire('刪除成功', '車型資料已成功刪除！', 'success');
+          Swal.fire("刪除成功", "車型資料已成功刪除！", "success");
           updateCarData(); // 更新頁面顯示的資料
           // 刪除成功後跳轉至 CarHome 頁面
-          window.location.href = '/rent/carHome';
+          window.location.href = "/rent/carHome";
         })
         .catch((error) => {
-          Swal.fire('刪除失敗', '車型資料刪除過程中發生錯誤', 'error');
+          Swal.fire("刪除失敗", "車型資料刪除過程中發生錯誤", "error");
           console.error(error);
         });
     }
@@ -144,30 +159,27 @@ onMounted(() => {
   fileInput = document.querySelector('input[type="file"]'); // 使用 document.querySelector 獲取 input 元素
 });
 
-
-
 const isSelected = (index) => {
-  return selectedIndexes.value.includes(index)
-}
+  return selectedIndexes.value.includes(index);
+};
 
 // 打開對話框
 const openDialog = (data) => {
   carData.value = data;
-  showDialog.value = true;  // 顯示對話框
+  showDialog.value = true; // 顯示對話框
   imageUrls.value = []; // 重置圖片預覽
   imageFile.value = null; // 清空已選圖片檔案
-  
 
-  console.log(carData.value);  // 檢查 carData 是否正確
+  console.log(carData.value); // 檢查 carData 是否正確
 };
 
 // 關閉對話框
 const closeDialogimage = () => {
-  showDialog.value = false  // 隱藏對話框
-  imageFile.value = null    // 清空當前選擇的圖片文件
-  imageUrls.value = []      // 清空顯示的圖片
-  imageUrlsDB.value = []
-}
+  showDialog.value = false; // 隱藏對話框
+  imageFile.value = null; // 清空當前選擇的圖片文件
+  imageUrls.value = []; // 清空顯示的圖片
+  imageUrlsDB.value = [];
+};
 
 // 觸發圖片選擇框
 const triggerImageUpload = () => {
@@ -204,25 +216,29 @@ const addImage = () => {
 // 修改圖片
 const setMainImage = async () => {
   if (selectedIndexesDB.value.length > 0) {
-    const selectedImage = selectedIndexesDB.value[0];  // 取第一張選中的圖片
-    console.log('選中的圖片:', selectedImage);  // 查看選中的圖片資訊
+    const selectedImage = selectedIndexesDB.value[0]; // 取第一張選中的圖片
+    console.log("選中的圖片:", selectedImage); // 查看選中的圖片資訊
 
     // 提取所需的 carId 和 imageId
-    const imageId = selectedImage.id;  // 假設 selectedImage 包含 id 和 modelId
-    const carId = carData.value.carId;  // 從 carData 中提取 carId
+    const imageId = selectedImage.id; // 假設 selectedImage 包含 id 和 modelId
+    const carId = carData.value.carId; // 從 carData 中提取 carId
 
     // 送出 API 請求來更新主圖
     try {
-      const response = await axios.post('/api/ImageCar/update',  {  
-        carId: carId,
-        imageId: imageId });
+      const response = await axios.post(
+        "http://localhost:8080/CloudSerenityHotel//ImageCar/update",
+        {
+          carId: carId,
+          imageId: imageId,
+        }
+      );
 
-      console.log(response.data);  // 輸出返回的結果
+      console.log(response.data); // 輸出返回的結果
     } catch (error) {
-      console.error('錯誤:', error.response);
+      console.error("錯誤:", error.response);
     }
   } else {
-    console.error('未選擇圖片');
+    console.error("未選擇圖片");
   }
 };
 
@@ -245,35 +261,39 @@ const addModelImage = () => {
     alert("請選擇圖片！");
     return;
   }
-  console.log("車型 ID:", carData.value.carId); // 確認 carId 是否有值
-    if (!carData.value.carId) {
-      alert("車型 ID 無效，無法上傳圖片！");
-      return;
-    }
-  const formData = new FormData();
-  formData.append("carId", carData.value.carId);  // 使用 openDialog 設定的 carId
-  Array.from(imageFile.value).forEach(file => {
-    formData.append("images", file);  // 新增選中的圖片
-  });
-
-  axios.post("/api/ImageCar/addImage", formData, {
-  headers: {
-    "Content-Type": "multipart/form-data",
+  console.log("車型 ID:", carData.value.carModelId); // 確認 carId 是否有值
+  if (!carData.value.carModelId) {
+    alert("車型 ID 無效，無法上傳圖片！");
+    return;
   }
-  })
-  .then(response => {
-    Swal.fire('圖片上傳成功', '圖片已成功上傳！', 'success');
-    updateCarData();  // 更新車型資料顯示
-
-    // 圖片上傳成功後刷新頁面
-    window.location.reload(); // 重新加載頁面
-  })
-  .catch(error => {
-    Swal.fire('圖片上傳失敗', '圖片上傳過程中發生錯誤', 'error');
-    console.error("圖片上傳錯誤:", error);
+  const formData = new FormData();
+  formData.append("carId", carData.value.carModelId); // 使用 openDialog 設定的 carId
+  Array.from(imageFile.value).forEach((file) => {
+    formData.append("images", file); // 新增選中的圖片
   });
-};
 
+  axios
+    .post(
+      "http://localhost:8080/CloudSerenityHotel/ImageCar/addImage",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    )
+    .then((response) => {
+      Swal.fire("圖片上傳成功", "圖片已成功上傳！", "success");
+      updateCarData(); // 更新車型資料顯示
+
+      // 圖片上傳成功後刷新頁面
+      window.location.reload(); // 重新加載頁面
+    })
+    .catch((error) => {
+      Swal.fire("圖片上傳失敗", "圖片上傳過程中發生錯誤", "error");
+      console.error("圖片上傳錯誤:", error);
+    });
+};
 
 // 用來追蹤選中的圖片索引
 const selectedIndexes = ref([]);
@@ -282,12 +302,12 @@ const selectedIndexes = ref([]);
 const toggleSelection = (index) => {
   if (isSelected(index)) {
     // 如果已經選中，則取消選中
-    selectedIndexes.value = selectedIndexes.value.filter(i => i !== index)
+    selectedIndexes.value = selectedIndexes.value.filter((i) => i !== index);
   } else {
     // 如果未選中，則選中
-    selectedIndexes.value.push(index)
+    selectedIndexes.value.push(index);
   }
-}
+};
 
 // 假設的圖片選擇處理函數
 const selectImages = () => {
@@ -295,28 +315,31 @@ const selectImages = () => {
   // 這裡可以添加處理圖片選擇的邏輯，例如打開文件選擇框
 };
 
-const getImages = async () => { 
+const getImages = async () => {
   try {
     const carModelId = route.params.id;
-    const response = await axios.get(`/api/ImageCar/queryOne/${carModelId}`,{
-      params: {
-        carId: carData.value.carId  // 將 carId 作為查詢參數
+    const response = await axios.get(
+      `http://localhost:8080/CloudSerenityHotel/ImageCar/queryOne/${carModelId}`,
+      {
+        params: {
+          carId: carData.value.carModelId, // 將 carId 作為查詢參數
+        },
       }
-    });  // 從後端獲取圖片 URL
-    console.log('API 回應:', response.data); 
-      if (response.data) {
-    // 如果 response.data 存在，且 response.data.imageUrls 是一個陣列
-    imageUrlsDB.value = response.data;  // 更新 imageUrls
-  } else {
-    console.error('返回的圖片數據格式錯誤', response.data);  // 如果不符合條件，顯示錯誤
-  }
+    ); // 從後端獲取圖片 URL
+    console.log("API 回應:", response.data);
+    if (response.data) {
+      // 如果 response.data 存在，且 response.data.imageUrls 是一個陣列
+      imageUrlsDB.value = response.data; // 更新 imageUrls
+    } else {
+      console.error("返回的圖片數據格式錯誤", response.data); // 如果不符合條件，顯示錯誤
+    }
   } catch (error) {
-    console.error('獲取圖片失敗:', error)
+    console.error("獲取圖片失敗:", error);
   }
-}
+};
 
 const getImageSrc = (base64Str) => {
-  console.log('Base64 String (first 100 chars):', base64Str.slice(0, 100));  // 輸出前 100 個字元
+  console.log("Base64 String (first 100 chars):", base64Str.slice(0, 100)); // 輸出前 100 個字元
   // 檢查 base64 字串的前綴來判斷圖片格式
   if (base64Str.startsWith("/9j/")) {
     // JPEG 格式
@@ -331,32 +354,33 @@ const getImageSrc = (base64Str) => {
 };
 
 //資料庫 圖片勾選欄
-const selectedIndexesDB = ref([])
+const selectedIndexesDB = ref([]);
 
 const isSelectedDB = (index) => {
-  return selectedIndexesDB.value.includes(index)
-}
+  return selectedIndexesDB.value.includes(index);
+};
 
 // 切換某個圖片的選擇狀態
 const toggleSelectionDB = (index) => {
   if (isSelectedDB(index)) {
-    selectedIndexesDB.value = selectedIndexesDB.value.filter(i => i !== index)
+    selectedIndexesDB.value = selectedIndexesDB.value.filter(
+      (i) => i !== index
+    );
   } else {
-    selectedIndexesDB.value.push(index)
+    selectedIndexesDB.value.push(index);
   }
-}
-
+};
 </script>
 
 <template>
-
   <div class="car-info-container">
     <h2 class="car-model">{{ carData.carModel }}</h2>
     <div class="car-info">
-      <p><strong>車輛編號：</strong>{{ carData.carId }}</p>
+      <p><strong>車輛編號：</strong>{{ carData.carModelId }}</p>
       <p><strong>品牌：</strong>{{ carData.brand }}</p>
       <p><strong>排氣量：</strong>{{ carData.engineDisplacement }}</p>
-      <p><strong>座位數量：</strong>{{ carData.seatingCapacity }}</p> <!-- 假設 seatCount 為座位數 -->
+      <p><strong>座位數量：</strong>{{ carData.seatingCapacity }}</p>
+      <!-- 假設 seatCount 為座位數 -->
       <p><strong>車輛類型：</strong>{{ carData.carType }}</p>
       <p><strong>車輛大小：</strong>{{ carData.carSize }}</p>
       <p><strong>總車輛數：</strong>{{ carData.totalVehicles }}</p>
@@ -364,99 +388,219 @@ const toggleSelectionDB = (index) => {
       <p><strong>創建時間：</strong>{{ carData.createdAt }}</p>
       <p><strong>更新時間：</strong>{{ carData.updatedAt }}</p>
     </div>
+    <div class="description-container">
+      <p><strong>描述：</strong>{{ carData.description }}</p>
+    </div>
 
     <v-dialog v-model="dialog" max-width="500px">
       <v-card>
         <v-card-title class="headline">修改車輛資料</v-card-title>
         <v-card-text>
           <v-form ref="form" v-model="valid" lazy-validation>
-            <v-text-field v-model="carData.carId" label="車輛編號" :readonly="true"></v-text-field>
-            <v-text-field v-model="carData.brand" label="品牌" :rules="[rules.required]"></v-text-field>
-            <v-text-field v-model="carData.engineDisplacement" label="排氣量" :rules="[rules.required]"></v-text-field>
-            <v-text-field v-model="carData.seatingCapacity" label="座位數量" :rules="[rules.required]"></v-text-field>
-            <v-text-field v-model="carData.carType" label="車輛類型" :rules="[rules.required]"></v-text-field>
-            <v-text-field v-model="carData.carSize" label="車輛大小" :rules="[rules.required]"></v-text-field>
+            <v-text-field
+              v-model="carData.carModelId"
+              label="車輛編號"
+              :readonly="true"
+            ></v-text-field>
+            <v-text-field
+              v-model="carData.brand"
+              label="品牌"
+              :rules="[rules.required]"
+            ></v-text-field>
+            <v-text-field
+              v-model="carData.engineDisplacement"
+              label="排氣量"
+              :rules="[rules.required]"
+            ></v-text-field>
+            <v-text-field
+              v-model="carData.seatingCapacity"
+              label="座位數量"
+              :rules="[rules.required]"
+            ></v-text-field>
+            <v-text-field
+              v-model="carData.carType"
+              label="車輛類型"
+              :rules="[rules.required]"
+            ></v-text-field>
+            <v-text-field
+              v-model="carData.carSize"
+              label="車輛大小"
+              :rules="[rules.required]"
+            ></v-text-field>
           </v-form>
         </v-card-text>
-         <v-card-actions>
+        <v-card-actions>
           <v-btn text @click="closeDialog">取消</v-btn>
-          <v-btn color="primary" @click="submitForm" :disabled="!valid">修改</v-btn>
+          <v-btn color="primary" @click="submitForm" :disabled="!valid"
+            >修改</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
-     
-    <div>  
-        <button type="button" class="btn btn-outline-success hover-text-color ms-2" style="background-color: var(--bs-success-bg-subtle);" @click="editCarData(carData)">
-          <i class="bi bi-pencil-square icon-size"></i>
-        </button>
-        <button type="button" class="btn btn-danger hover-text-color ms-2" style="background-color: var(--bs-danger-border-subtle);" @click="deleteModel">
-          <i class="bi bi-trash icon-size"></i>
-        </button>
-        <button type="button" class="btn btn-outline-success hover-text-color ms-2" style="background-color: var(--bs-primary-bg-subtle);" @click="openDialog(carData)">
-          <i class="bi bi-card-image icon-size"></i>
-        </button>
-      </div>
 
-      <!-- 假設這裡是一個圖片操作的對話框 -->
-      <div v-if="showDialog" class="modal">
-        <div class="modal-content">
-            <div class="image-upload-container">
-              <h4>選擇圖片操作</h4>
-              <button class="btn btn-outline-success btn-lg" @click="addImage">
-                <i class="bi bi-plus-circle icon-size-image"></i> 
-              </button>
-              <button class="btn btn-outline-success btn-lg" @click="getImages">
-                <i class="bi bi-images icon-size-image"></i>
-              </button>
-          </div>
-          <div v-if="imageUrls.length">
-    <div class="image-preview-container">
-      <div v-for="(url, index) in imageUrls" :key="index" class="image-preview-item" @click="toggleSelection(index)">
-        <div class="image-preview-wrapper">
-          <!-- 顯示圖片 -->
-          <img :src="url" alt="preview" class="image-preview" />
-          <!-- 勾選框，根據圖片是否被選中顯示 -->
-          <input 
-            type="checkbox" 
-            :checked="isSelected(index)" 
-            @change="toggleSelection(index)" 
-            class="select-checkbox" 
-          />
-                </div>
+    <div>
+      <button
+        type="button"
+        class="btn btn-outline-success hover-text-color ms-2"
+        style="background-color: var(--bs-success-bg-subtle)"
+        @click="editCarData(carData)"
+      >
+        <i class="bi bi-pencil-square icon-size"></i>
+      </button>
+      <button
+        type="button"
+        class="btn btn-danger hover-text-color ms-2"
+        style="background-color: var(--bs-danger-border-subtle)"
+        @click="deleteModel"
+      >
+        <i class="bi bi-trash icon-size"></i>
+      </button>
+      <button
+        type="button"
+        class="btn btn-outline-success hover-text-color ms-2"
+        style="background-color: var(--bs-primary-bg-subtle)"
+        @click="openDialog(carData)"
+      >
+        <i class="bi bi-card-image icon-size"></i>
+      </button>
+    </div>
+
+    <!-- 假設這裡是一個圖片操作的對話框 -->
+    <div v-if="showDialog" class="modal">
+      <div class="modal-content">
+        <div class="image-upload-container">
+          <h4>選擇圖片操作</h4>
+          <button class="btn btn-outline-success btn-lg" @click="addImage">
+            <i class="bi bi-plus-circle icon-size-image"></i>
+          </button>
+          <button class="btn btn-outline-success btn-lg" @click="getImages">
+            <i class="bi bi-images icon-size-image"></i>
+          </button>
+        </div>
+        <div v-if="imageUrls.length">
+          <div class="image-preview-container">
+            <div
+              v-for="(url, index) in imageUrls"
+              :key="index"
+              class="image-preview-item"
+              @click="toggleSelection(index)"
+            >
+              <div class="image-preview-wrapper">
+                <!-- 顯示圖片 -->
+                <img :src="url" alt="preview" class="image-preview" />
+                <!-- 勾選框，根據圖片是否被選中顯示 -->
+                <input
+                  type="checkbox"
+                  :checked="isSelected(index)"
+                  @change="toggleSelection(index)"
+                  class="select-checkbox"
+                />
               </div>
             </div>
           </div>
-          <div>
+        </div>
+        <div>
           <div v-if="imageUrlsDB.length > 0" class="imageDB-preview-container">
-            <div v-for="(image, index) in imageUrlsDB" :key="index" class="image-preview-item">
+            <div
+              v-for="(image, index) in imageUrlsDB"
+              :key="index"
+              class="image-preview-item"
+            >
               <!-- 顯示圖片，並且當圖片被點擊時切換勾選狀態 -->
-              <img :src="getImageSrc(image)" alt="Image Preview" class="image-preview" @click="toggleSelectionDB(index)"/>
+              <img
+                :src="getImageSrc(image)"
+                alt="Image Preview"
+                class="image-preview"
+                @click="toggleSelectionDB(index)"
+              />
               <!-- 勾選框 -->
-              <input type="checkbox" :checked="isSelectedDB(index)" @change="toggleSelectionDB(index)" class="select-checkbox"/>
+              <input
+                type="checkbox"
+                :checked="isSelectedDB(index)"
+                @change="toggleSelectionDB(index)"
+                class="select-checkbox"
+              />
             </div>
           </div>
         </div>
-          <div class="button-group">
-            <button type="button" class="btn btn-outline-success hover-text-color ms-2" style="background-color: var(--bs-success-bg-subtle);" @click="addModelImage">新增圖片</button>
-            <input type="file" ref="fileInput" style="display: none;" @change="handleImageChange" accept="image/*" multiple />
-            <button type="button" class="btn btn-outline-success hover-text-color ms-2" style="background-color: var(--bs-danger-bg-subtle);" @click="setMainImage">選擇主圖</button>
-          <button type="button" class="btn btn-outline-success hover-text-color ms-2" style="background-color: var(--bs-primary-bg-subtle);" @click="deleteImage">刪除選擇
+        <div class="button-group">
+          <button
+            type="button"
+            class="btn btn-outline-success hover-text-color ms-2"
+            style="background-color: var(--bs-success-bg-subtle)"
+            @click="addModelImage"
+          >
+            新增圖片
           </button>
-          <button 
-            type="button" 
-            class="btn btn-outline-success hover-text-color ms-2" 
-            style="background-color: var(--bs-border-color);" 
+          <input
+            type="file"
+            ref="fileInput"
+            style="display: none"
+            @change="handleImageChange"
+            accept="image/*"
+            multiple
+          />
+          <button
+            type="button"
+            class="btn btn-outline-success hover-text-color ms-2"
+            style="background-color: var(--bs-danger-bg-subtle)"
+            @click="setMainImage"
+          >
+            選擇主圖
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-success hover-text-color ms-2"
+            style="background-color: var(--bs-primary-bg-subtle)"
+            @click="deleteImage"
+          >
+            刪除選擇
+          </button>
+          <button
+            type="button"
+            class="btn btn-outline-success hover-text-color ms-2"
+            style="background-color: var(--bs-border-color)"
             @click="closeDialogimage"
-          >關閉</button>
+          >
+            關閉
+          </button>
         </div>
-        <input type="file" multiple accept="image/*" ref="fileInput"  style="display:none;"  @change="handleImageChange"/>
-        
+        <input
+          type="file"
+          multiple
+          accept="image/*"
+          ref="fileInput"
+          style="display: none"
+          @change="handleImageChange"
+        />
       </div>
-  </div>
+    </div>
   </div>
 </template>
   
 <style scoped>
+/* 設置 description-container 的背景色、邊距等 */
+.description-container {
+  padding: 15px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 760px; /* 設定固定寬度 */
+  margin: 20px auto;
+}
+
+/* 強化描述文字的樣式 */
+.description-container p {
+  font-size: 16px;
+  color: #333;
+  line-height: 1.6;
+}
+
+/* 設置強調文字的樣式 */
+.description-container strong {
+  font-weight: bold;
+}
+
 .image-preview-container {
   display: flex;
   flex-wrap: wrap;
@@ -465,7 +609,7 @@ const toggleSelectionDB = (index) => {
   width: 100%;
   box-sizing: border-box;
 }
-.imageDB-preview-container{
+.imageDB-preview-container {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
@@ -507,7 +651,7 @@ h4 {
 }
 
 icon-size-image {
-  font-size: 30px;  /* 設置圖標大小 */
+  font-size: 30px; /* 設置圖標大小 */
 }
 
 .btn-lg {
@@ -556,7 +700,7 @@ icon-size-image {
   background-color: white;
   padding: 40px;
   border-radius: 8px;
-  width: 60%
+  width: 60%;
 }
 
 .car-info-container {
@@ -604,20 +748,9 @@ icon-size-image {
   margin-bottom: 10px;
 }
 
-  .product-info {
-    margin-top: 20px;
-  }
-  
-  .product-info h2 {
-    font-size: 24px;
-    margin-bottom: 10px;
-  }
-
-  .product-info p {
+.product-info p {
   font-size: 16px;
 }
-
-
 
 .hover-text-color {
   color: rgb(64, 56, 56);
@@ -625,35 +758,35 @@ icon-size-image {
   border: none;
 }
 
-  .hover-text-color:hover {
-    color: black;  /* 當鼠標移入時，文字顏色變為黑色 */
-    background-color: rgb(68, 63, 63); /* 背景顏色改變 */
-  }
+.hover-text-color:hover {
+  color: black; /* 當鼠標移入時，文字顏色變為黑色 */
+  background-color: rgb(68, 63, 63); /* 背景顏色改變 */
+}
 
-  .hover-text-color:active {
-    color: rgb(128, 128, 134);  /* 當按鈕被點擊時，文字顏色變為藍色 */
-  }
+.hover-text-color:active {
+  color: rgb(128, 128, 134); /* 當按鈕被點擊時，文字顏色變為藍色 */
+}
 
-  .icon-size {
-    font-size: 20px;  /* 調整圖示大小為 30px */
-  }
+.icon-size {
+  font-size: 20px; /* 調整圖示大小為 30px */
+}
 
-  /* 可選：改變鼠標懸停時的圖示大小 */
+/* 可選：改變鼠標懸停時的圖示大小 */
 .icon-size:hover {
-    font-size: 25px;  /* 當鼠標移入時，圖示大小變為 35px */
-  }
+  font-size: 25px; /* 當鼠標移入時，圖示大小變為 35px */
+}
 
 .image-preview-container {
   display: flex;
   overflow-x: auto; /* 若圖片超過容器寬度則可以水平滾動 */
   gap: 10px; /* 圖片之間的間距 */
-  -ms-overflow-style: none;  /* 隱藏 IE 滾動條 */
-  scrollbar-width: none;  /* 隱藏 Firefox 滾動條 */
+  -ms-overflow-style: none; /* 隱藏 IE 滾動條 */
+  scrollbar-width: none; /* 隱藏 Firefox 滾動條 */
   height: 200px; /* 設定高度 */
 }
 
 .image-preview-container::-webkit-scrollbar {
-  display: none;  /* 隱藏 Chrome, Safari, Opera 的滾動條 */
+  display: none; /* 隱藏 Chrome, Safari, Opera 的滾動條 */
 }
 
 .image-preview-item {
@@ -667,5 +800,4 @@ icon-size-image {
   object-fit: cover; /* 保持圖片的比例，並填滿容器 */
   border-radius: 8px; /* 圓角邊框 */
 }
-
 </style>

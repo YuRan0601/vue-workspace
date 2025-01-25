@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from "vue";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 // 表單資料
 const formData = ref({
@@ -12,6 +13,7 @@ const formData = ref({
   status: "",
   createdAt: "",
   updatedAt: "",
+  status: " 可租用 ",
 });
 
 // 對話框顯示狀態
@@ -26,19 +28,6 @@ const colorOptions = [
   { value: "黑色", name: "黑色" },
   { value: "白色", name: "白色" },
 ];
-
-// 生成當前的日期時間字串，格式：yyyy-MM-dd HH:mm:ss
-const getCurrentDateTime = () => {
-  const date = new Date();
-  const year = date.getFullYear();
-  const month = ("0" + (date.getMonth() + 1)).slice(-2);
-  const day = ("0" + date.getDate()).slice(-2);
-  const hours = ("0" + date.getHours()).slice(-2);
-  const minutes = ("0" + date.getMinutes()).slice(-2);
-  const seconds = ("0" + date.getSeconds()).slice(-2);
-
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-};
 
 // 開啟對話框並載入車型資料
 const openDialog = async () => {
@@ -59,7 +48,9 @@ const onClickOutside = () => {
 
 const fetchCarModels = async () => {
   try {
-    const response = await axios.get("/api/CarModel/queryAll");
+    const response = await axios.get(
+      "http://localhost:8080/CloudSerenityHotel/CarModel/queryAll"
+    );
     carModels.value = response.data;
   } catch (error) {
     console.error("查詢車型資料失敗:", error);
@@ -75,12 +66,20 @@ const onCarModelChange = () => {
 
 // 請求車型數量
 const fetchCarModelCount = async (carModelId) => {
+  console.log(formData.value);
+
   try {
-    const response = await axios.get("/api/CarModel/countByCarModel", {
-      params: { carModel: carModelId },
-    });
+    const response = await axios.get(
+      `http://localhost:8080/CloudSerenityHotel/CarModel/countByCarModel/${formData.value.carModelId}`
+    );
     console.log("車型數量:", response.data);
     // 這裡可以根據需求進行處理，可能是顯示結果或更新狀態等
+    const selectedCarModel = carModels.value.find(
+      (model) => model.carModelId === carModelId
+    );
+    formData.value.carId = `${selectedCarModel.carModel}${
+      parseInt(response.data) + 1
+    }`.replace(/\s+/g, "");
   } catch (error) {
     console.error("查詢失敗:", error);
   }
@@ -90,20 +89,20 @@ const fetchCarModelCount = async (carModelId) => {
 const submitForm = async () => {
   try {
     // 發送 POST 請求到後端 API
-    const response = await axios.post("/api/CarDetails/add", formData.value);
+    const response = await axios.post(
+      "http://localhost:8080/CloudSerenityHotel/CarDetails/add",
+      formData.value
+    );
     console.log("車型資料已新增:", response.data);
 
     // 提交成功後隱藏對話框並重置表單數據
-    showDialog.value = false;
+    dialogVisible.value = false;
     formData.value = {
       carId: "",
-      carMadelId: "",
+      carModelId: "",
       licensePlate: "",
       colorOptions: "",
       year: "",
-      status: " 可租用 ",
-      createdAt: getCurrentDateTime(), // 重設為當前時間
-      updatedAt: getCurrentDateTime(), // 重設為當前時間
     };
 
     Swal.fire({
@@ -180,6 +179,16 @@ const submitForm = async () => {
                 @update:modelValue="onCarModelChange"
               ></v-select>
 
+              <v-select
+                v-model="formData.carModelId"
+                :items="carModels"
+                item-value="carModelId"
+                item-title="carModelId"
+                label="車型編號"
+                :rules="[(v) => !!v || '編號為必填']"
+                required
+              ></v-select>
+
               <v-text-field
                 label="車輛編號"
                 v-model="formData.carId"
@@ -216,31 +225,12 @@ const submitForm = async () => {
                 type="number"
                 :rules="[(v) => !!v || '汽車年份為必填']"
               />
-
-              <!-- 車輛狀態 -->
-              <v-text-field
-                label="車輛狀態"
-                v-model="formData.status"
-                required
-              />
-
-              <!-- 隱藏創建時間欄位 -->
-              <v-text-field
-                v-model="formData.createdAt"
-                style="display: none"
-                :value="formData.createdAt"
-              />
-
-              <!-- 隱藏更新時間欄位 -->
-              <v-text-field
-                v-model="formData.updatedAt"
-                style="display: none"
-                :value="formData.updatedAt"
-              />
             </form>
           </v-card-text>
           <v-card-actions>
-            <v-btn color="primary" type="submit">送出</v-btn>
+            <v-btn color="primary" type="submit" @click="submitForm"
+              >送出</v-btn
+            >
             <v-btn text @click="closeDialog">取消</v-btn>
           </v-card-actions>
         </v-card>
