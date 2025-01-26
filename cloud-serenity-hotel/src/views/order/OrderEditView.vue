@@ -11,23 +11,16 @@ const props = defineProps({
     },
 });
 
-// 訂單詳細資料
+// 表單綁定數據
 const orderDetail = ref({
     orderItemsDtos: [], // 確保 orderItemsDtos 有初始值
 });
 const errorMessage = ref(""); // 錯誤訊息，用於顯示錯誤
 // 各欄位的錯誤訊息
-const errors = ref({
-    receiveName: "",
-    email: "",
-    phoneNumber: "",
-    address: "",
-});
+const errors = ref({});
 
 // 格式化數字為整數
-const formatNumberToInteger = (number) => {
-    return Math.round(number); // 四捨五入至整數
-};
+const formatNumberToInteger = (number) => Math.round(number);
 
 // 格式化時間函數 (24 小時制)
 const formatDateTime = (dateTime) => {
@@ -45,6 +38,7 @@ const formatDateTime = (dateTime) => {
 
 // 表單驗證邏輯
 const validateForm = () => {
+    errors.value = {};
     let isValid = true;
 
     // 驗證收件人
@@ -56,19 +50,15 @@ const validateForm = () => {
     }
 
     // 驗證 Email
-    if (!orderDetail.value.email || !orderDetail.value.email.trim()) {
-        errors.value.email = "Email 欄位不得為空！";
+    if (!orderDetail.value.email || !orderDetail.value.email.includes("@")) {
+        errors.value.email = "請輸入有效的電子郵件地址！";
         isValid = false;
-    } else {
-        errors.value.email = "";
     }
 
     // 驗證電話號碼
-    if (!orderDetail.value.phoneNumber || !orderDetail.value.phoneNumber.trim()) {
-        errors.value.phoneNumber = "電話號碼欄位不得為空！";
+    if (!orderDetail.value.phoneNumber || orderDetail.value.phoneNumber.length < 10) {
+        errors.value.phoneNumber = "電話號碼長度不足！";
         isValid = false;
-    } else {
-        errors.value.phoneNumber = "";
     }
 
     // 驗證收貨地址
@@ -109,6 +99,11 @@ const showUpdateAlert = () => {
 
 // 更新訂單的邏輯
 const updateOrder = async () => {
+    if (!validateForm()) {
+        Swal.fire("錯誤", "請檢查表單輸入內容！", "error");
+        return;
+    }
+
     try {
         const payload = {
             orderStatus: orderDetail.value.orderStatus,
@@ -117,32 +112,15 @@ const updateOrder = async () => {
             phoneNumber: orderDetail.value.phoneNumber,
             address: orderDetail.value.address,
         };
+
         await axios.put(`/api/Order/update/${orderDetail.value.orderId}`, payload);
-        // 更新成功的提示
-        Swal.fire({
-            icon: "success",
-            title: "修改成功！",
-            text: "訂單已成功更新！",
-            confirmButtonText: "確認",
-            allowOutsideClick: false, // 禁止點擊外部關閉
-            customClass: {
-                confirmButton: "btn btn-primary text-white",
-            },
-        }).then(() => {
-            window.location.href = `/order/orderdetail?orderId=${orderDetail.value.orderId}`;
+        // 成功彈窗
+        Swal.fire("成功", "訂單已成功更新！", "success").then(() => {
+            this.$router.push({ name: "orderdetail", params: { orderId: orderDetail.value.orderId } });
         });
     } catch (error) {
-        console.error("訂單更新失敗：", error);
-        // 更新失敗的提示
-        Swal.fire({
-            icon: "error",
-            title: "修改失敗！",
-            text: "請稍後再試！",
-            confirmButtonText: "確認",
-            customClass: {
-                confirmButton: "btn btn-danger text-white",
-            },
-        });
+        console.error("更新訂單失敗：", error);
+        Swal.fire("錯誤", "更新訂單失敗，請稍後再試！", "error");
     }
 };
 
@@ -151,12 +129,13 @@ const fetchOrderDetail = async () => {
     try {
         const response = await axios.get(`/api/Order/findOrderDetails/${props.orderId}`);
 
-        // 確保 orderItemsDtos 存在並為數組
-        if (response.data.orderItemsDtos && Array.isArray(response.data.orderItemsDtos)) {
-            response.data.orderItemsDtos.sort((a, b) => a.orderitemId - b.orderitemId);
+        if (response.data.data && Array.isArray(response.data.data.orderItemsDtos)) {
+            // 排序 orderItemsDtos
+            response.data.data.orderItemsDtos.sort((a, b) => a.orderitemId - b.orderitemId);
         }
-        // 將排序後的數據賦值給 orderDetail
-        orderDetail.value = response.data || { orderItemsDtos: [] };
+
+        // 更新 orderDetail
+        orderDetail.value = response.data.data || { orderItemsDtos: [] };
     } catch (error) {
         console.error("無法取得訂單資料：", error);
         errorMessage.value = "無法取得訂單資料，請稍後再試。";

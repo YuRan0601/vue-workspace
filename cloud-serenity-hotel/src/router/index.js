@@ -222,7 +222,7 @@ const router = createRouter({
         },
         //-------------
 
-        
+
         //---會員後台---
         {
           path: "/memberBack",
@@ -277,18 +277,18 @@ const router = createRouter({
               component: VehicleList,
             },
           ],
-        },{
+        }, {
           path: "/rent/DetailsOperate/:id/:carId",
           name: "DetailsOperate",
           component: DetailsOperate,
           props: true,
           children: [
-          {
-            path: "carImage/:id",
-            name: "carImageDetails",
-            component: CarImage,
-            props: true,
-          }
+            {
+              path: "carImage/:id",
+              name: "carImageDetails",
+              component: CarImage,
+              props: true,
+            }
             ,
             {
               path: "CarDetails/:id/:carId",
@@ -311,23 +311,24 @@ const router = createRouter({
               path: "/order/orderList",
               name: "orderList",
               component: OrderListView,
+              props: true,
             },
             {
-              path: "/order/orderdetail",
+              path: "/order/orderdetail/:orderId",
               name: "orderdetail",
               component: OrderDetailView,
-              props: (route) => ({ orderId: route.query.orderId }), // 將 query 作為 props 傳入
+              props: true,
             },
             {
-              path: "/order/orderedit",
+              path: "/order/orderedit/:orderId",
               name: "orderedit",
               component: OrderEditView,
-              props: (route) => ({ orderId: route.query.orderId }), // 將 query 作為 props 傳入
+              props: true,
             },
             {
               path: "/order/orderadd",
               name: "orderadd",
-              component: OrderAddView,
+              props: true,
             },
           ],
         },

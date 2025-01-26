@@ -119,7 +119,10 @@ async function validateOrderId() {
         });
 
         if (status === 200 && data.success) {
-            orders.value = [data.data];
+            // 單筆結果也進行排序（其實只有一筆數據）
+            orders.value = [data.data].sort((a, b) => a.orderId - b.orderId);
+            console.log("訂單資料：", orders.value); // 確認資料是否正確
+            console.log("API 返回數據：", data.content);
             totalItems.value = 1;
             totalPages.value = 1;
         } else if (status === 404) {
@@ -173,7 +176,10 @@ function debounce(func, delay) {
 const debouncedValidateOrderId = debounce(validateOrderId, 200);
 
 // ===== 初始化加載資料 =====
-onMounted(loadTable);
+onMounted(() => {
+    loadTable();
+    console.log(orders.value); // 確保 orders 裡每筆數據都有 orderId
+});
 
 // 監控分頁與查詢條件
 /*watchEffect(() => {
@@ -208,11 +214,11 @@ onMounted(loadTable);
                 {{ formatNumberToInteger(item.finalAmount) }}
             </template>
             <template #item.actions="{ item }">
-                <RouterLink :to="{ name: 'orderdetail', query: { orderId: item.orderId } }"
+                <RouterLink :to="{ name: 'orderdetail', params: { orderId: item.orderId } }"
                     class="btn btn-primary btn-sm me-1">
                     <i class="bi bi-eye"></i>
                 </RouterLink>
-                <RouterLink :to="{ name: 'orderedit', query: { orderId: item.orderId } }"
+                <RouterLink :to="{ name: 'orderedit', params: { orderId: item.orderId } }"
                     class="btn btn-warning btn-sm me-1">
                     <i class="bi bi-pencil-square"></i>
                 </RouterLink>
