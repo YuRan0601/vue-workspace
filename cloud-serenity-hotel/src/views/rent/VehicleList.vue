@@ -58,6 +58,18 @@ const getCarBrandName = (carModelId) => {
   );
   return carModel ? carModel.brand : "未知品牌";
 };
+
+const getStatusClass = (status) => {
+  if (status === "可租用") {
+    return "status-available";
+  } else if (status === "已預約") {
+    return "status-booked";
+  } else if (status === "租借中") {
+    return "status-rented";
+  } else {
+    return ""; // 預設狀態
+  }
+};
 </script>
 <template>
   <div>
@@ -67,6 +79,7 @@ const getCarBrandName = (carModelId) => {
           <th scope="col">車輛編號</th>
           <th scope="col">車輛型號</th>
           <th scope="col">車輛品牌</th>
+          <th scope="col">車牌號碼</th>
           <th scope="col">顏色</th>
           <th scope="col">狀態</th>
           <th scope="col">操作</th>
@@ -83,8 +96,15 @@ const getCarBrandName = (carModelId) => {
           <td class="text-center align-middle">
             {{ getCarBrandName(car.carModelId) }}
           </td>
+
+          <td class="text-center align-middle">{{ car.licensePlate }}</td>
           <td class="text-center align-middle">{{ car.colorOptions }}</td>
-          <td class="text-center align-middle">{{ car.status }}</td>
+          <td
+            class="text-center align-middle"
+            :class="getStatusClass(car.status)"
+          >
+            {{ car.status }}
+          </td>
           <td class="text-center align-middle">
             <RouterLink
               :to="{
@@ -141,5 +161,17 @@ const getCarBrandName = (carModelId) => {
 
 .table .align-middle {
   vertical-align: middle;
+}
+
+.status-available {
+  color: black;
+}
+
+.status-booked {
+  color: green;
+}
+
+.status-rented {
+  color: red;
 }
 </style>

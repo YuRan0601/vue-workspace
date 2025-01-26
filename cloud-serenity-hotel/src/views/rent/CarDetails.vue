@@ -2,9 +2,10 @@
 import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { onMounted, ref, defineProps } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import axios from "axios";
 
+const router = useRouter();
 const route = useRoute();
 console.log(route);
 
@@ -58,6 +59,91 @@ const getCarBrandName = (carModelId) => {
   );
   return carModel ? carModel.brand : "未知品牌";
 };
+
+const editedRemarks = ref("");
+// 開關對話框顯示
+const dialogVisible = ref(false);
+
+// 打開對話框
+const openDialog = () => {
+  dialogVisible.value = true; // 打開對話框
+};
+
+// 關閉對話框
+const closeDialog = () => {
+  dialogVisible.value = false;
+};
+
+// 保存編輯後的備註，並傳送到後端
+const saveRemarks = async () => {
+  try {
+    // 更新備註
+    formData.value.remarks = editedRemarks.value;
+
+    // 發送請求至後端，假設後端 API 是 '/api/updateRemarks'
+    const response = await axios.post(
+      "http://localhost:8080/CloudSerenityHotel/CarDetails/update",
+      formData.value
+    );
+
+    // 車型資料更新成功，顯示 SweetAlert
+    Swal.fire({
+      title: "修改成功",
+      text: "車輛資料已成功修改！",
+      icon: "success",
+      confirmButtonText: "OK",
+    }).then(() => {
+      // 在 SweetAlert 关闭後執行頁面刷新
+      window.location.reload();
+    });
+
+    // 關閉對話框
+    closeDialog();
+  } catch (error) {
+    console.error("車型資料更新失敗", error);
+    // 顯示錯誤訊息
+    Swal.fire({
+      title: "修改失敗",
+      text: "車型資料更新失敗，請稍後再試！",
+      icon: "error",
+    });
+  }
+};
+
+const deleteCar = async () => {
+  // 顯示確認對話框
+  const result = await Swal.fire({
+    title: "確定刪除該車型資料嗎?",
+    text: "這將刪除所選車型資料！",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonText: "刪除",
+    cancelButtonText: "取消",
+  });
+
+  // 如果使用者確認刪除
+  if (result.isConfirmed) {
+    try {
+      // 發送刪除請求到後端
+      const response = await axios.post(
+        "http://localhost:8080/CloudSerenityHotel/CarDetails/delete", // 確保 URL 正確
+        formData.value
+      );
+
+      // 刪除成功，顯示提示訊息
+      Swal.fire("刪除成功", "車輛資料已成功刪除！", "success");
+
+      // 跳轉到車輛詳細資料頁面
+      router.push({ name: "vehicleDetails" });
+    } catch (error) {
+      console.error("刪除失敗", error);
+      Swal.fire("刪除失敗", "車輛資料刪除失敗，請稍後再試！", "error");
+    }
+  } else {
+    // 如果使用者取消刪除
+    Swal.fire("已取消", "車輛資料未被刪除", "info");
+  }
+};
 </script>
 <template>
   <div>
@@ -82,6 +168,7 @@ const getCarBrandName = (carModelId) => {
         type="button"
         class="btn btn-outline-success hover-text-color ms-2"
         style="background-color: var(--bs-success-bg-subtle)"
+        @click="openDialog"
       >
         <i class="bi bi-pencil-square icon-size"></i>
       </button>
@@ -89,6 +176,7 @@ const getCarBrandName = (carModelId) => {
         type="button"
         class="btn btn-danger hover-text-color ms-2"
         style="background-color: var(--bs-danger-border-subtle)"
+        @click="deleteCar"
       >
         <i class="bi bi-trash icon-size"></i>
       </button>
@@ -97,13 +185,14 @@ const getCarBrandName = (carModelId) => {
       <v-dialog v-model="dialogVisible" max-width="500px">
         <v-card>
           <v-card-title>
-            <span class="headline">備註詳細</span>
+            <span class="headline">修改備註</span>
           </v-card-title>
           <v-card-text>
-            <p><strong>備註：</strong>{{ formData.remarks }}</p>
+            <v-textarea v-model="editedRemarks" label="備註"></v-textarea>
           </v-card-text>
           <v-card-actions>
-            <v-btn text @click="closeDialog">關閉</v-btn>
+            <v-btn @click="saveRemarks">保存</v-btn>
+            <v-btn @click="closeDialog">關閉</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -112,6 +201,13 @@ const getCarBrandName = (carModelId) => {
 </template>
 
 <style scoped>
+.description-container {
+  margin: 10px;
+  padding: 10px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+}
+
 .car-info-container {
   background-color: #f9f9f9;
   border-radius: 8px;

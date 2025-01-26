@@ -143,8 +143,8 @@ const router = createRouter({
           name: "attractionFront",
           component: AttractionComponent,
         },
-        //-------------
-
+        //---租車前台---
+       
       ],
     },
 
