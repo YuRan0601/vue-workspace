@@ -1,6 +1,8 @@
 <script setup>
+import axios from "@/axios";
 import { useAuthStore } from "@/stores/authStore";
 import { useBookingOrderStore } from "@/stores/bookingOrderStore";
+import Swal from "sweetalert2";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 const userStore = useAuthStore();
@@ -23,18 +25,68 @@ onMounted(() => {
 
   const order = bookingOrder.value;
 
-  order.user.userId = bookingOrderStore.userId;
+  order.user.userId = userStore.user.userId;
   order.checkInDate = bookingOrderStore.checkInDate.toLocaleDateString("en-CA");
   order.checkOutDate =
     bookingOrderStore.checkOutDate.toLocaleDateString("en-CA");
   order.totalPrice = bookingOrderStore.totalPrice;
 });
+
+function insertOrder() {
+  userStore.checkMember();
+
+  if (!userStore.user) {
+    return;
+  }
+
+  Swal.fire({
+    title: "確定要提交訂單?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "確定",
+    cancelButtonText: "取消",
+  }).then(async (res) => {
+    if (res.isConfirmed) {
+      const { data } = await axios.post(
+        `/booking/order/${bookingOrderStore.roomTypeId}`,
+        bookingOrder.value,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // if (data !== 0) {
+      //   Swal.fire({
+      //     title: "新增成功",
+      //     icon: "success",
+      //     confirmButtonText: "確定",
+      //   }).then(() => {
+      //     loadTable();
+      //     insertDialog.value = false;
+      //   });
+      // } else {
+      //   Swal.fire({
+      //     title: "新增失敗",
+      //     icon: "error",
+      //     confirmButtonText: "確定",
+      //   }).then(() => {
+      //     loadTable();
+      //     insertDialog.value = false;
+      //   });
+      // }
+    }
+  });
+}
 </script>
 
 <template>
   <div class="container">
     <div class="content">
-      <h3>您的訂房</h3>
+      <h3>您的訂房訂單</h3>
       <br />
       <v-form ref="form">
         <v-text-field
@@ -67,7 +119,9 @@ onMounted(() => {
           readonly
         ></v-text-field>
 
-        <v-btn color="error" class="mr-4" @click="reset"> Reset Form </v-btn>
+        <v-btn color="error" class="mr-4" @click="insertOrder">
+          確認訂房
+        </v-btn>
 
         <v-btn color="warning" @click="resetValidation">
           Reset Validation
@@ -92,5 +146,6 @@ template {
   width: 500px;
   border-radius: 10px;
   padding: 50px;
+  text-align: center;
 }
 </style>
