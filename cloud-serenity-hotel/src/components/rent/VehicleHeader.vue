@@ -179,16 +179,6 @@ const submitForm = async () => {
                 @update:modelValue="onCarModelChange"
               ></v-select>
 
-              <v-select
-                v-model="formData.carModelId"
-                :items="carModels"
-                item-value="carModelId"
-                item-title="carModelId"
-                label="車型編號"
-                :rules="[(v) => !!v || '編號為必填']"
-                required
-              ></v-select>
-
               <v-text-field
                 label="車輛編號"
                 v-model="formData.carId"
@@ -201,9 +191,12 @@ const submitForm = async () => {
                 label="車牌號碼"
                 v-model="formData.licensePlate"
                 required
-                :rules="[(v) => !!v || '車牌號碼為必填']"
+                :rules="[
+                  (v) => !!v || '車牌號碼為必填',
+                  (v) => /^[A-Z]{3}-\d{4}$/.test(v) || '車牌號碼格式不正確',
+                ]"
                 @input="
-                  formData.licensePlate = formData.licensePlate.toUpperCase()
+                  formData.licensePlate = formData.licensePlate.toUpperCase() // 強制大寫
                 "
               />
 
@@ -228,10 +221,10 @@ const submitForm = async () => {
             </form>
           </v-card-text>
           <v-card-actions>
+            <v-btn text @click="closeDialog">取消</v-btn>
             <v-btn color="primary" type="submit" @click="submitForm"
               >送出</v-btn
             >
-            <v-btn text @click="closeDialog">取消</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
