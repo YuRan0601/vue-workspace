@@ -1,8 +1,9 @@
 <script setup>
 import { ref, onMounted } from "vue";
+import axios from "axios";
 import Swal from "sweetalert2"; // 引入 SweetAlert2
 
-// 接收從父組件傳遞的 orderId
+// 接收 props 傳遞的 orderId
 const props = defineProps({
     orderId: {
         type: String,
@@ -12,8 +13,6 @@ const props = defineProps({
 
 // 訂單詳細資料
 const orderDetail = ref(null);
-const isLoading = ref(false); // 加載狀態
-const hasError = ref(false); // 是否發生錯誤
 
 // 格式化數字為整數
 const formatNumberToInteger = (number) => {
@@ -34,27 +33,29 @@ const formatDateTime = (dateTime) => {
     return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleDateString("zh-TW", options);
 };
 
-// 獲取訂單詳細資料
+// 查詢單筆訂單
 const fetchOrderDetail = async () => {
     try {
-        const response = await axios.get(`/api/Order/orderdetail/${props.orderId}`);
+        const response = await axios.get(`/api/Order/findOrderDetails/${props.orderId}`);
 
-        if (response.data.data && Array.isArray(response.data.data.orderItemsDtos)) {
-            // 排序 orderItemsDtos
+        // 確認 orderItemsDtos 存在並為數組
+        if (response.data.data?.orderItemsDtos && Array.isArray(response.data.data.orderItemsDtos)) {
             response.data.data.orderItemsDtos.sort((a, b) => a.orderitemId - b.orderitemId);
         }
 
-        // 更新 orderDetail
-        orderDetail.value = response.data.data || { orderItemsDtos: [] };
+        // 將排序後的數據賦值給 orderDetail
+        orderDetail.value = response.data.data;
+        console.log("訂單詳細資料：", response.data.data);
     } catch (error) {
-        console.error("無法取得訂單資料：", error);
-        errorMessage.value = "無法取得訂單資料，請稍後再試。";
+        console.error("查詢單筆訂單失敗：", error);
     }
 };
 
+
+
 // 初始化
 onMounted(() => {
-    fetchOrderDetail();
+    fetchOrderDetail(props.orderId);
 });
 
 // SweetAlert2 刪除警告
@@ -83,12 +84,15 @@ const showDeleteAlert = () => {
 // 刪除訂單
 const deleteOrder = async () => {
     try {
-        await axios.delete(`/api/Order/delete/${orderId.value}`);
+        await axios.delete(`/api/Order/delete/${orderDetail.value.orderId}`);
         Swal.fire({
             title: "刪除成功！",
             icon: "success",
             confirmButtonText: "確認",
             confirmButtonColor: "#6c757d",
+            customClass: {
+                confirmButton: "btn text-white me-2", // 自定義確認按鈕
+            },
         }).then(() => {
             window.location.href = "/order/orderList";
         });
@@ -241,7 +245,8 @@ const deleteOrder = async () => {
             </RouterLink>
             <div>
                 <!-- 編輯按鈕 -->
-                <RouterLink :to="{ name: 'orderedit', params: { orderId: item.orderId } }" class="btn btn-warning me-2">
+                <RouterLink :to="{ name: 'orderedit', params: { orderId: props.orderId } }"
+                    class="btn btn-warning me-2">
                     <i class="bi bi-pencil-square"></i> 編輯
                 </RouterLink>
                 <!-- 刪除按鈕 -->

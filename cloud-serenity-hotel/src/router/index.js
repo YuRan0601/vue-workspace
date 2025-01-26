@@ -144,7 +144,7 @@ const router = createRouter({
           component: AttractionComponent,
         },
         //---租車前台---
-       
+
       ],
     },
 
@@ -328,6 +328,7 @@ const router = createRouter({
             {
               path: "/order/orderadd",
               name: "orderadd",
+              component: OrderAddView,
               props: true,
             },
           ],
