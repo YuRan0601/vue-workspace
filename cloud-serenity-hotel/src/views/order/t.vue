@@ -1,16 +1,21 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import axios from "axios";
-import { Modal } from "bootstrap"; // 顯式導入 Modal
+import Swal from "sweetalert2"; // 引入 SweetAlert2
 
-// 儲存查詢到的訂單資料
-const orders = ref([]);
+// 接收從父組件傳遞的 orderId
+const props = defineProps({
+    orderId: {
+        type: String,
+        required: true,
+    },
+});
 
-// 儲存目前選中的訂單資料，用於模態框顯示
-const selectedOrder = ref(null);
+// 表單綁定數據
+const orderDetail = ref({}); // 確保初始化為空物件
 
-// 綁定輸入框的值，用於查詢單筆訂單
-const searchOrderId = ref("");
+// 各欄位的錯誤訊息
+const errors = ref({});
+// const isLoading = ref(false); // 加載狀態
 
 // 格式化數字為整數
 const formatNumberToInteger = (number) => {
@@ -26,256 +31,260 @@ const formatDateTime = (dateTime) => {
         day: "2-digit",
         hour: "2-digit",
         minute: "2-digit",
-        hour12: false // **新增：使用 24 小時制**
+        hour12: false,
     };
-    return date.toLocaleDateString("zh-TW", options); // **保留台灣地區語言格式**
+    return isNaN(date.getTime()) ? "Invalid Date" : date.toLocaleDateString("zh-TW", options);
 };
 
-const fetchOrders = async () => {
+// 獲取訂單詳細資料
+const fetchOrderDetail = async () => {
     try {
-        const response = await axios.get("/api/Order/findAllOrders");
-        console.log("返回的完整資料：", response.data);
+        const response = await axios.get(`/api/Order/findOrderDetails/${props.orderId}`);
 
-        // 強制檢查類型，防止意外轉換
-        let data = response.data;
-        if (Array.isArray(data)) {
-            orders.value = data.map(order => ({
-                ...order,
-                orderItemsBeans: undefined // 不需要顯示細項時移除
-            }));
+        if (response.data.success && response.data.data) {
+            const orderData = response.data.data; // 提取數據
+
+            // 排序訂單細節
+            if (Array.isArray(orderData.orderItemsDtos)) {
+                orderData.orderItemsDtos.sort((a, b) => a.orderitemId - b.orderitemId);
+            }
+
+            orderDetail.value = orderData;
         } else {
-            console.error("API 返回的不是數組：", data);
+            throw new Error("無效的訂單數據");
         }
     } catch (error) {
-        console.error("API 請求失敗：", error);
+        console.error("獲取訂單數據失敗：", error);
+        orderDetail.value = {}; // 確保初始化為空物件
     }
 };
 
-
-// 查詢單筆訂單是否存在
-const validateOrderId = async () => {
-    if (!searchOrderId.value) return;
-
-    try {
-        const response = await axios.get(`/api/Order/findOrderDetails/${searchOrderId.value}`);
-        if (response.data && response.data.orderId) {
-            // 如果找到訂單，跳轉到詳細頁面
-            window.location.href = `/order/orderdetail?orderId=${searchOrderId.value}`;
-        } else {
-            // 如果沒有找到，顯示錯誤訊息
-            showModal("查無此訂單", "請確認訂單編號是否正確！");
+// SweetAlert2 刪除警告
+const showDeleteAlert = () => {
+    Swal.fire({
+        title: "確定要刪除此訂單嗎？",
+        text: "刪除後將無法恢復！",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33", // 確認按鈕顏色
+        cancelButtonColor: "#6c757d", // 取消按鈕顏色
+        confirmButtonText: "確定",
+        cancelButtonText: "取消",
+        buttonsStyling: false, // 停用 SweetAlert2 預設樣式
+        customClass: {
+            confirmButton: "btn btn-danger text-white me-2", // 自定義確認按鈕
+            cancelButton: "btn btn-secondary text-white", // 自定義取消按鈕
+        },
+    }).then((result) => {
+        if (result.isConfirmed) {
+            deleteOrder(); // 執行刪除操作
         }
-    } catch (error) {
-        // 如果後端報錯（例如 404），也顯示錯誤訊息
-        showModal("查無此訂單", "請確認訂單編號是否正確！");
-    }
+    });
 };
 
-
-// 顯示彈窗
-const showModal = (title, body) => {
-    const modalElement = document.getElementById("errorModal");
-    const modalInstance = new Modal(modalElement);
-    document.getElementById("errorModalTitle").innerText = title;
-    document.getElementById("errorModalBody").innerText = body;
-    modalInstance.show();
-};
-
-// 開啟模態框並設定選中的訂單
-const openDeleteModal = (order) => {
-    selectedOrder.value = order; // 設定選中的訂單
-    const modal = new Modal(document.getElementById("exampleModal"));
-    modal.show();
-};
-
-// 確認刪除
-const confirmDelete = async () => {
-    if (!selectedOrder.value) return;
-
+// 刪除訂單
+const deleteOrder = async () => {
     try {
-        await axios.delete(`/api/Order/delete/${selectedOrder.value.orderId}`);
-        console.log(`訂單 ${selectedOrder.value.orderId} 已刪除`);
-        fetchOrders(); // 刪除成功後重新載入訂單列表
-        const modal = Modal.getInstance(document.getElementById("exampleModal"));
-        modal.hide(); // 關閉模態框
+        await axios.delete(`/api/Order/delete/${orderId.value}`);
+        Swal.fire({
+            title: "刪除成功！",
+            icon: "success",
+            confirmButtonText: "確認",
+            confirmButtonColor: "#6c757d",
+        }).then(() => {
+            window.location.href = "/order/orderList";
+        });
     } catch (error) {
         console.error("刪除失敗：", error);
+        Swal.fire({
+            title: "刪除失敗",
+            text: "刪除過程中發生錯誤。",
+            icon: "error",
+            confirmButtonText: "確認",
+            confirmButtonColor: "#6c757d",
+        });
     }
 };
 
-// 頁面載入時自動查詢資料_初始化頁面
-onMounted(fetchOrders);
+// 初始化
+onMounted(() => {
+    fetchOrderDetail();
+});
 </script>
 
 <template>
     <div class="container mt-5">
-        <h2 class="text-center">訂單總表</h2>
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-            <!-- 新增訂單編號查詢輸入框 -->
-            <div class="input-group mb-4">
-                <input type="text" class="form-control" placeholder="請輸入訂單編號" v-model="searchOrderId" />
-                <button class="btn btn-primary" :disabled="!searchOrderId" @click="validateOrderId">
-                    查詢
+        <h2 class="text-center mb-4">訂單詳細資料</h2>
+
+        <!-- 訂單基本資訊 -->
+        <div class="mb-4">
+            <h4 class="mb-3">訂單基本資訊</h4>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-lg-8">
+                    <label class="form-label">訂單ID</label>
+                    <input type="text" class="form-control" :value="orderDetail.orderId" disabled />
+                </div>
+            </div>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-lg-8">
+                    <label class="form-label">使用者ID</label>
+                    <input type="text" class="form-control" :value="orderDetail?.userId" disabled />
+                </div>
+            </div>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-lg-8">
+                    <label class="form-label">訂單狀態</label>
+                    <input type="text" class="form-control" :value="orderDetail?.orderStatus" disabled />
+                </div>
+            </div>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-lg-8">
+                    <label class="form-label">付款方式</label>
+                    <input type="text" class="form-control" :value="orderDetail?.paymentMethod" disabled />
+                </div>
+            </div>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-lg-8">
+                    <label class="form-label">總金額</label>
+                    <input type="text" class="form-control" :value="formatNumberToInteger(orderDetail?.totalAmount)"
+                        disabled />
+                </div>
+            </div>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-lg-8">
+                    <label class="form-label">點數折抵</label>
+                    <input type="text" class="form-control" :value="orderDetail?.pointsDiscount || '無'" disabled />
+                </div>
+            </div>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-lg-8">
+                    <label class="form-label">折扣金額</label>
+                    <input type="text" class="form-control"
+                        :value="formatNumberToInteger(orderDetail?.discountAmount || '無')" disabled />
+                </div>
+            </div>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-lg-8">
+                    <label class="form-label">最終金額</label>
+                    <input type="text" class="form-control" :value="formatNumberToInteger(orderDetail?.finalAmount)"
+                        disabled />
+                </div>
+            </div>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-lg-8">
+                    <label class="form-label">訂單創建日期</label>
+                    <input type="text" class="form-control" :value="formatDateTime(orderDetail?.orderDate)" disabled />
+                </div>
+            </div>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-lg-8">
+                    <label class="form-label">訂單更新日期</label>
+                    <input type="text" class="form-control" :value="formatDateTime(orderDetail?.updatedAt)" disabled />
+                </div>
+            </div>
+        </div>
+
+        <!-- 收件人資訊 -->
+        <div class="mb-4">
+            <h4 class="mb-3">收件人資訊</h4>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-lg-8">
+                    <label class="form-label">收件人</label>
+                    <input type="text" class="form-control" :value="orderDetail?.receiveName" disabled />
+                </div>
+            </div>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-lg-8">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" :value="orderDetail?.email" disabled />
+                </div>
+            </div>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-lg-8">
+                    <label class="form-label">電話號碼</label>
+                    <input type="text" class="form-control" :value="orderDetail?.phoneNumber" disabled />
+                </div>
+            </div>
+            <div class="row mb-3 justify-content-center">
+                <div class="col-lg-8">
+                    <label class="form-label">收貨地址</label>
+                    <input type="text" class="form-control" :value="orderDetail?.address" disabled />
+                </div>
+            </div>
+        </div>
+
+        <!-- 訂品明細 -->
+        <div class="mb-4">
+            <h4 class="mb-3">訂單明細</h4>
+            <table class="table table-hover table-bordered">
+                <thead class="table-light text-center">
+                    <tr>
+                        <th class="column-width">細項編號</th>
+                        <th class="column-width">產品名稱</th>
+                        <th class="column-width">數量</th>
+                        <th class="column-width">單價</th>
+                        <th class="column-width">折扣</th>
+                        <th class="column-width">小計</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="item in orderDetail?.orderItemsDtos || []" :key="item.orderitemId"
+                        class="text-center align-middle">
+                        <td>{{ item.orderitemId }}</td>
+                        <td>{{ item.productName || '無產品名稱' }}</td>
+                        <td>{{ item.quantity }}</td>
+                        <td>{{ item.unitPrice === 0 ? "無" : item.unitPrice }}</td>
+                        <td>{{ item.discount || "無" }}</td>
+                        <td>{{ item.subtotal === 0 ? "無" : item.subtotal }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- 按鈕區 -->
+        <div class="d-flex justify-content-between align-items-center mt-5 mb-4 py-3 border-top">
+            <!-- 返回按鈕 -->
+            <RouterLink :to="{ name: 'orderList' }" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> 返回
+            </RouterLink>
+            <div>
+                <!-- 編輯按鈕 -->
+                <RouterLink :to="{ name: 'orderedit', params: { orderId: item.orderId } }" class="btn btn-warning me-2">
+                    <i class="bi bi-pencil-square"></i> 編輯
+                </RouterLink>
+                <!-- 刪除按鈕 -->
+                <button class="btn btn-danger" @click="showDeleteAlert">
+                    <i class="bi bi-trash"></i> 刪除
                 </button>
             </div>
-            <!-- 新增訂單按鈕 -->
-            <RouterLink :to="{ name: 'orderadd' }" class="button-48" role="button">
-                <span class="text">新增訂單</span>
-            </RouterLink>
         </div>
 
-        <table class="table table-hover table-bordered mt-3">
-            <thead class="table-light text-center">
-                <tr>
-                    <th>OrderID</th>
-                    <th>訂單狀態</th>
-                    <th>付款方式</th>
-                    <th>折扣金額</th>
-                    <th>最終金額</th>
-                    <th>訂單日期</th>
-                    <th>更新日期</th>
-                    <th>操作</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="order in orders" :key="order.orderId" class="text-center align-middle">
-                    <td>{{ order.orderId }}</td>
-                    <td>{{ order.orderStatus }}</td>
-                    <td>{{ order.paymentMethod }}</td>
-                    <td>{{ formatNumberToInteger(order.discountAmount) }}</td> <!-- 修改為正確的字段名稱 -->
-                    <td>{{ formatNumberToInteger(order.finalAmount) }}</td>
-                    <td>{{ formatDateTime(order.orderDate) }}</td>
-                    <td>{{ formatDateTime(order.updatedAt) }}</td>
-                    <td>
-                        <!-- 操作按鈕 -->
-                        <RouterLink :to="{ name: 'orderdetail', query: { orderId: order.orderId } }"
-                            class="btn btn-primary btn-sm me-1">
-                            <i class="bi bi-eye"></i>
-                        </RouterLink>
-                        <RouterLink :to="{ name: 'orderedit', query: { orderId: order.orderId } }"
-                            class="btn btn-warning btn-sm me-1">
-                            <i class="bi bi-pencil-square"></i>
-                        </RouterLink>
-                        <button class="btn btn-danger btn-sm" @click="openDeleteModal(order)">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </td>
-                </tr>
-                <tr v-if="orders.length === 0">
-                    <td colspan="8" class="text-center">目前沒有訂單資料</td>
-                </tr>
-            </tbody>
-
-        </table>
-        <!-- 錯誤訊息的彈窗 -->
-        <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="errorModalTitle">錯誤訊息</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body" id="errorModalBody">
-                        ...
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            確定
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- 刪除確認模態框 -->
-        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">訂單刪除</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        確定要刪除OrderID為 "<strong>{{ selectedOrder?.orderId }}</strong> "的訂單嗎？
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
-                        <button type="button" class="btn btn-danger" @click="confirmDelete">確定刪除</button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </template>
 
 <style scoped>
-/* 如果需要，這裡可以加上自定義樣式 */
-.input-group {
-    max-width: 400px;
-    margin: 0 auto;
+/* 控制輸入框最大寬度，讓畫面更清爽 */
+.col-lg-8 {
+    max-width: 800px;
+    /* 設定固定寬度 */
 }
 
-.button-48 {
-    appearance: none;
-    background-color: #FFFFFF;
-    border-width: 0;
-    box-sizing: border-box;
-    color: #000000;
-    cursor: pointer;
-    display: inline-block;
-    font-family: Clarkson, Helvetica, sans-serif;
-    font-size: 18px;
-    /* 調整字體大小 */
-    font-weight: 600;
-    /* 增加字體粗細 */
-    letter-spacing: 0;
-    line-height: 1.5em;
-    margin: 0;
-    opacity: 1;
-    outline: 0;
-    padding: 1em 2em;
-    /* 調整內邊距 */
-    position: relative;
+.column-width {
+    width: 12%;
+    /* 或者根據需求設定適合的百分比 */
     text-align: center;
-    text-decoration: none;
-    text-rendering: geometricprecision;
-    text-transform: uppercase;
-    transition: opacity 300ms cubic-bezier(.694, 0, 0.335, 1),
-        background-color 100ms cubic-bezier(.694, 0, 0.335, 1),
-        color 100ms cubic-bezier(.694, 0, 0.335, 1);
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
-    vertical-align: baseline;
-    white-space: nowrap;
 }
 
-.button-48:before {
-    animation: opacityFallbackOut 0.5s step-end forwards;
-    backface-visibility: hidden;
-    background-color: #ebebeb;
-    clip-path: polygon(-1% 0, 0 0, -25% 100%, -1% 100%);
-    content: "";
-    height: 100%;
-    left: 0;
-    position: absolute;
-    top: 0;
-    transform: translateZ(0);
-    transition: clip-path 0.5s cubic-bezier(.165, 0.84, 0.44, 1),
-        -webkit-clip-path 0.5s cubic-bezier(.165, 0.84, 0.44, 1);
-    width: 100%;
+/* 控制按鈕容器與內容之間的間距 */
+.d-flex {
+    padding-top: 15px;
+    padding-bottom: 15px;
+    margin-top: 30px;
+    margin-bottom: 20px;
 }
 
-.button-48:hover:before {
-    animation: opacityFallbackIn 0s step-start forwards;
-    clip-path: polygon(0 0, 101% 0, 101% 101%, 0 101%);
-}
-
-.button-48:after {
-    background-color: #ffffff;
-}
-
-.button-48 span {
-    z-index: 1;
-    position: relative;
+/* 讓邊界更清晰 */
+.border-top {
+    border-top: 1px solid #ddd;
+    /* 添加一條淡灰色的頂部邊框 */
 }
 </style>

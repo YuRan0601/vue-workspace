@@ -211,7 +211,7 @@ const addOrder = async () => {
                 },
             }).then(() => {
                 // 確認後導回查詢單筆畫面
-                window.location.href = `/order/orderdetail?orderId=${response.data.orderId}`;
+                window.location.href = `/order/orderdetail/${response.data.orderId}`;
             });
         } else {
             // 新增失敗的提示
