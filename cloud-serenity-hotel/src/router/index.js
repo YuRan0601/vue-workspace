@@ -41,6 +41,8 @@ import CarRentalHome from "@/layouts/rent/CarRentalHome.vue";
 import HeroSection from "@/components/rent/HeroSection.vue";
 import ReserveCarButton from "@/components/rent/ReserveCarButton.vue";
 import ModelSelector from "@/views/rent/ModelSelector.vue";
+import ProductShopping from "@/views/product/ProductShopping.vue";
+import ProductDetail from "@/views/product/ProductDetail.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -154,11 +156,23 @@ const router = createRouter({
           component: AttractionComponent,
         },
 
-        //---商品前台---
 
+        //---商品前台---
+        {
+          path: "/product/shopping",
+          name: "productShopping",
+          component: ProductShopping,
+        },
+        {
+          path: "/product/:id",
+          name: "productDetail",
+          component: ProductDetail,
+        },
         //-------------
 
         //---訂單前台---
+
+        
 
         //--------------
 
