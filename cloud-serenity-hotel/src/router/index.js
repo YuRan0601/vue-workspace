@@ -35,6 +35,10 @@ import AttractionComponent from "@/components/Attraction/AttractionComponent.vue
 import BookingOrderView from "@/views/booking/BookingOrderView.vue";
 import DetailsOperate from "@/layouts/rent/detailsOperate.vue";
 import CarDetails from "@/views/rent/CarDetails.vue";
+import CarRentalHome from "@/layouts/rent/CarRentalHome.vue";
+import HeroSection from "@/components/rent/HeroSection.vue";
+import ReserveCarButton from "@/components/rent/ReserveCarButton.vue";
+import ModelSelector from "@/views/rent/ModelSelector.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -144,7 +148,29 @@ const router = createRouter({
           component: AttractionComponent,
         },
         //---租車前台---
-       
+      {
+        path: "/front/CarRentalHome",
+        name: "CarRentalHome",
+        component: CarRentalHome,
+        children: [
+          {
+            path: "/HeroSection",
+            name: "HeroSection",
+            component: HeroSection,
+          },
+          {
+            path: "/ReserveCarButton",
+            name: "ReserveCarButton",
+            component: ReserveCarButton,
+          },
+          {
+            path: "/ModelSelector",
+            name: "ModelSelector",
+            component: ModelSelector,
+          }
+         
+        ],
+      },
       ],
     },
 
