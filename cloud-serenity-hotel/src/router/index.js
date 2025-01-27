@@ -35,6 +35,8 @@ import AttractionComponent from "@/components/Attraction/AttractionComponent.vue
 import BookingOrderView from "@/views/booking/BookingOrderView.vue";
 import DetailsOperate from "@/layouts/rent/detailsOperate.vue";
 import CarDetails from "@/views/rent/CarDetails.vue";
+import ProductShopping from "@/views/product/ProductShopping.vue";
+import ProductDetail from "@/views/product/ProductDetail.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -143,8 +145,21 @@ const router = createRouter({
           name: "attractionFront",
           component: AttractionComponent,
         },
+        //-------------
+
+        //---商品前台---
+        {
+          path: "/product/shopping",
+          name: "productShopping",
+          component: ProductShopping,
+        },
+        {
+          path: "/product/:id",
+          name: "productDetail",
+          component: ProductDetail,
+        },
         //---租車前台---
-       
+
       ],
     },
 

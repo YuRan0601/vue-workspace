@@ -56,7 +56,9 @@ function logout() {
                             <li class="nav-item">
                                 <RouterLink class="nav-link" :to="{ name: 'roomFront' }">房型介紹</RouterLink>
                             </li>
-                            <li class="nav-item active"><a class="nav-link" href="gallery.html">商城</a></li>
+                            <li class="nav-item active">
+                                <RouterLink class="nav-link" :to="{ name: 'productShopping' }">商城</RouterLink>
+                            </li>
                             <li class="nav-item">
                                 <RouterLink class="nav-link" :to="{ name: 'attractionFront' }">周邊介紹</RouterLink>
                             </li>

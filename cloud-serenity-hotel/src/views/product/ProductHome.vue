@@ -10,7 +10,6 @@ const product = ref([]);
 
 const loadProduct = async () => {
     const response = await fetch(GETALL_URL)
-
     product.value = await response.json()
 
     console.log(product.value);
@@ -81,17 +80,47 @@ function listingStatus(item){
 }
 
 
-
-
 function editItem(item) {
     console.log('编辑项目：', item);
     Swal.fire('123');
 }
 
-// 删除按钮点击事件
-function deleteItem(item) {
-    console.log('删除项目：', item);
-    Swal.fire('123');
+
+const deleteItem = async(item) => {
+const result = await Swal.fire({
+    title: `確定要刪除 ${item.productName} 嗎?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#E0E0E0",
+    confirmButtonText: "確定",
+    cancelButtonText: "取消",
+  })
+
+  if (result.isConfirmed) {
+    const response = await fetch(`${BASE_URL}Product/delete/${item.productId}` ,{
+    method:'DELETE'
+  })
+
+  if (response.ok) {
+    loadProduct()
+
+    Swal.fire({
+        title: "已刪除!",
+        text:`${item.productName} 已成功刪除`,
+        icon: "success",
+        confirmButtonColor: "#3085d6",
+    })
+  } else{
+    Swal.fire({
+        title:"錯誤",
+        text:"刪除失敗，請稍後再試",
+        icon:"error",
+        confirmButtonColor: "#3085d6",
+    })
+  }
+
+  }
 }
 
 </script>
