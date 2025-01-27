@@ -59,25 +59,47 @@ function insertOrder() {
         }
       );
 
-      // if (data !== 0) {
-      //   Swal.fire({
-      //     title: "新增成功",
-      //     icon: "success",
-      //     confirmButtonText: "確定",
-      //   }).then(() => {
-      //     loadTable();
-      //     insertDialog.value = false;
-      //   });
-      // } else {
-      //   Swal.fire({
-      //     title: "新增失敗",
-      //     icon: "error",
-      //     confirmButtonText: "確定",
-      //   }).then(() => {
-      //     loadTable();
-      //     insertDialog.value = false;
-      //   });
-      // }
+      if(data.code === 200) {
+
+        Swal.fire({
+          title: "訂單建立成功",
+          icon: "success",
+          confirmButtonText: "確定",
+        }).then(() => {
+          router.push({ name : 'bookingSuccess' });
+        });
+
+      } else if(data.code === 404) {
+
+        Swal.fire({
+          title: "已沒有空房",
+          icon: "error",
+          confirmButtonText: "確定",
+        }).then(() => {
+          router.push({ name : 'bookingSearch' });
+        });
+
+      } else if(data.code === 405) {
+
+        Swal.fire({
+          title: "請確定登入",
+          icon: "error",
+          confirmButtonText: "確定",
+        }).then(() => {
+          router.push({ name : 'login' });
+        });
+
+      } else if(data.code === 501) {
+
+        Swal.fire({
+          title: "伺服器出錯，新增失敗",
+          icon: "error",
+          confirmButtonText: "確定",
+        }).then(() => {
+          router.push({ name : 'bookingSearch' });
+        });
+
+      }
     }
   });
 }
@@ -119,12 +141,12 @@ function insertOrder() {
           readonly
         ></v-text-field>
 
-        <v-btn color="error" class="mr-4" @click="insertOrder">
+        <v-btn color="blue" class="mr-4" @click="insertOrder">
           確認訂房
         </v-btn>
 
-        <v-btn color="warning" @click="resetValidation">
-          Reset Validation
+        <v-btn color="error" @click="resetValidation">
+          取消訂房
         </v-btn>
       </v-form>
     </div>
@@ -132,9 +154,6 @@ function insertOrder() {
 </template>
 
 <style lang="css" scoped>
-template {
-  background-color: black;
-}
 
 .container {
   display: flex;

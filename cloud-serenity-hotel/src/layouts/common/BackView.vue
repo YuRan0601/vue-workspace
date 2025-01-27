@@ -56,7 +56,9 @@ function logout() {
               <li>
                 <RouterLink :to="{ name: 'roomType' }">房型、房間</RouterLink>
               </li>
-              <li><a href="#" class="link-dark rounded">Overview</a></li>
+              <li>
+                <RouterLink :to="{ name: 'bookingOrderTable' }">訂房訂單</RouterLink>
+              </li>
             </ul>
           </div>
         </li>

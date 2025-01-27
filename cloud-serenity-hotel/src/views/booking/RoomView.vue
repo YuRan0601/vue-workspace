@@ -1,10 +1,10 @@
 <script setup>
-import axios from 'axios';
-import Swal from 'sweetalert2';
-import { onMounted, ref, watchEffect } from 'vue';
+import axiosInstance from "@/axios";
+import axios from "axios";
+import Swal from "sweetalert2";
+import { onMounted, ref, watchEffect } from "vue";
 
-
-const search = ref('');
+const search = ref("");
 
 function resetInsert() {
   insertRoom.value.roomType.typeId = null;
@@ -13,8 +13,6 @@ function resetInsert() {
   insertRoom.value.roomDescription = "";
   insertRoom.value.status = "";
 }
-
-
 
 const headers = [
   { title: "房間ID", key: "roomId" },
@@ -31,20 +29,23 @@ const roomTypeTable = ref([]);
 const roomTable = ref([]);
 
 const roomStatus = [
-  {name: "空閒中" , value: "available"},
-  {name: "占用中" , value: "occupied"},
-  {name: "維修中" , value: "maintenance"},
-]
+  { name: "空閒中", value: "available" },
+  { name: "占用中", value: "occupied" },
+  { name: "維修中", value: "maintenance" },
+];
 
 async function loadRoomTypeTable() {
   const { data } = await axios.get("/api/room/type");
   roomTypeTable.value = data;
 }
 
+async function roomTypeSwitchHandler(typeId) {
+  const { data } = await axiosInstance.get(`/room/byType/${typeId}`);
+  roomTable.value = data;
+}
 
 async function loadRoomTable() {
   const { data } = await axios.get("/api/room");
-  console.log(data);
   roomTable.value = data;
 }
 
@@ -62,9 +63,8 @@ const insertRoom = ref({
   roomId: null,
   roomName: "",
   roomDescription: "",
-  status: ""
+  status: "",
 });
-
 
 async function insertRoomHandler() {
   console.log(insertRoom.value);
@@ -79,9 +79,7 @@ async function insertRoomHandler() {
     cancelButtonText: "取消",
   }).then(async (res) => {
     if (res.isConfirmed) {
-      const { data } = await axios.post("/api/room", 
-      insertRoom.value, 
-      {
+      const { data } = await axios.post("/api/room", insertRoom.value, {
         headers: {
           "Content-Type": "application/json",
         },
@@ -111,115 +109,111 @@ async function insertRoomHandler() {
   });
 }
 
-
-
 function deleteRoom(room) {
-    console.log(room);
-    Swal.fire({
-      title: `確定要刪除 ${room.roomName} 嗎?`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "確定",
-      cancelButtonText: "取消",
-    }).then(async (result) => {
-      if (result.isConfirmed) {
-        const { data } = await axios.delete(`/api/room/${room.roomId}`);
+  console.log(room);
+  Swal.fire({
+    title: `確定要刪除 ${room.roomName} 嗎?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "確定",
+    cancelButtonText: "取消",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      const { data } = await axios.delete(`/api/room/${room.roomId}`);
 
-        if (data > 0) {
-          Swal.fire({
-            title: "刪除成功",
-            icon: "success",
-            confirmButtonText: "確定",
-          }).then(() => {
-            loadRoomTable();
-          });
-        } else {
-          Swal.fire({
-            title: "刪除失敗",
-            icon: "error",
-            confirmButtonText: "確定",
-          }).then(() => {
-            loadRoomTable();
-          });
-        }
-      }
-    });
-  }
-
-  const updateRoom = ref({
-    roomType: {
-      typeId: null,
-    },
-    roomId: null,
-    roomName: "",
-    roomDescription: "",
-    status: ""
-  });
-
-  const updateDialog = ref(false);
-  
-  function editItem(item) {
-    console.log(item);
-    updateDialog.value = true;
-    updateRoom.value.roomType.typeId = item.roomTypeId;
-    updateRoom.value.roomId = item.roomId;
-    updateRoom.value.roomName = item.roomName;
-    updateRoom.value.roomDescription = item.roomDescription;
-    updateRoom.value.status = item.status;
-  }
-
-  function updateRoomHandler() {
-    Swal.fire({
-      title: `確定要修改 ${updateRoom.value.roomName} 房間?`,
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "確定",
-      cancelButtonText: "取消",
-    }).then(async (res) => {
-      if (res.isConfirmed) {
-        console.log("123" + updateRoom.value);
-
-        const { data } = await axios.put("/api/room", 
-        updateRoom.value, 
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
+      if (data > 0) {
+        Swal.fire({
+          title: "刪除成功",
+          icon: "success",
+          confirmButtonText: "確定",
+        }).then(() => {
+          loadRoomTable();
         });
-
-        if (data !== 0) {
-          Swal.fire({
-            title: "修改成功",
-            icon: "success",
-            confirmButtonText: "確定",
-          }).then(() => {
-            loadRoomTable();
-            updateDialog.value = false;
-          });
-        } else {
-          Swal.fire({
-            title: "修改失敗",
-            icon: "error",
-            confirmButtonText: "確定",
-          }).then(() => {
-            loadRoomTable();
-            updateDialog.value = false;
-          });
-        }
+      } else {
+        Swal.fire({
+          title: "刪除失敗",
+          icon: "error",
+          confirmButtonText: "確定",
+        }).then(() => {
+          loadRoomTable();
+        });
       }
-    });
-  }
-
-  watchEffect(() => {
-    if (!insertDialog.value) {
-      resetInsert();
     }
-  })
+  });
+}
+
+const updateRoom = ref({
+  roomType: {
+    typeId: null,
+  },
+  roomId: null,
+  roomName: "",
+  roomDescription: "",
+  status: "",
+});
+
+const updateDialog = ref(false);
+
+function editItem(item) {
+  console.log(item);
+  updateDialog.value = true;
+  updateRoom.value.roomType.typeId = item.roomTypeId;
+  updateRoom.value.roomId = item.roomId;
+  updateRoom.value.roomName = item.roomName;
+  updateRoom.value.roomDescription = item.roomDescription;
+  updateRoom.value.status = item.status;
+}
+
+function updateRoomHandler() {
+  Swal.fire({
+    title: `確定要修改 ${updateRoom.value.roomName} 房間?`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "確定",
+    cancelButtonText: "取消",
+  }).then(async (res) => {
+    if (res.isConfirmed) {
+      console.log("123" + updateRoom.value);
+
+      const { data } = await axios.put("/api/room", updateRoom.value, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        withCredentials: true,
+      });
+
+      if (data !== 0) {
+        Swal.fire({
+          title: "修改成功",
+          icon: "success",
+          confirmButtonText: "確定",
+        }).then(() => {
+          loadRoomTable();
+          updateDialog.value = false;
+        });
+      } else {
+        Swal.fire({
+          title: "修改失敗",
+          icon: "error",
+          confirmButtonText: "確定",
+        }).then(() => {
+          loadRoomTable();
+          updateDialog.value = false;
+        });
+      }
+    }
+  });
+}
+
+watchEffect(() => {
+  if (!insertDialog.value) {
+    resetInsert();
+  }
+});
 </script>
 
 <template>
@@ -230,9 +224,8 @@ function deleteRoom(room) {
         <template v-slot:activator="{ props: activatorProps }">
           <v-btn
             class="text-none font-weight-regular"
-            prepend-icon="mdi-account"
             text="新增房間"
-            variant="tonal"
+            color="green"
             v-bind="activatorProps"
           ></v-btn>
         </template>
@@ -368,39 +361,53 @@ function deleteRoom(room) {
       </v-dialog>
     </div>
 
-    <v-text-field 
-    v-model="search"
-    label="查詢"></v-text-field>
-
-    
     <!-- 房間資料 -->
     <div>
-      <v-data-table
-      :items="roomTable"
-      :headers="headers"
-      item-value="roomName"
-      class="roomTable"
-      :search="search"
-      show-expand
-    >
-      <template v-slot:expanded-row="{ item }">
-        <tr>
-          <th :colspan="8">房間描述</th>
-        </tr>
-        <tr>
-          <td :colspan="8">
-            {{ item.roomDescription }}
-          </td>
-        </tr>
-      </template>
+      <v-container class="typeBtnContainer">
+        <v-row>
+          <v-btn class="typeBtn" color="black" @click="loadRoomTable"
+            >所有</v-btn
+          >
+          <v-btn
+            class="typeBtn"
+            v-for="item in roomTypeTable"
+            :key="item.typeId"
+            color="black"
+            @click="roomTypeSwitchHandler(item.typeId)"
+            >{{ item.typeName }}</v-btn
+          >
+        </v-row>
+      </v-container>
 
-      <template #item.actions="{ item }">
-        <v-btn color="primary" class="mr-2" @click="editItem(item)">
-          修改
-        </v-btn>
-        <v-btn color="error" @click="deleteRoom(item)"> 删除 </v-btn>
-      </template>
-    </v-data-table>
+      <v-container>
+        <v-text-field v-model="search" label="查詢"></v-text-field>
+        <v-data-table
+          :items="roomTable"
+          :headers="headers"
+          item-value="roomName"
+          class="roomTable"
+          :search="search"
+          show-expand
+        >
+          <template v-slot:expanded-row="{ item }">
+            <tr>
+              <th :colspan="8">房間描述</th>
+            </tr>
+            <tr>
+              <td :colspan="8">
+                {{ item.roomDescription }}
+              </td>
+            </tr>
+          </template>
+
+          <template #item.actions="{ item }">
+            <v-btn color="primary" class="mr-2" @click="editItem(item)">
+              修改
+            </v-btn>
+            <v-btn color="error" @click="deleteRoom(item)"> 删除 </v-btn>
+          </template>
+        </v-data-table>
+      </v-container>
     </div>
   </div>
 </template>
@@ -412,5 +419,15 @@ function deleteRoom(room) {
 
 .swal2-container {
   z-index: 9999 !important;
+}
+
+.typeBtnContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.typeBtnContainer .typeBtn {
+  margin: 5px;
 }
 </style>

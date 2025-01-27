@@ -35,6 +35,8 @@ import AttractionComponent from "@/components/Attraction/AttractionComponent.vue
 import BookingOrderView from "@/views/booking/BookingOrderView.vue";
 import DetailsOperate from "@/layouts/rent/detailsOperate.vue";
 import CarDetails from "@/views/rent/CarDetails.vue";
+import BookingSuccessVue from "@/views/booking/BookingSuccess.vue";
+import BookingOrderTableViewVue from "@/views/booking/BookingOrderTableView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -58,7 +60,6 @@ const router = createRouter({
       name: "front",
       component: FrontView,
       children: [
-
         //---訂房前台---
         {
           path: "/front/bookingHome",
@@ -74,7 +75,12 @@ const router = createRouter({
               path: "/bookingOrder",
               name: "bookingOrder",
               component: BookingOrderView,
-            }
+            },
+            {
+              path: "/bookingSuccess",
+              name: "bookingSuccess",
+              component: BookingSuccessVue,
+            },
           ],
         },
         {
@@ -143,8 +149,18 @@ const router = createRouter({
           name: "attractionFront",
           component: AttractionComponent,
         },
+
+        //---商品前台---
+
+        //-------------
+
+        //---訂單前台---
+
+        //--------------
+
         //---租車前台---
-       
+
+        //-------------
       ],
     },
 
@@ -180,10 +196,9 @@ const router = createRouter({
         }
       },
       children: [
-
         //---訂房後台---
         {
-          path: "/bookingBack",
+          path: "/back/bookingBack",
           name: "bookingBack",
           component: BookingBack,
           children: [
@@ -199,8 +214,12 @@ const router = createRouter({
             },
           ],
         },
+        {
+          path: "/back/booking/order",
+          name: "bookingOrderTable",
+          component: BookingOrderTableViewVue,
+        },
         //-------------
-
 
         //---商品後台---
         {
@@ -222,7 +241,6 @@ const router = createRouter({
         },
         //-------------
 
-
         //---會員後台---
         {
           path: "/memberBack",
@@ -235,7 +253,6 @@ const router = createRouter({
           component: BackAdmin,
         },
         //-------------
-
 
         //---租車後台---
         {
@@ -277,7 +294,8 @@ const router = createRouter({
               component: VehicleList,
             },
           ],
-        }, {
+        },
+        {
           path: "/rent/DetailsOperate/:id/:carId",
           name: "DetailsOperate",
           component: DetailsOperate,
@@ -288,8 +306,7 @@ const router = createRouter({
               name: "carImageDetails",
               component: CarImage,
               props: true,
-            }
-            ,
+            },
             {
               path: "CarDetails/:id/:carId",
               name: "CarDetails",
@@ -334,6 +351,9 @@ const router = createRouter({
         },
         //-------------
 
+        //---景點後台---
+
+        //-------------
       ],
     },
   ],
