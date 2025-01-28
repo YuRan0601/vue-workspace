@@ -1,6 +1,6 @@
 <script setup>
 import axios from "axios";
-import { ref, onMounted } from "vue";
+import { ref, onMounted, watch } from "vue";
 import { Modal } from "bootstrap"; // 顯式導入 Bootstrap 的 Modal 功能
 
 // ===== Axios 攔截器：針對 404 錯誤攔截並靜默處理 =====
@@ -72,25 +72,11 @@ async function loadTable() {
     isLoading.value = true;
 
     try {
-        const params = {
-            page: currentPage.value - 1,
-            size: itemsPerPage.value,
-        };
-
-        const { data, status } = await axios.get("/api/Order/paged", {
-            params,
-            validateStatus: (status) => status >= 200 && status < 300,
-        });
-
-        if (status === 200) {
-            // 排序資料（OrderID 從小到大）
-            orders.value = (data.content || []).sort((a, b) => a.orderId - b.orderId);
-            totalItems.value = data.totalElements || 0;
-            totalPages.value = data.totalPages || 1;
-        }
+        const { data } = await axios.get("/api/Order/findAllOrders");
+        orders.value = data.sort((a, b) => a.orderId - b.orderId); // 按 OrderID 排序
+        totalItems.value = data.length; // 總筆數
     } catch (error) {
-        console.error("分頁查詢失敗：", error);
-        showErrorModal("查詢失敗，請稍後再試！");
+        console.error("查詢失敗：", error);
     } finally {
         isLoading.value = false;
     }
@@ -139,7 +125,6 @@ async function validateOrderId() {
     }
 }
 
-
 // ===== 開啟刪除模態框 =====
 function openDeleteModal(order) {
     selectedOrder.value = order; // 設定選中的訂單
@@ -181,10 +166,10 @@ onMounted(() => {
     console.log(orders.value); // 確保 orders 裡每筆數據都有 orderId
 });
 
-// 監控分頁與查詢條件
-/*watchEffect(() => {
+// ===== 監控分頁與每頁項目變化 =====
+watch([currentPage, itemsPerPage], () => {
     loadTable();
-});*/
+});
 </script>
 
 <template>
@@ -206,7 +191,8 @@ onMounted(() => {
         </div>
 
         <!-- 訂單表格 -->
-        <v-data-table :items="orders" :headers="headers" item-value="orderId" class="mt-4">
+        <v-data-table :items="orders" :headers="headers" :items-per-page="itemsPerPage" :page.sync="currentPage"
+            :total-items="totalItems" class="mt-4" density="compact">
             <template #item.discountAmount="{ item }">
                 {{ formatNumberToInteger(item.discountAmount) }}
             </template>
@@ -266,37 +252,8 @@ onMounted(() => {
                 </div>
             </div>
         </div>
-
-        <!-- 分頁控制 -->
-        <!-- <div class="d-flex justify-content-between align-items-center mt-3">
-            <div>
-                每頁顯示：
-                <select v-model="itemsPerPage" class="form-select d-inline w-auto">
-                    <option :value="10">10</option>
-                    <option :value="25">25</option>
-                    <option :value="50">50</option>
-                </select>
-            </div>
-            <div>
-                {{ totalItems }} 條中第 {{ (currentPage - 1) * itemsPerPage + 1 }} ~
-                {{ Math.min(currentPage * itemsPerPage, totalItems) }} 條
-            </div>
-            <nav>
-                <ul class="pagination mb-0">
-                    <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                        <button class="page-link" @click="currentPage = Math.max(1, currentPage - 1)">
-                            上一頁
-                        </button>
-                    </li>
-                    <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                        <button class="page-link" @click="currentPage = Math.min(totalPages, currentPage + 1)">
-                            下一頁
-                        </button>
-                    </li>
-                </ul>
-            </nav>
-        </div> -->
     </div>
+
 </template>
 
 <style scoped>
