@@ -75,7 +75,7 @@ function logout() {
           <div class="collapse" id="product-collapse">
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
               <li>
-                <RouterLink :to="{ name: 'productBack' }">home</RouterLink>
+                <RouterLink :to="{ name: 'productBack' }">商品上架</RouterLink>
               </li>
               <li><a href="#" class="link-dark rounded">Processed</a></li>
               <li><a href="#" class="link-dark rounded">Shipped</a></li>

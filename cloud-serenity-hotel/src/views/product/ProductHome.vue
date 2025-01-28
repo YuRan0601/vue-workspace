@@ -156,9 +156,9 @@ const result = await Swal.fire({
                 <v-btn color="primary" class="mr-2" @click="editItem(item)">
                     修改
                 </v-btn>
-                <v-btn color="error" @click="deleteItem(item)">
+                <!-- <v-btn color="error" @click="deleteItem(item)">
                     删除
-                </v-btn>
+                </v-btn> -->
             </template>
 
         </v-data-table>
