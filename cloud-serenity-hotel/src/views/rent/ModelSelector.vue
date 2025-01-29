@@ -64,7 +64,9 @@ const getImageSrc = (carId) => {
         class="card"
         style="width: 18rem"
       >
-        <RouterLink :to="{ name: 'carInfo', params: { id: car.carModelId } }">
+        <RouterLink
+          :to="{ name: 'CarModelSearch', params: { id: car.carModelId } }"
+        >
           <div>
             <img
               :src="getImageSrc(car.carModelId)"
@@ -85,11 +87,13 @@ const getImageSrc = (carId) => {
 <style scoped>
 .card-container {
   display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  justify-content: flex-start;
-  padding: 1rem;
-  margin-left: 25px;
+  flex-wrap: wrap; /* 允許卡片換行 */
+  gap: 3rem; /* 卡片之間的間距 */
+  justify-content: flex-start; /* 卡片從左邊開始排列 */
+  padding: 5px;
+  margin-left: auto; /* 使容器左邊距離自動 */
+  margin-right: auto; /* 使容器右邊距離自動 */
+  max-width: 1400px; /* 限制容器的最大寬度 */
 }
 
 .card {

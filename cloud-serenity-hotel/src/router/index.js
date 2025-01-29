@@ -43,7 +43,12 @@ import ReserveCarButton from "@/components/rent/ReserveCarButton.vue";
 import ModelSelector from "@/views/rent/ModelSelector.vue";
 import ProductShopping from "@/views/product/ProductShopping.vue";
 import ProductDetail from "@/views/product/ProductDetail.vue";
-import bookingOrderMemberViewVue from "@/views/booking/bookingOrderMemberView.vue";
+import bookingOrderMemberViewVue from "@/views/booking/BookingOrderMemberView.vue";
+import ModelDetail from "@/views/rent/ModelDetail.vue";
+import CarModelSearch from "@/layouts/rent/CarModelSearch.vue";
+import CarReservation from "@/views/rent/CarReservation.vue";
+import RentalForm from "@/layouts/rent/RentalForm.vue";
+import CarModelReservation from "@/views/rent/CarModelReservation.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -203,10 +208,51 @@ const router = createRouter({
             name: "ModelSelector",
             component: ModelSelector,
           }
-         
-        ],
-        //---------------
+        ], 
       },
+      {
+        path: "/rent/CarModelSearch/:id",
+        name: "CarModelSearch",
+        component: CarModelSearch,
+        props: true,
+        children: [
+          {
+            path: "ImageModelDetail/:id",
+            name: "ImageModelDetail",
+            component: CarImage,
+            props: true,
+          },
+          {
+            path: "ModelDetail/:id",
+            name: "ModelDetail",
+            component: ModelDetail,
+            props: true,
+          }
+        ],
+      },
+      {
+        path: "/rent/RentalForm",
+        name: "RentalForm",
+        component: RentalForm, //表單父組件
+        children: [
+          {
+            path: "CarReservation",
+            name: "CarReservation",
+            component: CarReservation, //選擇車型視圖
+          },
+          {
+            path: "CarModelReservation",
+            name: "CarModelReservation",
+            component: CarModelReservation, //這是車輛選擇視圖
+          },
+        ]
+      },
+     
+      
+
+      
+      
+      //---------------
       ],
     },
 
