@@ -25,7 +25,9 @@ const handleReserve = () => {
   <div class="reservation-container">
     <div class="button-container">
       <v-defaults-provider>
-        <v-btn @click="handleReserve">立即預約</v-btn>
+        <RouterLink class="nav-link" :to="{ name: 'RentalForm' }"
+          ><v-btn @click="handleReserve">立即預約</v-btn></RouterLink
+        >
       </v-defaults-provider>
     </div>
   </div>
