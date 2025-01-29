@@ -43,7 +43,6 @@ import ReserveCarButton from "@/components/rent/ReserveCarButton.vue";
 import ModelSelector from "@/views/rent/ModelSelector.vue";
 import ProductShopping from "@/views/product/ProductShopping.vue";
 import ProductDetail from "@/views/product/ProductDetail.vue";
-<<<<<<< HEAD
 import bookingOrderMemberViewVue from "@/views/booking/BookingOrderMemberView.vue";
 import ModelDetail from "@/views/rent/ModelDetail.vue";
 import CarModelSearch from "@/layouts/rent/CarModelSearch.vue";
@@ -52,7 +51,6 @@ import RentalForm from "@/layouts/rent/RentalForm.vue";
 import CarModelReservation from "@/views/rent/CarModelReservation.vue";
 import MemberOrder from "@/views/order/MemberOrder.vue";
 import MemberOrderDetail from "@/views/order/MemberOrderDetail.vue";
-=======
 import ShuangxiPark from "@/components/Attraction/ShuangxiPark.vue";
 import ScienceMuseum from "@/components/Attraction/ScienceMuseum.vue";
 import AstronomyMuseum from "@/components/Attraction/AstronomyMuseum.vue";
@@ -61,7 +59,6 @@ import ShilinResidence from "@/components/Attraction/ShilinResidence.vue";
 import IndigenousCulturePark from "@/components/Attraction/IndigenousCulturePark.vue";
 import MiramarFerrisWheel from "@/components/Attraction/MiramarFerrisWheel.vue";
 import BihuPark from "@/components/Attraction/BihuPark.vue";
->>>>>>> attraction
 
 const router = createRouter({
   history: createWebHistory(),
