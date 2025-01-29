@@ -170,7 +170,7 @@ const router = createRouter({
               path: "/front/member/OrderDetail",
               name: "memberOrderDetail",
               component: MemberOrderDetail,
-            }
+            },
           ],
         },
         {
@@ -186,18 +186,22 @@ const router = createRouter({
           name: "attractionFront",
           component: AttractionComponent,
         },
-
-        { path: "/", redirect: "/front" },
-        { path: "/front", component: AttractionComponent },
         { path: "/attraction/雙溪公園", component: ShuangxiPark },
         { path: "/attraction/士林科教館", component: ScienceMuseum },
         { path: "/attraction/台北市立天文館", component: AstronomyMuseum },
-        { path: "/attraction/台北兒童新樂園", component: ChildrensAmusementPark },
+        {
+          path: "/attraction/台北兒童新樂園",
+          component: ChildrensAmusementPark,
+        },
         { path: "/attraction/士林官邸", component: ShilinResidence },
-        { path: "/attraction/原住民文化主題公園", component: IndigenousCulturePark },
+        {
+          path: "/attraction/原住民文化主題公園",
+          component: IndigenousCulturePark,
+        },
         { path: "/attraction/美麗華摩天輪", component: MiramarFerrisWheel },
         { path: "/attraction/內湖碧湖公園", component: BihuPark },
 
+        //-------------
 
         //---商品前台---
         {
@@ -214,75 +218,70 @@ const router = createRouter({
 
         //---訂單前台---
 
-
-
         //--------------
 
         //---租車前台---
-      {
-        path: "/front/CarRentalHome",
-        name: "CarRentalHome",
-        component: CarRentalHome,
-        children: [
-          {
-            path: "/HeroSection",
-            name: "HeroSection",
-            component: HeroSection,
-          },
-          {
-            path: "/ReserveCarButton",
-            name: "ReserveCarButton",
-            component: ReserveCarButton,
-          },
-          {
-            path: "/ModelSelector",
-            name: "ModelSelector",
-            component: ModelSelector,
-          }
-        ], 
-      },
-      {
-        path: "/rent/CarModelSearch/:id",
-        name: "CarModelSearch",
-        component: CarModelSearch,
-        props: true,
-        children: [
-          {
-            path: "ImageModelDetail/:id",
-            name: "ImageModelDetail",
-            component: CarImage,
-            props: true,
-          },
-          {
-            path: "ModelDetail/:id",
-            name: "ModelDetail",
-            component: ModelDetail,
-            props: true,
-          }
-        ],
-      },
-      {
-        path: "/rent/RentalForm",
-        name: "RentalForm",
-        component: RentalForm, //表單父組件
-        children: [
-          {
-            path: "CarReservation",
-            name: "CarReservation",
-            component: CarReservation, //選擇車型視圖
-          },
-          {
-            path: "CarModelReservation",
-            name: "CarModelReservation",
-            component: CarModelReservation, //這是車輛選擇視圖
-          },
-        ]
-      },
+        {
+          path: "/front/CarRentalHome",
+          name: "CarRentalHome",
+          component: CarRentalHome,
+          children: [
+            {
+              path: "/HeroSection",
+              name: "HeroSection",
+              component: HeroSection,
+            },
+            {
+              path: "/ReserveCarButton",
+              name: "ReserveCarButton",
+              component: ReserveCarButton,
+            },
+            {
+              path: "/ModelSelector",
+              name: "ModelSelector",
+              component: ModelSelector,
+            },
+          ],
+        },
+        {
+          path: "/rent/CarModelSearch/:id",
+          name: "CarModelSearch",
+          component: CarModelSearch,
+          props: true,
+          children: [
+            {
+              path: "ImageModelDetail/:id",
+              name: "ImageModelDetail",
+              component: CarImage,
+              props: true,
+            },
+            {
+              path: "ModelDetail/:id",
+              name: "ModelDetail",
+              component: ModelDetail,
+              props: true,
+            },
+          ],
+        },
+        {
+          path: "/rent/RentalForm",
+          name: "RentalForm",
+          component: RentalForm, //表單父組件
+          children: [
+            {
+              path: "CarReservation",
+              name: "CarReservation",
+              component: CarReservation, //選擇車型視圖
+            },
+            {
+              path: "CarModelReservation",
+              name: "CarModelReservation",
+              component: CarModelReservation, //這是車輛選擇視圖
+            },
+          ],
+        },
 
-      
-      
-      //---------------
-
+        //---------------
       ],
     },
 
