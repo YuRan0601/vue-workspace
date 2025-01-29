@@ -4,9 +4,11 @@ import { useRouter } from 'vue-router'
 import Swal from 'sweetalert2'
 
 const BASE_URL = import.meta.env.VITE_BACKEND_SERVER_URL
-const GETALL_URL = `${BASE_URL}Product/selectAll`
+const GETALL_URL = `${BASE_URL}Product/select/productStatus/1`
 
 const products = ref([])
+const categories = ref([])
+const selectedCategory = ref(null)
 
 // .push用
 const router = useRouter()
@@ -33,6 +35,27 @@ const loadProduct = async () => {
 }
 loadProduct()
 
+//顯示全部分類
+const loadCategories = async () => {
+  const CATEGORY_URL = `${BASE_URL}Product/select/allCategories`
+  const response = await fetch(CATEGORY_URL)
+  categories.value = await response.json()
+}
+loadCategories()
+
+
+// 根據分類篩選商品
+const filterByCategory = async (categoryId) => {
+  const PRODUCT_BY_CATEGORY_URL = `${BASE_URL}Product/select/categoryById/`
+  selectedCategory.value = categoryId // 記錄選中的分類
+  try {
+    const response = await fetch(PRODUCT_BY_CATEGORY_URL + categoryId)
+    products.value = await response.json()
+  } catch (error) {
+    console.error('篩選商品失敗:', error)
+  }
+}
+
 function goToCart() {
   // 前往購物車頁面
   router.push({ name: 'cart' });
@@ -42,18 +65,34 @@ function goToCart() {
 <template>
   <section class="header">
     <div>
-      <h2 class="page-cover-tittle">商城</h2>
+      <!-- <h2 class="page-cover-tittle">商城</h2> -->
     </div>
   </section>
 
-  <!-- 購物車圖示容器 -->
+
+  <!-- 分類區塊 (包含購物車 icon) -->
+  <div class="category-bar">
+    <!-- "全部" 選項 -->
+    <button class="category-button" @click="loadProduct">全部</button>
+
+    <!-- 動態渲染分類按鈕 -->
+    <button
+      v-for="category in categories"
+      :key="category.categoryId"
+      class="category-button"
+      :class="{ active: selectedCategory === category.categoryId }"
+      @click="filterByCategory(category.categoryId)"
+    >
+      {{ category.categoriesName }}
+    </button>
+
+  <!-- 購物車 icon -->
   <div class="cart-icon-container">
-    <!-- FontAwesome Icon -->
-    <i class="fas fa-shopping-cart" @click="goToCart"></i>
-    <!-- 若有購物車數量 (可選) 
-         <span class="cart-count">3</span>
-    -->
+    <!-- <i class="fas fa-shopping-cart" @click="goToCart"></i> -->
+    <i class="bi bi-bag" @click="goToCart"></i>
   </div>
+</div>
+
 
   <div class="product-list-wrapper">
     <div class="products-container">
@@ -106,7 +145,7 @@ function goToCart() {
 .header {
   background-image: url("../../assets/product/ProductShopping.jpg");
   width: 100%;
-  height: 200px;
+  height: 400px;
   background-position: right center;
   background-size: cover;
   display: flex;
@@ -229,6 +268,51 @@ function goToCart() {
   text-align: center;
   line-height: 18px;
   font-weight: bold;
+}
+
+
+/* 分類區塊與購物車 icon */
+.category-bar {
+  display: flex;
+  align-items: center; /* 讓分類按鈕與購物車 icon 垂直置中 */
+  justify-content: flex-start; /* 讓內容靠左對齊 */
+  background-color: white;
+  padding: 10px 16px; /* 增加左右內距，讓內容不會貼邊 */
+  gap: 16px; /* 設定分類與購物車 icon 之間的間距 */
+}
+
+/* 分類按鈕 */
+.category-button {
+  background-color: white;
+  color: black;
+  border: none;
+  padding: 10px;
+  font-size: 16px;
+  cursor: pointer;
+  text-align: center;
+  transition: background-color 0.2s ease-in-out;
+  flex-shrink: 0; /* 防止按鈕縮小 */
+}
+
+.category-button:hover {
+  background-color: #f2f2f2;
+}
+
+/* 購物車 icon */
+.cart-icon-container {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.cart-icon-container i {
+  font-size: 24px;
+  color: #333;
+  position: relative;
+}
+
+.cart-icon-container i:hover {
+  color: #555;
 }
 
 </style>

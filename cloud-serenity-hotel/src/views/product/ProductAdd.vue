@@ -65,7 +65,7 @@ const productAdd = async () => {
     <div class="mb-4">
       <div class="row mb-3 justify-content-center">
         <div class="col-lg-8">
-          <label for="productName" class="form-label">商品名稱</label>
+          <label for="productName" class="form-label">商品名稱<span class="Required">*</span></label>
           <input
             type="text"
             class="form-control"
@@ -79,7 +79,7 @@ const productAdd = async () => {
     <div class="mb-4">
       <div class="row mb-3 justify-content-center">
         <div class="col-lg-8">
-          <label for="price" class="form-label">售價</label>
+          <label for="price" class="form-label">售價<span class="Required">*</span></label>
           <input type="text" class="form-control" id="price" v-model="product.price" />
         </div>
       </div>
@@ -102,21 +102,7 @@ const productAdd = async () => {
     <div class="mb-4">
       <div class="row mb-3 justify-content-center">
         <div class="col-lg-8">
-          <label for="description" class="form-label">商品描述</label>
-          <textarea
-            class="form-control"
-            id="description"
-            rows="3"
-            v-model="product.description"
-          ></textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="mb-4">
-      <div class="row mb-3 justify-content-center">
-        <div class="col-lg-8">
-          <label class="form-label">分類</label>
+          <label class="form-label">分類<span class="Required">*</span></label>
           <div v-for="(category, index) in product.categories" :key="index" class="mb-2">
             <input
               type="text"
@@ -135,7 +121,7 @@ const productAdd = async () => {
     <div class="mb-4">
       <div class="row mb-3 justify-content-center">
         <div class="col-lg-8">
-          <label for="imageUpload" class="form-label">商品圖片</label>
+          <label for="imageUpload" class="form-label">商品圖片<span class="Required">*</span></label>
           <input
             type="file"
             id="imageUpload"
@@ -157,13 +143,27 @@ const productAdd = async () => {
       </div>
     </div>
 
+    <div class="mb-4">
+      <div class="row mb-3 justify-content-center">
+        <div class="col-lg-8">
+          <label for="description" class="form-label">商品描述</label>
+          <textarea
+            class="form-control"
+            id="description"
+            rows="3"
+            v-model="product.description"
+          ></textarea>
+        </div>
+      </div>
+    </div>
+
     <div class="d-flex justify-content-between align-items-center mt-5 mb-4 py-3 border-top">
       <RouterLink :to="{ name: 'productAll' }" class="btn btn-secondary">
         <i class="bi bi-arrow-left"></i> 返回
       </RouterLink>
       <div>
         <button class="btn btn-primary" @click.prevent="productAdd">
-          <i class="bi bi-journal-text me-2"></i> 新增商品確認
+          新增商品確認
         </button>
       </div>
     </div>
@@ -177,5 +177,9 @@ img {
   margin-bottom: 10px;
   border-radius: 5px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.Required{
+  color: brown;
 }
 </style>

@@ -27,6 +27,15 @@ function addToCart(product) {
   })
 }
 
+
+function shopping(product) {
+  Swal.fire({
+    icon: 'success',
+    title: '直接購買',
+    text: `已將「${product.productName}」購買！`,
+  })
+}
+
 </script>
 
 <template>
@@ -38,6 +47,7 @@ function addToCart(product) {
     <p>價格：{{ product.price }}</p>
     <p v-if="product.specialPrice">特價：{{ product.specialPrice }}</p>
     <p>描述：{{ product.description }}</p>
+    <button @click="shopping(product)">直接購買</button>
     <button @click="addToCart(product)">加入購物車</button>
   </div>
   <div v-else>
