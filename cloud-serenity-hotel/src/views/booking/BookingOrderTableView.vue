@@ -1,5 +1,7 @@
 <script setup>
+import axiosInstance from "@/axios";
 import axios from "@/axios";
+import Swal from "sweetalert2";
 import { onMounted, ref } from "vue";
 
 const orderTable = ref([]);
@@ -7,10 +9,13 @@ const roomTypeTable = ref([]);
 
 const headers = [
   { title: "訂單ID", key: "roomId" },
+  { title: "會員", key: "userName" },
+  { title: "會員ID", key: "userId" },
   { title: "預定房型", key: "roomTypeName" },
   { title: "住房日期", key: "checkInDate" },
   { title: "退房日期", key: "checkOutDate" },
   { title: "總金額", key: "totalPrice" },
+  { title: "付款方式", key: "paymentMethod" },
   { title: "訂單狀態", key: "status" },
   { title: "新增時間", key: "createdDate" },
   { title: "操作", key: "actions" },
@@ -39,6 +44,7 @@ const updateBookingOrder = ref({
   checkInDate: null,
   checkOutDate: null,
   totalPrice: null,
+  paymentMethod: null,
   status: null,
 });
 
@@ -69,10 +75,70 @@ function seeUpdateOrder(item) {
   bo.checkInDate = item.checkInDate;
   bo.checkOutDate = item.checkOutDate;
   bo.totalPrice = item.totalPrice;
+  bo.paymentMethod = item.paymentMethod;
   bo.status = item.status;
   updateRoomTypeId.value = item.roomTypeId;
 
   updateDialog.value = true;
+}
+
+async function updateOrderHandler() {
+  Swal.fire({
+    title: "確定要修改此訂單?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "確定",
+    cancelButtonText: "取消",
+  }).then(async (res) => {
+    if (res.isConfirmed) {
+      const { data } = await axiosInstance.put(
+        `/booking/order/${updateRoomTypeId.value}`,
+        updateBookingOrder.value,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      if (data.code === 200) {
+        Swal.fire({
+          title: "訂單修改成功",
+          icon: "success",
+          confirmButtonText: "確定",
+        }).then(() => {
+          loadOrderTable();
+          updateDialog.value = false;
+        });
+      } else if (data.code === -1) {
+        Swal.fire({
+          title: "找不到訂單",
+          icon: "error",
+          confirmButtonText: "確定",
+        }).then(() => {
+          loadOrderTable();
+        });
+      } else if (data.code === 404) {
+        Swal.fire({
+          title: "已沒有空房",
+          icon: "error",
+          confirmButtonText: "確定",
+        }).then(() => {
+          loadOrderTable();
+        });
+      } else if (data.code === 501) {
+        Swal.fire({
+          title: "伺服器出錯，修改失敗",
+          icon: "error",
+          confirmButtonText: "確定",
+        }).then(() => {
+          loadOrderTable();
+        });
+      }
+    }
+  });
 }
 
 onMounted(() => {
@@ -164,6 +230,14 @@ onMounted(() => {
               </v-col>
 
               <v-col cols="12">
+                <v-text-field
+                  label="付款方式"
+                  v-model="updateBookingOrder.paymentMethod"
+                  readonly
+                ></v-text-field>
+              </v-col>
+
+              <v-col cols="12">
                 <v-select
                   v-model="updateRoomTypeId"
                   label="房間類型"
@@ -193,16 +267,16 @@ onMounted(() => {
             <v-spacer></v-spacer>
 
             <v-btn
-              text="Close"
+              text="關閉"
               variant="plain"
               @click="updateDialog = false"
             ></v-btn>
 
             <v-btn
               color="primary"
-              text="Save"
+              text="修改"
               variant="tonal"
-              @click="updateRoomHandler"
+              @click="updateOrderHandler"
             ></v-btn>
           </v-card-actions>
         </v-card>
@@ -211,4 +285,12 @@ onMounted(() => {
   </div>
 </template>
 
-<style lang="css" scoped></style>
+<style lang="css" scoped>
+.v-dialog {
+  z-index: 1000 !important;
+}
+
+.swal2-container {
+  z-index: 9999 !important;
+}
+</style>

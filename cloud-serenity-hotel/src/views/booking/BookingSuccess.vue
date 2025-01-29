@@ -1,5 +1,20 @@
 <script setup>
-    
+import { useAuthStore } from '@/stores/authStore';
+import { useBookingOrderStore } from '@/stores/bookingOrderStore';
+import { onMounted } from 'vue';
+import { useRouter } from 'vue-router';
+
+  const userStore = useAuthStore();
+  const router = useRouter();
+
+  onMounted(() => {
+    userStore.checkMember();
+  })
+
+  function goMemberCenter() {
+    router.push({ name: 'memberBookingOrder' });
+  }
+
 </script>
 
 <template>
@@ -7,10 +22,7 @@
     <div class="content">
       <h1>訂單建立成功</h1>
       <br />
-      <v-btn color="blue" @click="payHandler"> 去付款 </v-btn>
-      <br />
-      <br />
-      <v-btn color="green" @click="goMemberCenter"> 回會員中心查看 </v-btn>
+      <v-btn color="green" @click="goMemberCenter"> 回會員中心查看訂單並付款 </v-btn>
     </div>
   </div>
 </template>

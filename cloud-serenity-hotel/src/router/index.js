@@ -43,6 +43,7 @@ import ReserveCarButton from "@/components/rent/ReserveCarButton.vue";
 import ModelSelector from "@/views/rent/ModelSelector.vue";
 import ProductShopping from "@/views/product/ProductShopping.vue";
 import ProductDetail from "@/views/product/ProductDetail.vue";
+import bookingOrderMemberViewVue from "@/views/booking/bookingOrderMemberView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -139,6 +140,11 @@ const router = createRouter({
               path: "/front/member/Account",
               name: "memberAccount",
               component: MemberAccount,
+            },
+            {
+              path: "/front/member/bookingOrder",
+              name: "memberBookingOrder",
+              component: bookingOrderMemberViewVue,
             },
           ],
         },

@@ -1,4 +1,5 @@
 <script setup>
+import axiosInstance from "@/axios";
 import axios from "@/axios";
 import { useAuthStore } from "@/stores/authStore";
 import { useBookingOrderStore } from "@/stores/bookingOrderStore";
@@ -8,6 +9,7 @@ import { useRouter } from "vue-router";
 const userStore = useAuthStore();
 const bookingOrderStore = useBookingOrderStore();
 const router = useRouter();
+const paymentMethod = ["入住時付款", "信用卡"];
 
 const bookingOrder = ref({
   user: {
@@ -16,6 +18,7 @@ const bookingOrder = ref({
   checkInDate: null,
   checkOutDate: null,
   totalPrice: null,
+  paymentMethod: null,
 });
 
 onMounted(() => {
@@ -49,7 +52,7 @@ function insertOrder() {
     cancelButtonText: "取消",
   }).then(async (res) => {
     if (res.isConfirmed) {
-      const { data } = await axios.post(
+      const { data } = await axiosInstance.post(
         `/booking/order/${bookingOrderStore.roomTypeId}`,
         bookingOrder.value,
         {
@@ -59,46 +62,38 @@ function insertOrder() {
         }
       );
 
-      if(data.code === 200) {
-
+      if (data.code === 200) {
         Swal.fire({
           title: "訂單建立成功",
           icon: "success",
           confirmButtonText: "確定",
         }).then(() => {
-          router.push({ name : 'bookingSuccess' });
+          router.push({ name: "bookingSuccess" });
         });
-
-      } else if(data.code === 404) {
-
+      } else if (data.code === 404) {
         Swal.fire({
           title: "已沒有空房",
           icon: "error",
           confirmButtonText: "確定",
         }).then(() => {
-          router.push({ name : 'bookingSearch' });
+          router.push({ name: "bookingSearch" });
         });
-
-      } else if(data.code === 405) {
-
+      } else if (data.code === 405) {
         Swal.fire({
           title: "請確定登入",
           icon: "error",
           confirmButtonText: "確定",
         }).then(() => {
-          router.push({ name : 'login' });
+          router.push({ name: "login" });
         });
-
-      } else if(data.code === 501) {
-
+      } else if (data.code === 501) {
         Swal.fire({
           title: "伺服器出錯，新增失敗",
           icon: "error",
           confirmButtonText: "確定",
         }).then(() => {
-          router.push({ name : 'bookingSearch' });
+          router.push({ name: "bookingSearch" });
         });
-
       }
     }
   });
@@ -141,20 +136,23 @@ function insertOrder() {
           readonly
         ></v-text-field>
 
-        <v-btn color="blue" class="mr-4" @click="insertOrder">
-          確認訂房
-        </v-btn>
+        <v-select
+          v-model="bookingOrder.paymentMethod"
+          label="付款方式"
+          :items="paymentMethod"
+          required
+        >
+        </v-select>
 
-        <v-btn color="error" @click="resetValidation">
-          取消訂房
-        </v-btn>
+        <v-btn color="blue" class="mr-4" @click="insertOrder"> 確認訂房 </v-btn>
+
+        <v-btn color="error" @click="resetValidation"> 取消訂房 </v-btn>
       </v-form>
     </div>
   </div>
 </template>
 
 <style lang="css" scoped>
-
 .container {
   display: flex;
   align-items: center;
