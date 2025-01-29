@@ -43,6 +43,14 @@ import ReserveCarButton from "@/components/rent/ReserveCarButton.vue";
 import ModelSelector from "@/views/rent/ModelSelector.vue";
 import ProductShopping from "@/views/product/ProductShopping.vue";
 import ProductDetail from "@/views/product/ProductDetail.vue";
+import ShuangxiPark from "@/components/Attraction/ShuangxiPark.vue";
+import ScienceMuseum from "@/components/Attraction/ScienceMuseum.vue";
+import AstronomyMuseum from "@/components/Attraction/AstronomyMuseum.vue";
+import ChildrensAmusementPark from "@/components/Attraction/ChildrensAmusementPark.vue";
+import ShilinResidence from "@/components/Attraction/ShilinResidence.vue";
+import IndigenousCulturePark from "@/components/Attraction/IndigenousCulturePark.vue";
+import MiramarFerrisWheel from "@/components/Attraction/MiramarFerrisWheel.vue";
+import BihuPark from "@/components/Attraction/BihuPark.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -155,6 +163,17 @@ const router = createRouter({
           name: "attractionFront",
           component: AttractionComponent,
         },
+
+        { path: "/", redirect: "/front" },
+        { path: "/front", component: AttractionComponent },
+        { path: "/attraction/雙溪公園", component: ShuangxiPark },
+        { path: "/attraction/士林科教館", component: ScienceMuseum },
+        { path: "/attraction/台北市立天文館", component: AstronomyMuseum },
+        { path: "/attraction/台北兒童新樂園", component: ChildrensAmusementPark },
+        { path: "/attraction/士林官邸", component: ShilinResidence },
+        { path: "/attraction/原住民文化主題公園", component: IndigenousCulturePark },
+        { path: "/attraction/美麗華摩天輪", component: MiramarFerrisWheel },
+        { path: "/attraction/內湖碧湖公園", component: BihuPark },
 
 
         //---商品前台---

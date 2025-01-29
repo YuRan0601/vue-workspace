@@ -142,15 +142,22 @@ export default {
             Swal.fire({
                 title: `<strong>${spot.title}</strong>`,
                 html: `
-            <img src="${spot.image}" alt="${spot.title}" style="width: 100%; border-radius: 10px; margin-bottom: 15px;">
-            <p>${spot.description}</p>
-            <p>探索士林最美風景，來一場難忘的旅程！</p>
-          `,
+                    <img src="${spot.image}" alt="${spot.title}" style="width: 100%; border-radius: 10px; margin-bottom: 15px;">
+                    <p>${spot.description}</p>
+                    <p>探索士林最美風景，來一場難忘的旅程！</p>
+                `,
+                showCancelButton: true,
                 confirmButtonText: "關閉",
-                confirmButtonColor: "#007BFF",
+                cancelButtonText: "查看詳情",
+                cancelButtonColor: "#09c6ab"
+            }).then((result) => {
+                if (result.dismiss === Swal.DismissReason.cancel) {
+                    // 跳轉到詳細頁面
+                    this.$router.push(`/attraction/${spot.title}`);
+                }
             });
         },
-    },
+    }
 };
 </script>
 
