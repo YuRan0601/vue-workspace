@@ -43,6 +43,8 @@ import ReserveCarButton from "@/components/rent/ReserveCarButton.vue";
 import ModelSelector from "@/views/rent/ModelSelector.vue";
 import ProductShopping from "@/views/product/ProductShopping.vue";
 import ProductDetail from "@/views/product/ProductDetail.vue";
+import MemberOrder from "@/views/order/MemberOrder.vue";
+import MemberOrderDetail from "@/views/order/MemberOrderDetail.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -140,6 +142,16 @@ const router = createRouter({
               name: "memberAccount",
               component: MemberAccount,
             },
+            {
+              path: "/front/member/Order",
+              name: "memberOrder",
+              component: MemberOrder,
+            },
+            {
+              path: "/front/member/OrderDetail",
+              name: "memberOrderDetail",
+              component: MemberOrderDetail,
+            }
           ],
         },
         {
@@ -172,35 +184,35 @@ const router = createRouter({
 
         //---訂單前台---
 
-        
+
 
         //--------------
 
         //---租車前台---
-      {
-        path: "/front/CarRentalHome",
-        name: "CarRentalHome",
-        component: CarRentalHome,
-        children: [
-          {
-            path: "/HeroSection",
-            name: "HeroSection",
-            component: HeroSection,
-          },
-          {
-            path: "/ReserveCarButton",
-            name: "ReserveCarButton",
-            component: ReserveCarButton,
-          },
-          {
-            path: "/ModelSelector",
-            name: "ModelSelector",
-            component: ModelSelector,
-          }
-         
-        ],
-        //---------------
-      },
+        {
+          path: "/front/CarRentalHome",
+          name: "CarRentalHome",
+          component: CarRentalHome,
+          children: [
+            {
+              path: "/HeroSection",
+              name: "HeroSection",
+              component: HeroSection,
+            },
+            {
+              path: "/ReserveCarButton",
+              name: "ReserveCarButton",
+              component: ReserveCarButton,
+            },
+            {
+              path: "/ModelSelector",
+              name: "ModelSelector",
+              component: ModelSelector,
+            }
+
+          ],
+          //---------------
+        },
       ],
     },
 

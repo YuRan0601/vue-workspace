@@ -9,21 +9,16 @@ const authStore = useAuthStore(); // 取得 authStore 的實例
 // ===== 定義狀態 =====
 const orders = ref([]); // 訂單列表
 
+// ===== 格式化工具 =====
+const formatNumberToInteger = (number) => Math.round(number);
+
 // 表頭資料
 const headers = [
     { title: "訂單編號", key: "orderId" },
-    {
-        title: "商品名稱",
-        key: "productName",
-        formatter: (row) => {
-            console.log("商品資料：", row.orderItemsDtos); // 確認資料進入 formatter
-            if (!row.orderItemsDtos || !Array.isArray(row.orderItemsDtos)) return "無商品";
-            const productNames = row.orderItemsDtos.map((item) => item.productName);
-            return productNames.length > 1 ? "多項商品" : productNames[0] || "無商品";
-        },
-    },
-    { title: "總金額", key: "totalAmount", formatter: (row) => `$${row.totalAmount}` },
+    { title: "商品資訊", key: "productName" }, // Key 僅用於對應
+    { title: "最終總金額", key: "finalAmount" },
     { title: "訂單狀態", key: "orderStatus" },
+    { title: "更新時間", key: "updatedAt" }, // 新增更新時間欄位
     { title: "操作", key: "actions" },
 ];
 
@@ -36,7 +31,7 @@ async function loadOrders() {
         console.log("後端返回資料：", response.data); // 確認回傳資料結構
         orders.value = response.data.map(order => ({
             ...order,
-            orderItemsDtos: order.orderItemsDtos || [], // 確保 orderItemsDtos 是陣列
+            orderItemsDtos: Array.isArray(order.orderItemsDtos) ? order.orderItemsDtos : [],
         }));
     } catch (error) {
         console.error("無法載入訂單資料：", error);
@@ -59,6 +54,23 @@ onMounted(() => {
         <h2>訂單資料</h2>
         <v-container>
             <v-data-table :items="orders" :headers="headers" item-value="orderId" class="orderTable" show-expand>
+
+                <!-- 商品名稱 -->
+                <template #item.productName="{ item }">
+                    <span>
+                        <template v-if="item.orderItemsDtos.length === 0">無商品</template>
+                        <template v-else-if="item.orderItemsDtos.length === 1">
+                            {{ item.orderItemsDtos[0].productName }}
+                        </template>
+                        <template v-else>多項商品</template>
+                    </span>
+                </template>
+
+                <!-- 總金額 -->
+                <template #item.finalAmount="{ item }">
+                    ${{ formatNumberToInteger(item.finalAmount) }}
+                </template>
+
                 <!-- 展開的行 -->
                 <template v-slot:expanded-row="{ item }">
                     <tr>
@@ -73,9 +85,10 @@ onMounted(() => {
 
                 <!-- 操作按鈕 -->
                 <template #item.actions="{ item }">
-                    <v-btn color="primary" class="mr-2" @click="viewOrder(item.orderId)">
-                        檢視詳情
-                    </v-btn>
+                    <RouterLink :to="{ name: 'memberOrderDetail', params: { orderId: item.orderId } }"
+                        class="btn btn-primary btn-sm">
+                        <i class="bi bi-eye"></i> 檢視詳情
+                    </RouterLink>
                 </template>
             </v-data-table>
         </v-container>
