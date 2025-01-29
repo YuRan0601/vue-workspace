@@ -49,6 +49,8 @@ import CarModelSearch from "@/layouts/rent/CarModelSearch.vue";
 import CarReservation from "@/views/rent/CarReservation.vue";
 import RentalForm from "@/layouts/rent/RentalForm.vue";
 import CarModelReservation from "@/views/rent/CarModelReservation.vue";
+import MemberOrder from "@/views/order/MemberOrder.vue";
+import MemberOrderDetail from "@/views/order/MemberOrderDetail.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -151,6 +153,16 @@ const router = createRouter({
               name: "memberBookingOrder",
               component: bookingOrderMemberViewVue,
             },
+            {
+              path: "/front/member/Order",
+              name: "memberOrder",
+              component: MemberOrder,
+            },
+            {
+              path: "/front/member/OrderDetail",
+              name: "memberOrderDetail",
+              component: MemberOrderDetail,
+            }
           ],
         },
         {
@@ -183,7 +195,7 @@ const router = createRouter({
 
         //---訂單前台---
 
-        
+
 
         //--------------
 
@@ -247,12 +259,11 @@ const router = createRouter({
           },
         ]
       },
-     
-      
 
       
       
       //---------------
+
       ],
     },
 

@@ -20,7 +20,7 @@ function logout() {
                     <v-icon class="fa-solid fa-hotel icon"></v-icon>
                     <h4 class="mt-2">訂房</h4>
                 </RouterLink>
-                <RouterLink class="function-card btn btn-light" :to="{ name: '' }">
+                <RouterLink class="function-card btn btn-light" :to="{ name: 'memberOrder' }">
                     <v-icon class="fa-solid fa-receipt icon"></v-icon>
                     <h4 class="mt-2">訂單</h4>
                 </RouterLink>
