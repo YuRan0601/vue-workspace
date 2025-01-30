@@ -4,7 +4,7 @@
 
 <template>
     <div>
-        <h2>修改信箱與密碼</h2>
+        <h2>修改密碼</h2>
     </div>
 </template>
 

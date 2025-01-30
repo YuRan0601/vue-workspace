@@ -28,7 +28,7 @@ function logout() {
                                 <RouterLink class="link-dark rounded" :to="{ name: 'memberInfo' }">個人資料</RouterLink>
                             </li>
                             <li>
-                                <RouterLink class="link-dark rounded" :to="{ name: 'memberAccount' }">修改信箱與密碼
+                                <RouterLink class="link-dark rounded" :to="{ name: 'memberAccount' }">修改密碼
                                 </RouterLink>
                             </li>
                         </ul>
