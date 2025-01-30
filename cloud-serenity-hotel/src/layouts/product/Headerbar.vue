@@ -1,80 +1,78 @@
 <script setup>
-import { useProductStore } from '@/stores/productStore'
+import { RouterView } from 'vue-router';
 import { useRouter } from 'vue-router'
-import Swal from 'sweetalert2'
+import { useProductStore } from '@/stores/productStore';
 
-const BASE_URL = import.meta.env.VITE_BACKEND_SERVER_URL
 // 共享分類、與商品的資料( 用來顯示資料 )
 const store = useProductStore()
 // .push用
 const router = useRouter()
 
-// 加入購物車 跳出視窗
-function addToCart(product) {
-  Swal.fire({
-    icon: 'success',
-    title: '加入購物車',
-    text: `已將「${product.productName}」加入購物車！`,
-  })
+store.loadProduct()
+store.loadCategories()
+
+function goToCart() {
+  // 前往購物車頁面
+  router.push({ name: 'cart' });
 }
 
-// 前往商品詳細頁
-function goToProduct(id) {
-  router.push({ name: 'productDetail', params: { id } })
-}
+    
 </script>
 
 <template>
-
-  <div class="product-list-wrapper">
-    <div class="products-container">
-      <div
-        v-for="product in store.products"
-        :key="product.productId"
-        class="product-card"
-        @click="goToProduct(product.productId)"
-      >
-        <!-- 商品圖片 -->
-        <div class="product-image-wrapper">
-          <img
-            class="product-image"
-            :src="BASE_URL + product.OneToManyProductImages.find(img => img.isPrimary).imageUrl"
-            alt=""
-          />
-        </div>
-
-        <!-- 商品名稱 -->
-        <div class="product-name">
-          {{ product.productName }}
-        </div>
-
-        <!-- 價格 -->
-        <div class="product-price">
-          <span v-if="product.specialPrice">
-            <span class="original-price"> ${{ product.price }} </span>
-            <span class="discount-price"> ${{ product.specialPrice }} </span>
-          </span>
-          <span v-else>
-            ${{ product.price }}
-          </span>
-        </div>
-
-        <!-- 加入購物車 -->
-        <button
-          class="add-to-cart-button"
-          @click.stop="addToCart(product)"
-        >
-          加入購物車
-        </button>
-      </div>
+<div>
+   <section class="header">
+    <div>
+      <!-- <h2 class="page-cover-tittle">商城</h2> -->
     </div>
+  </section>
+<!-- 分類區塊 (包含購物車 icon) -->
+  <div class="category-bar">
+    <!-- "全部" 選項 -->
+    <button class="category-button" @click="store.loadProduct">全部</button>
+
+    <!-- 動態渲染分類按鈕 -->
+    <button
+      v-for="category in store.categories"
+      :key="category.categoryId"
+      class="category-button"
+      @click="store.filterByCategory(category.categoryId)"
+    >
+      {{ category.categoriesName }}
+    </button>
+
+    <!-- <button
+      v-for="category in categories"
+      :key="category.categoryId"
+      class="category-button"
+      :class="{ active: selectedCategory === category.categoryId }"
+      @click="filterByCategory(category.categoryId)"
+    >
+      {{ category.categoriesName }}
+    </button> -->
+
+  <!-- 購物車 icon -->
+  <div class="cart-icon-container">
+    <!-- <i class="fas fa-shopping-cart" @click="goToCart"></i> -->
+    <i class="bi bi-bag" @click="goToCart"></i>
   </div>
+</div>
+    <RouterView></RouterView>
+ </div>
 </template>
 
-
 <style lang="css" scoped>
-
-
+/* 頂部大圖 */
+.header {
+  background-image: url("../../assets/product/ProductShopping.jpg");
+  width: 100%;
+  height: 400px;
+  background-position: right center;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 .product-list-wrapper {
   padding: 16px;
 }
@@ -242,8 +240,5 @@ function goToProduct(id) {
 .cart-icon-container i:hover {
   color: #555;
 }
-
-
-
 
 </style>
