@@ -59,6 +59,8 @@ import ShilinResidence from "@/components/Attraction/ShilinResidence.vue";
 import IndigenousCulturePark from "@/components/Attraction/IndigenousCulturePark.vue";
 import MiramarFerrisWheel from "@/components/Attraction/MiramarFerrisWheel.vue";
 import BihuPark from "@/components/Attraction/BihuPark.vue";
+import BookingOrderPaySuccessVue from "@/views/booking/BookingOrderPaySuccess.vue";
+import BookingOrderPayFailVue from "@/views/booking/BookingOrderPayFail.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -102,6 +104,16 @@ const router = createRouter({
               path: "/bookingSuccess",
               name: "bookingSuccess",
               component: BookingSuccessVue,
+            },
+            {
+              path: "/booking/paySuccess",
+              name: "bookingPaySuccess",
+              component: BookingOrderPaySuccessVue,
+            },
+            {
+              path: "/booking/payFail",
+              name: "bookingPayFail",
+              component: BookingOrderPayFailVue,
             },
           ],
         },

@@ -2,10 +2,11 @@
 import axiosInstance from "@/axios";
 import { useAuthStore } from "@/stores/authStore";
 import Swal from "sweetalert2";
-import { onMounted, ref } from "vue";
+import { nextTick, onMounted, ref } from "vue";
 
 const userStore = useAuthStore();
 const orderTable = ref([]);
+const ecpayHtml = ref('')
 
 const orderStatus = [
   { name: "待付款", value: "pending" },
@@ -15,7 +16,7 @@ const orderStatus = [
 ];
 
 const headers = [
-  { title: "訂單ID", key: "roomId" },
+  { title: "訂單ID", key: "orderId" },
   { title: "預定房型", key: "roomTypeName" },
   { title: "住房日期", key: "checkInDate" },
   { title: "退房日期", key: "checkOutDate" },
@@ -50,38 +51,85 @@ async function cancelOrder(item) {
     confirmButtonText: "確定",
     cancelButtonText: "取消",
   }).then(async (res) => {
-    if(res.isConfirmed) {
-        const { data } = await axiosInstance.put(
-        `/booking/order/cancel/${item.orderId}`);
+    if (res.isConfirmed) {
+      const { data } = await axiosInstance.put(
+        `/booking/order/cancel/${item.orderId}`
+      );
 
-        if(data.code === 200) {
-            Swal.fire({
-                title: "取消成功",
-                icon: "success",
-                confirmButtonText: "確定",
-            }).then(() => {
-                loadOrderTable();
-            });
-        } else if (data.code === 404) {
-            Swal.fire({
-                title: "找不到訂單",
-                icon: "error",
-                confirmButtonText: "確定",
-            }).then(() => {
-                loadOrderTable();
-            });
-        } else if (data.code === 501) {
-            Swal.fire({
-                title: "伺服器出錯，請重試",
-                icon: "error",
-                confirmButtonText: "確定",
-            }).then(() => {
-                loadOrderTable();
-            });
-        }
+      if (data.code === 200) {
+        Swal.fire({
+          title: "取消成功",
+          icon: "success",
+          confirmButtonText: "確定",
+        }).then(() => {
+          loadOrderTable();
+        });
+      } else if (data.code === 404) {
+        Swal.fire({
+          title: "找不到訂單",
+          icon: "error",
+          confirmButtonText: "確定",
+        }).then(() => {
+          loadOrderTable();
+        });
+      } else if (data.code === 501) {
+        Swal.fire({
+          title: "伺服器出錯，請重試",
+          icon: "error",
+          confirmButtonText: "確定",
+        }).then(() => {
+          loadOrderTable();
+        });
+      }
     }
   });
 }
+
+const payment = ref({
+  orderId: null,
+  productName: null,
+  price: null,
+});
+
+async function orderPay(item) {
+  console.log(item.orderId);
+  console.log(item.roomTypeName);
+  console.log(item.totalPrice);
+
+  payment.value.orderId = item.orderId;
+  payment.value.productName = item.roomTypeName;
+  payment.value.price = item.totalPrice;
+
+  Swal.fire({
+    title: `
+    訂單ID：${item.orderId}
+    房型：${item.roomTypeName}
+    價格：${item.totalPrice}
+    點選確定進入付款頁面`,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "確定",
+    cancelButtonText: "取消",
+  }).then(async (res) => {
+    if (res.isConfirmed) {
+      const {data} = await axiosInstance.post("/booking/pay", payment.value);
+
+      ecpayHtml.value = data;
+
+      await nextTick();
+
+      const formEl = ecpayContainer.value.querySelector('#ecpay-form')
+      if (formEl) {
+        formEl.submit();
+      }
+      
+    }
+  });
+}
+
+const ecpayContainer = ref(null);
 
 onMounted(() => {
   loadOrderTable();
@@ -118,7 +166,7 @@ onMounted(() => {
             v-if="item.status === '待付款' && item.paymentMethod === '信用卡'"
             color="primary"
             class="mr-2"
-            @click="seeUpdateOrder(item)"
+            @click="orderPay(item)"
           >
             去付款
           </v-btn>
@@ -133,6 +181,7 @@ onMounted(() => {
         </template>
       </v-data-table>
     </v-container>
+    <div ref="ecpayContainer" v-html="ecpayHtml"></div>
   </div>
 </template>
 
