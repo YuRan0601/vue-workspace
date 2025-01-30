@@ -59,6 +59,7 @@ import ShilinResidence from "@/components/Attraction/ShilinResidence.vue";
 import IndigenousCulturePark from "@/components/Attraction/IndigenousCulturePark.vue";
 import MiramarFerrisWheel from "@/components/Attraction/MiramarFerrisWheel.vue";
 import BihuPark from "@/components/Attraction/BihuPark.vue";
+import Headerbar from "@/layouts/product/Headerbar.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -205,15 +206,23 @@ const router = createRouter({
 
         //---商品前台---
         {
-          path: "/product/shopping",
-          name: "productShopping",
-          component: ProductShopping,
+          path: "/front/product",
+          name: "productShoppingHome",
+          component: Headerbar,
+          children: [
+            {
+              path: "shopping",
+              name: "productShopping",
+              component: ProductShopping,
+            },
+            {
+              path: ":id",
+              name: "productDetail",
+              component: ProductDetail,
+            },
+          ],
         },
-        {
-          path: "/product/:id",
-          name: "productDetail",
-          component: ProductDetail,
-        },
+
         //-------------
 
         //---訂單前台---
