@@ -7,7 +7,7 @@ const headers = [
     { title: "使用者編號", key: 'userId' },
     { title: "使用者姓名", key: 'userName' },
     { title: "電子信箱", key: 'email' },
-    { title: "密碼", key: 'password' },
+    // { title: "密碼", key: 'password' },
     { title: "使用狀態", key: 'userStatus', value: members => `${members.userStatus == 'In_use' ? '使用中' : '已註銷'}` },
     { title: "帳號更新時間", key: 'accountUpdateTime', value: members => `${members.accountUpdateTime.split(".")[0].replace("T", " ")}` },
     { text: '操作', value: 'action', sortable: false }
@@ -53,7 +53,7 @@ const memberData = ref({
     userId: '',
     userName: '',
     email: '',
-    password: '',
+    // password: '',
     member: {
         gender: '',
         birthday: '',
@@ -154,7 +154,7 @@ function editStatus(member) {
                 </v-toolbar>
             </template>
 
-            <template v-slot:[`item.password`]="{ item }">
+            <!-- <template v-slot:[`item.password`]="{ item }">
                 <div class="d-flex align-center">
                     <span v-if="item.showPassword">{{ item.password }}</span>
                     <span v-else>{{ '*'.repeat(item.password.length) }}</span>
@@ -162,7 +162,7 @@ function editStatus(member) {
                         {{ item.showPassword ? 'mdi-eye-off' : 'mdi-eye' }}
                     </v-icon>
                 </div>
-            </template>
+            </template> -->
 
 
             <template v-slot:item.action="{ item }">
@@ -198,7 +198,7 @@ function editStatus(member) {
                     <h5 class="mb-3">基本資料</h5>
                     <v-text-field v-model="memberData.userName" label="使用者姓名" required></v-text-field>
                     <v-text-field v-model="memberData.email" label="電子郵件" required></v-text-field>
-                    <v-text-field v-model="memberData.password" label="密碼" type="password" required></v-text-field>
+                    <!-- <v-text-field v-model="memberData.password" label="密碼" type="password" required></v-text-field> -->
 
                     <!-- 會員詳細資料 -->
                     <h5 class="mt-4 mb-3">會員詳細資料</h5>
@@ -207,7 +207,7 @@ function editStatus(member) {
                     <v-text-field v-model="memberData.member.birthday" label="生日" type="date" required></v-text-field>
                     <v-text-field v-model="memberData.member.phone" label="電話" required></v-text-field>
                     <v-text-field v-model="memberData.member.personalIdNo" label="身分證字號"></v-text-field>
-                    <v-text-field v-model="memberData.country" label="國籍" required></v-text-field>
+                    <v-text-field v-model="memberData.member.country" label="國籍(國家三位字母代碼)" required></v-text-field>
                     <v-textarea v-model="memberData.member.address" label="地址" rows="2"></v-textarea>
                     <v-text-field v-model="memberData.member.passportNo" label="護照號碼"></v-text-field>
                 </v-form>
