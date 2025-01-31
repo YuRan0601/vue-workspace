@@ -4,34 +4,6 @@ import { ref } from 'vue';
 import { RouterLink } from 'vue-router';
 
 const BASE_URL = import.meta.env.VITE_BACKEND_SERVER_URL;
-const GETALL_URL = `${BASE_URL}Product/selectAll`
-
-const product = ref([]);
-
-const loadProduct = async () => {
-    const response = await fetch(GETALL_URL)
-    product.value = await response.json()
-
-    console.log(product.value);
-}
-loadProduct()
-
-const getOne = ref('');
-
-const getOneProduct = async () => {
-    const GETONE_URL = `${BASE_URL}Product/select/${getOne.value}`
-    const response = await fetch(GETONE_URL)
-
-    // getOne.value = await response.json()
-    // console.log(getOne.value);
-    // product.value = getOne.value
-
-    const data = await response.json()
-    console.log(data);
-    product.value = data
-    
-}
-
 
 const headers = [
     { title: "商品ID", key: 'productId' },
@@ -45,6 +17,33 @@ const headers = [
     { title: "操作", key: "actions" }
 ]
 
+const product = ref([]);
+
+// 顯示全部商品
+const loadProduct = async () => {
+    const GETALL_URL = `${BASE_URL}Product/selectAll`
+    const response = await fetch(GETALL_URL)
+    product.value = await response.json()
+
+    console.log(product.value);
+}
+loadProduct()
+
+// 查詢單筆
+const getOne = ref('');
+const getOneProduct = async () => {
+    const GETONE_URL = `${BASE_URL}Product/select/${getOne.value}`
+    const response = await fetch(GETONE_URL)
+
+    // getOne.value = await response.json()
+    // console.log(getOne.value);
+    // product.value = getOne.value
+
+    const data = await response.json()
+    console.log(data);
+    product.value = data
+    
+}
 
 // 處理圖片 URL
 function getImageUrl(item ) {
