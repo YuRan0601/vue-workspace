@@ -129,14 +129,20 @@ function validateTaiwanID(id) {
 <template>
     <div>
         <h2 class="mb-2">個人資料</h2>
-        <v-switch v-model="isEdit" color="primary" label="編輯模式"></v-switch>
 
-        <v-form ref="formRef">
+        <v-form ref="formRef" style="width: 40vw;">
             <!-- 隱藏的 ID 欄位 -->
             <input type="hidden" v-model="memberData.userId" readonly>
 
             <!-- 使用者基本資料 -->
-            <h5 class="mb-3">基本資料</h5>
+            <v-row align="center" style="height: 80px;">
+                <v-col cols="6">
+                    <h5 class="mb-3">基本資料</h5>
+                </v-col>
+                <v-col cols="6" class="d-flex justify-end">
+                    <v-switch v-model="isEdit" color="primary" label="編輯模式"></v-switch>
+                </v-col>
+            </v-row>
             <v-text-field v-model="memberData.userName" label="使用者姓名" :readonly="!isEdit"
                 :rules="[rules.required]"></v-text-field>
             <v-text-field v-model="memberData.email" label="電子郵件" :readonly="!isEdit"
