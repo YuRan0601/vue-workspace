@@ -62,7 +62,9 @@ function logout() {
           >
             <ul class="nav navbar-nav menu_nav ml-auto">
               <li class="nav-item">
-                <a class="nav-link" href="index.html">首頁</a>
+                <RouterLink class="nav-link" :to="{ name: 'index' }"
+                  >首頁</RouterLink
+                >
               </li>
               <li class="nav-item">
                 <RouterLink class="nav-link" :to="{ name: 'memberOverview' }"
@@ -75,7 +77,9 @@ function logout() {
                 >
               </li>
               <li class="nav-item active">
-                <RouterLink class="nav-link" :to="{ name: 'productShopping' }">商城</RouterLink>
+                <RouterLink class="nav-link" :to="{ name: 'productShopping' }"
+                  >商城</RouterLink
+                >
               </li>
               <li class="nav-item">
                 <RouterLink class="nav-link" :to="{ name: 'attractionFront' }"

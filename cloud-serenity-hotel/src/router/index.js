@@ -62,6 +62,7 @@ import BihuPark from "@/components/Attraction/BihuPark.vue";
 import BookingOrderPaySuccessVue from "@/views/booking/BookingOrderPaySuccess.vue";
 import BookingOrderPayFailVue from "@/views/booking/BookingOrderPayFail.vue";
 import Headerbar from "@/layouts/product/Headerbar.vue";
+import indexVue from "@/views/common/index.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -85,6 +86,11 @@ const router = createRouter({
       name: "front",
       component: FrontView,
       children: [
+        {
+          path: "/",
+          name: "index",
+          component: indexVue,
+        },
         //---訂房前台---
         {
           path: "/front/bookingHome",
@@ -333,7 +339,7 @@ const router = createRouter({
           } else {
             alert("你不是管理員!");
             // useStores.logout();
-            next("/front");
+            next("/");
           }
         }
       },
