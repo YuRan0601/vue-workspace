@@ -160,7 +160,7 @@ function passwordCheck() {
             '密碼必須包含數字';
     } else if (!rule3.test(content)) {
         passwordMsg.value =
-            '密碼必須包含特殊字元!@#$%^*';
+            '密碼必須包含特殊字元 (!@#$%^*)';
     } else {
         passwordMsg.value = '';
     }
@@ -223,7 +223,7 @@ function validateTaiwanID(id) {
         </select>
         <br />
         <h4 style="color: red; font-weight: bold;">標示 * 為必填欄位，本國人需必填 身分證字號 ，護照號碼則選填，外國人必填護照號碼!</h4>
-        <form method="post" id="register" class="row">
+        <form @submit.prevent="submitRegister" id="register" class="row">
             <!-- 左欄 -->
             <div class="col-md-6">
                 <label for="email" class="form-label fs-5">電子信箱<span
@@ -241,7 +241,7 @@ function validateTaiwanID(id) {
                     </button></label>
                 <div class="collapse" id="collapsePassword">
                     <div class="mb-2">
-                        至少8字,上限為64字,需有大小寫英文,數字,特殊字元!@#$%^*
+                        至少8字,上限為64字,需有大小寫英文,數字,特殊字元 (!@#$%^*)
                     </div>
                 </div>
                 <div class="row">
@@ -255,7 +255,7 @@ function validateTaiwanID(id) {
                     </div>
                 </div>
 
-                <span class="passwordMsg" v-if="passwordMsg.length > 0" v-html="passwordMsg"></span>
+                <span class="passwordMsg" v-if="passwordMsg.length > 0">{{ passwordMsg }}</span>
                 <br />
 
                 <label for="name" class="form-label fs-5">姓名<span
@@ -322,8 +322,7 @@ function validateTaiwanID(id) {
 
             <!-- 按鈕 -->
             <div class="col-12 text-center">
-                <button type="button" @click="submitRegister()"
-                    class="btn btn-primary btn-lg px-5 text-white">註冊</button>
+                <button type="submit" class="btn btn-primary btn-lg px-5 text-white">註冊</button>
                 <button type="button" @click="autoKeyin()"
                     class="btn btn-primary btn-lg px-5 text-white mx-2">一鍵帶入</button>
             </div>
