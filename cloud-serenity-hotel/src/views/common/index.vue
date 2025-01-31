@@ -1,5 +1,5 @@
 <script setup>
-import BookingIndex from '@/components/booking/bookingIndex.vue';
+import BookingIndex from '@/components/booking/BookingIndex.vue';
 
     
 </script>
