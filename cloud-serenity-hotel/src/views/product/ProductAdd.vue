@@ -15,6 +15,7 @@ const product = ref({
 const files = ref([]);
 const imagePreview = ref([]);
 
+// 上傳圖片 顯示圖片
 const previewImages = (event) => {
   const selectedFiles = Array.from(event.target.files);
   files.value = selectedFiles;
@@ -29,6 +30,7 @@ const previewImages = (event) => {
   });
 };
 
+// 商品新增
 const productAdd = async () => {
   const formData = new FormData();
 

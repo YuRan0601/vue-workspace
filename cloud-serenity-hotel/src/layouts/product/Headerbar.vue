@@ -1,6 +1,6 @@
 <script setup>
 import { RouterView } from 'vue-router';
-import { useRouter } from 'vue-router'
+import { useRouter,useRoute } from 'vue-router'
 import { useProductStore } from '@/stores/productStore';
 
 // 共享分類、與商品的資料( 用來顯示資料 )
@@ -8,8 +8,32 @@ const store = useProductStore()
 // .push用
 const router = useRouter()
 
+const route = useRoute()
+
+//第一次進入首頁讀取
 store.loadProduct()
 store.loadCategories()
+
+//處理非首頁，點分類無反應(點全部商品)
+function goToAllProducts() {
+
+  store.loadProduct()//顯示全部
+
+  // 如果當前頁面不是 ProductShopping.vue，則到首頁
+  if (route.name !== 'productShopping') {
+    router.push({ name: 'productShopping' })
+  }
+}
+
+//處理非首頁，點分類無反應(點其他分類商品)
+function selectCategory(categoryId) {
+
+  store.filterByCategory(categoryId)
+
+  if (route.name !== 'productShopping') {
+    router.push({ name: 'productShopping', query: { category: categoryId } })
+  }
+}
 
 function goToCart() {
   // 前往購物車頁面
@@ -26,17 +50,18 @@ function goToCart() {
       <!-- <h2 class="page-cover-tittle">商城</h2> -->
     </div>
   </section>
+
 <!-- 分類區塊 (包含購物車 icon) -->
   <div class="category-bar">
     <!-- "全部" 選項 -->
-    <button class="category-button" @click="store.loadProduct">全部</button>
+    <button class="category-button" @click="goToAllProducts">全部</button>
 
     <!-- 動態渲染分類按鈕 -->
     <button
       v-for="category in store.categories"
       :key="category.categoryId"
       class="category-button"
-      @click="store.filterByCategory(category.categoryId)"
+      @click="selectCategory(category.categoryId)"
     >
       {{ category.categoriesName }}
     </button>
