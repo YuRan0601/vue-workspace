@@ -139,6 +139,7 @@ function goToProduct(id) {
   color: #fff;
   border: none;
   padding: 8px 0;         /* 只控制上下內距，保持與圖片同寬 */
+  border-radius: 5px;
   cursor: pointer;
   margin-bottom: 8px;     /* 與下方或卡片底部保持一點距離(選擇性) */
   text-align: center;     /* 文字置中(選擇性) */

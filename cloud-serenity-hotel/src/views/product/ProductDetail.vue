@@ -72,7 +72,7 @@ function changeImage(imageUrl) {
         </div>
       </div>
     </div>
-    <div class="product-description">
+    <div v-if="product.description" class="product-description">
       <h3>商品描述</h3>
       <p>{{ product.description }}</p>
     </div>
@@ -195,7 +195,7 @@ button {
 }
 
 .cart-btn {
-  background-color: #3498db;
+  background-color: #004080;
   color: white;
 }
 
