@@ -48,7 +48,6 @@ import ModelDetail from "@/views/rent/ModelDetail.vue";
 import CarModelSearch from "@/layouts/rent/CarModelSearch.vue";
 import CarReservation from "@/views/rent/CarReservation.vue";
 import RentalForm from "@/layouts/rent/RentalForm.vue";
-import CarModelReservation from "@/views/rent/CarModelReservation.vue";
 import MemberOrder from "@/views/order/MemberOrder.vue";
 import MemberOrderDetail from "@/views/order/MemberOrderDetail.vue";
 import ShuangxiPark from "@/components/Attraction/ShuangxiPark.vue";
@@ -302,19 +301,16 @@ const router = createRouter({
           ],
         },
         {
-          path: "/rent/RentalForm",
+          path: "/rent/RentalForm/:id",
           name: "RentalForm",
           component: RentalForm, //表單父組件
+          props: true,
           children: [
             {
-              path: "CarReservation",
+              path: "CarReservation/:id",
               name: "CarReservation",
               component: CarReservation, //選擇車型視圖
-            },
-            {
-              path: "CarModelReservation",
-              name: "CarModelReservation",
-              component: CarModelReservation, //這是車輛選擇視圖
+              props: true,
             },
           ],
         },
