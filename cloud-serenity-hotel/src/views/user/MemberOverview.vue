@@ -34,7 +34,7 @@ function logout() {
                 </RouterLink>
                 <RouterLink class="function-card btn btn-light" :to="{ name: 'memberAccount' }">
                     <v-icon class="fa-solid fa-gears icon"></v-icon>
-                    <h4 class="mt-2">修改信箱與密碼</h4>
+                    <h4 class="mt-2">修改密碼</h4>
                 </RouterLink>
                 <div class="function-card btn btn-light" @click="logout()">
                     <v-icon class="icon">mdi-logout</v-icon>
