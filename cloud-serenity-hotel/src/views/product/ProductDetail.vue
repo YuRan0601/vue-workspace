@@ -2,6 +2,8 @@
 import { ref, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import Swal from 'sweetalert2'
+import axios from 'axios'
+import { useAuthStore } from '@/stores/authStore'; // 引入 Pinia 的 authStore
 
 const BASE_URL = import.meta.env.VITE_BACKEND_SERVER_URL
 
@@ -11,6 +13,9 @@ const productId = route.params.id
 const product = ref(null)
 const selectedImage = ref('')
 const quantity = ref(1) // 設定商品數量
+
+// 使用 Pinia 的 authStore 來獲取動態 userId
+const authStore = useAuthStore();
 
 const getOneProduct = async () => {
   const GETONE_URL = `${BASE_URL}Product/select/${productId}`
@@ -24,13 +29,13 @@ const getOneProduct = async () => {
 
 getOneProduct()
 
-function addToCart(product) {
+/*function addToCart(product) {
   Swal.fire({
     icon: 'success',
     title: '加入購物車',
     text: `已將「${product.productName}」加入購物車！ 數量：${quantity.value}`,
   })
-}
+}*/
 
 function shopping(product) {
   Swal.fire({
@@ -43,6 +48,60 @@ function shopping(product) {
 function changeImage(imageUrl) {
   selectedImage.value = BASE_URL + imageUrl
 }
+
+// 加入購物車
+async function addToCart(product) {
+  const userId = authStore.user?.userId; // 獲取當前用戶 ID
+
+  if (!userId) {
+    // 用戶未登入，提示要求登入
+    Swal.fire({
+      icon: 'warning',
+      title: '請先登入',
+      text: '您需要先登入才能將商品加入購物車！',
+      confirmButtonColor: "#6a0dad",
+      confirmButtonText: '去登入',
+      allowOutsideClick: false, // 禁止點擊外部關閉
+      customClass: {
+        confirmButton: "btn text-white me-2",
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // 引導用戶跳轉到登入頁面
+        window.location.href = '/login'; // 導向正確的登入頁
+      }
+    });
+    return; // 阻止繼續執行
+  }
+
+  try {
+    await axios.post(`/api/Cart/add`, null, {
+      params: {
+        userId, // 動態傳入用戶 ID
+        productId: product.productId,
+        quantity: quantity.value, // 使用輸入的數量
+      },
+    });
+
+    Swal.fire({
+      icon: 'success',
+      title: '加入購物車',
+      text: `已將「${product.productName}」加入購物車！ 數量：${quantity.value}`,
+      confirmButtonColor: "#6a0dad",
+      confirmButtonText: "OK",
+      allowOutsideClick: false, // 禁止點擊外部關閉
+      customClass: {
+        confirmButton: "btn text-white me-2",
+      },
+    });
+  } catch (error) {
+    Swal.fire({
+      icon: 'error',
+      title: '錯誤',
+      text: '加入購物車失敗，請稍後再試！',
+    });
+  }
+}
 </script>
 
 <template>
@@ -51,8 +110,8 @@ function changeImage(imageUrl) {
       <div class="product-image">
         <img :src="selectedImage" alt="商品圖片" class="large-image" />
         <div class="thumbnail-container">
-          <img v-for="(img, index) in product.OneToManyProductImages" :key="index" :src="BASE_URL + img.imageUrl" 
-               alt="商品縮圖" class="thumbnail" @click="changeImage(img.imageUrl)" />
+          <img v-for="(img, index) in product.OneToManyProductImages" :key="index" :src="BASE_URL + img.imageUrl"
+            alt="商品縮圖" class="thumbnail" @click="changeImage(img.imageUrl)" />
         </div>
       </div>
       <div class="product-info">
@@ -77,7 +136,7 @@ function changeImage(imageUrl) {
       <p>{{ product.description }}</p>
     </div>
   </div>
-  
+
 </template>
 
 <style scoped>

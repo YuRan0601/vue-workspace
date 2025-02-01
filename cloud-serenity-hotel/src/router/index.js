@@ -64,6 +64,7 @@ import Headerbar from "@/layouts/product/Headerbar.vue";
 import indexVue from "@/views/common/index.vue";
 import BookingRoomTypeViewVue from "@/views/booking/BookingRoomTypeView.vue";
 import OneRoomTypeVue from "@/views/booking/OneRoomType.vue";
+import ProductCart from "@/views/order/ProductCart.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -248,6 +249,11 @@ const router = createRouter({
               name: "productDetail",
               component: ProductDetail,
             },
+            {
+              path: "/front/product/cart",
+              name: "productCart",
+              component: ProductCart,
+            }
           ],
         },
 
