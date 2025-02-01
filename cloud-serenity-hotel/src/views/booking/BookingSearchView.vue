@@ -212,19 +212,28 @@ function bookingRoomTypeConfirm(item) {
               </v-col>
 
               <v-col cols="12">
-                <h5>每晚房價： NT${{ roomTypeDetail.price }}</h5>
+                <h5>
+                  <label class="roomLabel">每晚房價：</label>NT${{
+                    roomTypeDetail.price
+                  }}
+                </h5>
               </v-col>
 
               <v-col cols="12">
-                <p>房間描述：<br />{{ roomTypeDetail.typeDesc }}</p>
+                <label class="roomLabel">房間描述：</label>
+                <br />
+                <pre>{{ roomTypeDetail.typeDesc }}</pre>
               </v-col>
 
               <v-col cols="12">
-                <p>可入住人數：{{ roomTypeDetail.maxCapacity }} 人</p>
+                <label class="roomLabel">可入住人數：</label
+                >{{ roomTypeDetail.maxCapacity }} 人
+                <p></p>
               </v-col>
 
               <v-col cols="12">
-                <p>剩餘房間數： {{ roomTypeDetail.roomCount }} 間</p>
+                <label class="roomLabel">剩餘房間數：</label>
+                {{ roomTypeDetail.roomCount }} 間
               </v-col>
             </v-row>
           </v-card-text>
@@ -256,5 +265,10 @@ function bookingRoomTypeConfirm(item) {
 <style lang="css" scoped>
 .container {
   height: 100vh;
+}
+
+.roomLabel {
+  font-size: 20px;
+  font-weight: bold;
 }
 </style>

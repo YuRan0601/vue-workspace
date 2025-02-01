@@ -65,26 +65,34 @@ function logout() {
           <div class="collapse" id="booking-collapse">
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
               <RouterLink
-                  class="link-dark rounded"
-                  :to="{ name: 'memberBookingOrder' }"
-                  >查看訂房訂單</RouterLink
-                >
+                class="link-dark rounded"
+                :to="{ name: 'memberBookingOrder' }"
+                >查看訂房訂單</RouterLink
+              >
             </ul>
           </div>
         </li>
 
         <li class="mb-1">
-            <button class="btn btn-toggle align-items-center rounded collapsed" data-bs-toggle="collapse"
-                data-bs-target="#order-collapse" aria-expanded="false">
-                訂單
-            </button>
-            <div class="collapse" id="order-collapse">
-                <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-                    <li>
-                        <RouterLink class="link-dark rounded" :to="{ name: 'memberOrder' }">訂單資料</RouterLink>
-                    </li>
-                </ul>
-            </div>
+          <button
+            class="btn btn-toggle align-items-center rounded collapsed"
+            data-bs-toggle="collapse"
+            data-bs-target="#order-collapse"
+            aria-expanded="false"
+          >
+            訂單
+          </button>
+          <div class="collapse" id="order-collapse">
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+              <li>
+                <RouterLink
+                  class="link-dark rounded"
+                  :to="{ name: 'memberOrder' }"
+                  >訂單資料</RouterLink
+                >
+              </li>
+            </ul>
+          </div>
         </li>
 
         <li class="mb-1">
@@ -120,5 +128,6 @@ function logout() {
   top: 55px;
   bottom: 0;
   overflow-y: auto;
+  height: 100vh;
 }
 </style>

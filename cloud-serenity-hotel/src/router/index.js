@@ -63,6 +63,8 @@ import BookingOrderPaySuccessVue from "@/views/booking/BookingOrderPaySuccess.vu
 import BookingOrderPayFailVue from "@/views/booking/BookingOrderPayFail.vue";
 import Headerbar from "@/layouts/product/Headerbar.vue";
 import indexVue from "@/views/common/index.vue";
+import BookingRoomTypeViewVue from "@/views/booking/BookingRoomTypeView.vue";
+import OneRoomTypeVue from "@/views/booking/OneRoomType.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -125,9 +127,18 @@ const router = createRouter({
           ],
         },
         {
-          path: "/front/booking/roomType",
-          name: "roomFront",
-          component: RoomFront,
+          path: "/front/booking/bookingRoomType",
+          name: "bookingRoomType",
+          component: BookingRoomTypeViewVue,
+          children: [
+            {
+              path: "/front/oneRoomType/:id",
+              name: "oneRoomType",
+              component: OneRoomTypeVue,
+              // 使用函數處理傳入的參數，這裡將 id 轉成 Number
+              props: (route) => ({ id: Number(route.params.id) }),
+            },
+          ],
         },
         //-------------
 

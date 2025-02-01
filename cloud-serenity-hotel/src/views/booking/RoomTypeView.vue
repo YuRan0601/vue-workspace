@@ -45,14 +45,14 @@ onMounted(async () => {
   loadTable();
 });
 
-const search = ref('');
+const search = ref("");
 
 const updateRoomType = ref({
   typeId: null,
   typeName: "",
   typeDesc: "",
   maxCapacity: null,
-  price: null
+  price: null,
 });
 
 const updateDialog = ref(false);
@@ -197,7 +197,7 @@ const insertRoomType = ref({
   typeName: "",
   maxCapacity: null,
   typeDesc: "",
-  price: null
+  price: null,
 });
 
 const insertPrImg = ref(null);
@@ -265,6 +265,26 @@ async function insertRoomTypeHandler() {
       }
     }
   });
+}
+
+function quickInsert() {
+  insertRoomType.value.typeName = "豪華雙床房";
+  insertRoomType.value.maxCapacity = 2;
+  insertRoomType.value.price = 7000;
+  insertRoomType.value.typeDesc = `床墊尺寸 ：2 張單人床。
+客房寬敞度：38 平方公尺。
+本飯店最寬敞的客房，裝潢黑色與灰色石面牆、大型雙層窗戶和寧靜的室內設計。 可日夜欣賞城市美景。
+  `;
+}
+
+function quickUpdate() {
+  updateRoomType.value.typeName = "豪華大床房";
+  updateRoomType.value.maxCapacity = 2;
+  updateRoomType.value.price = 6500;
+  updateRoomType.value.typeDesc = `床墊尺寸 ：1 張雙人床。
+客房寬敞度：22 平方公尺。
+豪華大床房配色清爽溫潤，柔和的光線有助放鬆心情。
+  `;
 }
 
 watchEffect(() => {
@@ -349,9 +369,8 @@ watchEffect(() => {
         <template v-slot:activator="{ props: activatorProps }">
           <v-btn
             class="text-none font-weight-regular"
-            prepend-icon="mdi-account"
             text="新增房型"
-            variant="tonal"
+            color="green"
             v-bind="activatorProps"
           ></v-btn>
         </template>
@@ -436,14 +455,16 @@ watchEffect(() => {
             <v-spacer></v-spacer>
 
             <v-btn
-              text="Close"
+              text="關閉"
               variant="plain"
               @click="insertDialog = false"
             ></v-btn>
 
+            <v-btn text="一鍵代入" variant="plain" @click="quickInsert"></v-btn>
+
             <v-btn
               color="primary"
-              text="Save"
+              text="確定新增"
               variant="tonal"
               @click="insertRoomTypeHandler"
             ></v-btn>
@@ -454,7 +475,7 @@ watchEffect(() => {
 
     <div class="pa-4 text-center">
       <v-dialog v-model="updateDialog" max-width="1000">
-        <v-card prepend-icon="mdi-account" title="修改房型">
+        <v-card title="修改房型">
           <v-card-text>
             <v-row dense>
               <v-col cols="12">
@@ -573,14 +594,16 @@ watchEffect(() => {
             <v-spacer></v-spacer>
 
             <v-btn
-              text="Close"
+              text="關閉"
               variant="plain"
               @click="updateDialog = false"
             ></v-btn>
 
+            <v-btn text="一鍵代入" variant="plain" @click="quickUpdate"></v-btn>
+
             <v-btn
               color="primary"
-              text="Save"
+              text="確定修改"
               variant="tonal"
               @click="updateRoomTypeHandler"
             ></v-btn>
@@ -589,9 +612,7 @@ watchEffect(() => {
       </v-dialog>
     </div>
 
-    <v-text-field 
-    v-model="search"
-    label="查詢"></v-text-field>
+    <v-text-field v-model="search" label="查詢"></v-text-field>
 
     <v-data-table
       :items="roomTypeTable"
@@ -646,7 +667,6 @@ td img {
   z-index: 9999 !important;
 }
 
-
 th {
   background-color: #5df5e8;
 }
@@ -656,7 +676,6 @@ th {
 }
 
 .v-data-table-header {
-  background-color: #5df5e8 !important
+  background-color: #5df5e8 !important;
 }
-
 </style>

@@ -21,31 +21,32 @@ onMounted(async () => {
 function toBookingSearch() {
   router.push({ name: "bookingSearch" });
 }
-
 </script>
 
 <template>
   <div>
     <div class="roomTypeImgDiv">
-      <h1>房型</h1>
-      <v-carousel
-        show-arrows="hover"
-        hide-delimiter-background
-        cycle
-        interval="3000"
-        v-if="roomTypeTable.length != 0"
-      >
-        <v-carousel-item
-          v-for="item in roomTypeTable"
-          :key="item.typeId"
-          :src="item.prImg?.imgUrl"
-          :title="item.typeName"
+      <div class="carouselDiv">
+        <v-carousel
+          show-arrows="hover"
+          hide-delimiter-background
+          cycle
+          interval="3000"
+          v-if="roomTypeTable.length != 0"
         >
-          <div class="roomTypeCaption">
-            {{ item.typeName }}
-          </div>
-        </v-carousel-item>
-      </v-carousel>
+          <v-carousel-item
+            class="carouselImg"
+            v-for="item in roomTypeTable"
+            :key="item.typeId"
+            :src="item.prImg?.imgUrl"
+            :title="item.typeName"
+          >
+            <div class="roomTypeCaption">
+              {{ item.typeName }}
+            </div>
+          </v-carousel-item>
+        </v-carousel>
+      </div>
       <div id="bookingBtn">
         <v-btn
           color="green"
@@ -83,4 +84,10 @@ function toBookingSearch() {
   border-radius: 5px;
   font-size: 14px;
 }
+
+.carouselDiv {
+  width: 750px;
+  display: inline-block;
+}
+
 </style>

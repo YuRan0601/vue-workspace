@@ -1,4 +1,5 @@
 <script setup>
+import Footer from "@/components/common/Footer.vue";
 import { useAuthStore } from "@/stores/authStore";
 import { ref, watch } from "vue";
 const useStores = useAuthStore();
@@ -72,7 +73,7 @@ function logout() {
                 >
               </li>
               <li class="nav-item">
-                <RouterLink class="nav-link" :to="{ name: 'roomFront' }"
+                <RouterLink class="nav-link" :to="{ name: 'oneRoomType', params: { id: 1 } }"
                   >房型介紹</RouterLink
                 >
               </li>
@@ -123,6 +124,7 @@ function logout() {
       </div>
     </header>
     <RouterView></RouterView>
+    <Footer></Footer>
   </div>
 </template>
 
