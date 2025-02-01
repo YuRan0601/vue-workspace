@@ -125,18 +125,26 @@ const result = await Swal.fire({
 </script>
 
 <template>
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-            <div class="input-group mb-4">
-                <input type="text" class="form-control" placeholder="請輸入商品編號" v-model="getOne" />
-                <button class="btn btn-primary" @click="getOneProduct">
+        <div>
+            <div class="search-container mb-4">
+                <v-text-field 
+        v-model="getOne"
+        label="請輸入商品編號"
+        variant="outlined"
+        density="compact"
+        color="grey-darken-1" 
+        clearable
+        hide-details
+    ></v-text-field>
+                <!-- <input type="text" class="form-control" placeholder="請輸入商品編號" v-model="getOne" /> -->
+                 <!-- variant="outlined" 變線框 -->
+                <v-btn variant="outlined" class="custom-outline"   color="grey-darken-1" @click="getOneProduct">
                     查詢
-                </button>
+                </v-btn>
+                <RouterLink :to="{ name: 'productAdd' }">
+                    <v-btn color="primary" elevation="0">新增商品</v-btn>
+                </RouterLink>
             </div>
-            <RouterLink :to="{ name: 'productAdd' }">
-                <button class="text">新增商品</button>
-            </RouterLink>
-             
-
         </div>
     <div>
         <v-data-table :items="product" :headers="headers" item-value="typeName">
@@ -146,13 +154,18 @@ const result = await Swal.fire({
             </template>
 
             <template #item.listingStatus="{ item }">
-                <v-btn :color="item.status === 0 ? 'grey' : 'primary'"  class="mr-2" @click="listingStatus(item)">
+                <v-btn 
+                :color="item.status === 0 ? 'grey-lighten-3' : 'primary'" 
+                class="mr-2" 
+                elevation="0" 
+                @click="listingStatus(item)">
                 {{ item.status === 0 ? '下架' : '上架' }} 
                 </v-btn>
             </template>
 
             <template #item.actions="{ item }">
-                <v-btn color="primary" class="mr-2" @click="editItem(item)">
+                <!-- elevation="0" 無陰影 -->
+                <v-btn color="grey-lighten-3" class="mr-2" elevation="0" @click="editItem(item)">
                     修改
                 </v-btn>
                 <!-- <v-btn color="error" @click="deleteItem(item)">
@@ -169,4 +182,18 @@ const result = await Swal.fire({
 td img {
     height: 200px;
 }
+
+/* 查詢欄位橫排與間距 */
+.search-container {
+    display: flex;
+    gap: 10px; /* 控制間距 */
+    margin-top: 30px;
+}
+
+/* 查詢按鈕 */
+.custom-outline {
+    /* border-radius: 10px ; */
+    padding: 8px 24px;
+}
+
 </style>
