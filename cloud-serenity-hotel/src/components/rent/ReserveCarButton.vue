@@ -2,114 +2,80 @@
 import { ref } from "vue";
 import "@mdi/font/css/materialdesignicons.css";
 import "vuetify/styles";
-
-const pickupDate = ref("");
-const returnDate = ref("");
-
-const dateRule = (value) => {
-  return (value && !isNaN(new Date(value))) || "請選擇有效的日期";
-};
-
-// 處理預約的事件
-const handleReserve = () => {
-  if (pickupDate.value && returnDate.value) {
-    console.log(
-      `預約成功！取車時間: ${pickupDate.value}, 還車時間: ${returnDate.value}`
-    );
-  } else {
-    console.error("請選擇取車和還車時間");
-  }
-};
 </script>
 <template>
-  <div class="reservation-container">
-    <div class="button-container">
-      <v-defaults-provider>
-        <RouterLink class="nav-link" :to="{ name: 'RentalForm' }"
-          ><v-btn @click="handleReserve">立即預約</v-btn></RouterLink
-        >
-      </v-defaults-provider>
-    </div>
+  <div class="search-container">
+    <select class="search-select" @change="handleSelectChange">
+      <option value="all">全部</option>
+      <option value="category1">機車</option>
+      <option value="category2">轎車</option>
+      <option value="category3">休旅車</option>
+    </select>
+
+    <input type="text" class="search-input" placeholder="搜尋..." />
+    <button class="search-btn">搜尋</button>
   </div>
 </template>
   
 
 <style scoped>
-/* 整體容器設置，讓容器寬度與頁面同寬 */
-.reservation-container {
+.search-container {
   display: flex;
-  flex-direction: row; /* 讓欄位橫向排列 */
-  justify-content: flex-end; /* 所有元素向右對齊 */
+  justify-content: center; /* 水平居中 */
   align-items: center; /* 垂直居中 */
-  width: 100%; /* 設置容器寬度為頁面寬度 */
-  padding: 20px;
-  border: 1px solid #ffffff;
-  background-color: #ffffff;
+  gap: 10px; /* 讓搜尋框、下拉選單和按鈕之間有間距 */
+  margin-top: 20px; /* 上方邊距 */
 }
 
-.reservation-container label {
-  font-family: "Arial", sans-serif;
-  font-size: 18px;
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 8px;
-  display: block;
-  text-align: left;
+.search-input {
+  padding: 10px 15px; /* 增加內邊距 */
+  border-radius: 5px; /* 圓角邊框 */
+  border: 1px solid #ccc; /* 輕微的邊框 */
+  font-size: 16px; /* 字體大小 */
+  width: 200px; /* 搜尋框寬度 */
 }
 
-.date-input {
-  width: 100%; /* 寬度為100%，讓它適應父容器的寬度 */
-  max-width: 300px; /* 最大寬度為300px，防止過寬 */
-  padding: 10px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-sizing: border-box;
+.search-select {
+  padding: 10px 15px; /* 下拉選單的內邊距 */
+  border-radius: 5px; /* 圓角邊框 */
+  border: 1px solid #ccc; /* 輕微的邊框 */
+  font-size: 16px; /* 字體大小 */
+  width: 80px; /* 設定下拉選單的寬度 */
+  text-align: center;
 }
 
-/* 單個欄位的樣式 */
-.form-group {
-  width: 300px; /* 固定寬度 */
-  margin-right: 20px; /* 欄位之間的間距 */
-  position: relative; /* 啟用相對定位 */
-  left: -50px; /* 向左移動20px，可以調整這個值 */
+.search-select option {
+  text-align: center; /* 讓每個選項文字也水平居中 */
 }
 
-label {
-  font-size: 14px;
-  margin-bottom: 8px;
-  display: block;
-}
-
-.date-input {
-  width: 100%; /* 設定日期選擇器寬度為欄位的100% */
-  padding: 10px;
-  font-size: 15px;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-sizing: border-box;
-}
-
-/* 按鈕容器 */
-.button-container {
+.search-container {
   display: flex;
-  justify-content: flex-start; /* 讓按鈕靠左 */
-  align-items: center; /* 垂直居中按鈕 */
-  margin-top: 30px; /* 向下移動50px */
-  margin-right: 25px;
-  padding: 10px 10px; /* 內邊距，左右增加一些間距 */
+  justify-content: center; /* 水平居中 */
+  align-items: center; /* 垂直居中 */
+  gap: 10px; /* 搜尋框和按鈕間的間距 */
+  margin-top: 20px; /* 上方邊距 */
 }
 
-.v-btn {
-  background-color: #656865; /* 按鈕背景顏色 */
-  color: white; /* 按鈕文字顏色 */
-  font-size: 18px; /* 增大字體大小 */
-  font-weight: bold; /* 字體加粗 */
-  border-radius: 8px; /* 圓角邊框 */
-  padding: 23px 50px; /* 增加按鈕的內邊距，這會使按鈕變大 */
-  transition: background-color 0.3s ease; /* 添加背景顏色過渡效果 */
-  display: flex;
-  justify-content: center; /* 讓文字在按鈕內居中 */
-  align-items: center; /* 讓文字在按鈕內垂直居中 */
+.search-input {
+  padding: 10px 15px; /* 增加內邊距 */
+  border-radius: 5px; /* 圓角邊框 */
+  border: 1px solid #ccc; /* 輕微的邊框 */
+  font-size: 16px; /* 字體大小 */
+  width: 250px; /* 設定搜尋框寬度 */
+}
+
+.search-btn {
+  background-color: #a7a8a7; /* 綠色背景 */
+  color: rgb(255, 255, 255); /* 文字顏色 */
+  padding: 10px 20px; /* 按鈕內邊距 */
+  border-radius: 5px; /* 圓角邊框 */
+  border: none; /* 去掉按鈕邊框 */
+  cursor: pointer; /* 滑鼠指標樣式 */
+  font-size: 16px; /* 字體大小 */
+  transition: background-color 0.3s; /* 平滑過渡效果 */
+}
+
+.search-btn:hover {
+  background-color: #cbcecb; /* 滑鼠懸停時的顏色變化 */
 }
 </style>
