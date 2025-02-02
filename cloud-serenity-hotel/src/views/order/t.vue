@@ -1,89 +1,245 @@
 <script setup>
-import axios from "axios";
 import { ref, onMounted } from "vue";
-import { useAuthStore } from "@/stores/authStore"; // 引入 Pinia 的 authStore
+import axios from "axios";
+import { useAuthStore } from "@/stores/authStore"; // 引入Pinia的authStore
+import Swal from "sweetalert2";
 
+const BASE_URL = import.meta.env.VITE_BACKEND_SERVER_URL;
 
-//測試
+// 引入Pinia store來獲取用戶資料
+const authStore = useAuthStore();
+const cartItems = ref([]); // 購物車商品列表
+const cartTotal = ref(0); // 購物車總金額
 
-// ===== 使用 authStore =====
-const authStore = useAuthStore(); // 取得 authStore 的實例
+// 確保用戶已經登入
+const userId = authStore.user?.userId;
 
-// ===== 定義狀態 =====
-const orders = ref([]); // 訂單列表
+if (!userId) {
+    Swal.fire({
+        icon: 'warning',
+        title: '請先登入',
+        text: '您需要先登入才能查看購物車！',
+        confirmButtonText: '去登入',
+    }).then((result) => {
+        if (result.isConfirmed) {
+            window.location.href = '/login'; // 重定向到登入頁
+        }
+    });
+}
 
-// 表頭資料
-const headers = [
-    { title: "訂單編號", key: "orderId" },
-    {
-        title: "商品名稱",
-        key: "productName",
-        formatter: (row) => {
-            console.log("商品資料：", row.orderItemsDtos); // 確認資料進入 formatter
-            if (!row.orderItemsDtos || !Array.isArray(row.orderItemsDtos)) return "無商品";
-            const productNames = row.orderItemsDtos.map((item) => item.productName);
-            return productNames.length > 1 ? "多項商品" : productNames[0] || "無商品";
-        },
-    },
-    { title: "總金額", key: "totalAmount", formatter: (row) => `$${row.totalAmount}` },
-    { title: "訂單狀態", key: "orderStatus" },
-    { title: "操作", key: "actions" },
-];
-
-// 從後端載入訂單資料
-async function loadOrders() {
+// 獲取購物車內容
+const fetchCartItems = async () => {
     try {
-        const userId = authStore.user?.userId; // 從 authStore 取得動態 userId
-        if (!userId) throw new Error("未登入，無法獲取用戶資料");
-        const response = await axios.get(`/api/Order/user/${userId}`);
-        console.log("後端返回資料：", response.data); // 確認回傳資料結構
-        orders.value = response.data.map(order => ({
-            ...order,
-            orderItemsDtos: order.orderItemsDtos || [], // 確保 orderItemsDtos 是陣列
+        const response = await axios.get(`/api/Cart/findAllCartItems`, {
+            params: { userId },
+        });
+        cartItems.value = response.data.map(item => ({
+            ...item,
+            isSelected: false, // 初始化每個商品的選擇狀態
         }));
+        calculateTotal(); // 計算總金額
     } catch (error) {
-        console.error("無法載入訂單資料：", error);
+        console.error("無法載入購物車資料：", error);
     }
-}
+};
 
-// 檢視訂單詳情
-function viewOrder(orderId) {
-    console.log("檢視訂單詳情：", orderId);
-}
+// 計算購物車總金額
+const calculateTotal = () => {
+    cartTotal.value = cartItems.value.reduce((total, item) => {
+        if (item.isSelected) {
+            return total + item.subtotal; // 累加選中的商品金額
+        }
+        return total;
+    }, 0);
+};
 
-// 掛載時載入訂單資料
+// 刪除商品
+const removeFromCart = async (cartItemId) => {
+    try {
+        await axios.delete(`/api/Cart/delete`, {
+            params: { userId, cartItemId },
+        });
+        cartItems.value = cartItems.value.filter((item) => item.cartItemId !== cartItemId); // 更新購物車列表
+        Swal.fire("商品已刪除", "", "success");
+    } catch (error) {
+        Swal.fire("刪除失敗", "請稍後再試", "error");
+    }
+};
+
+// 更新選擇商品狀態
+const updateSelection = () => {
+    calculateTotal();  // 每次選擇變更後，重新計算總金額
+};
+
+// 更新數量
+const updateQuantity = async (cartItemId, quantity) => {
+    console.log("cartItemId:", cartItemId, "quantity:", quantity); // Debugging log
+
+    if (quantity <= 0) {
+        Swal.fire({
+            title: '確定要刪除此商品嗎?',
+            text: "數量為0時將自動刪除此商品。",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: '刪除',
+            cancelButtonText: '取消'
+        }).then(async (result) => {
+            if (result.isConfirmed) {
+                await removeFromCart(cartItemId);
+            } else {
+                fetchCartItems(); // 恢復商品列表
+            }
+        });
+        return;
+    }
+
+    const index = cartItems.value.findIndex(item => item.cartItemId === cartItemId);
+    if (index !== -1) {
+        cartItems.value[index].quantity = quantity;
+        cartItems.value[index].subtotal = quantity * cartItems.value[index].unitPrice;
+
+        try {
+            // 記錄更新商品的請求
+            console.log("Updating cartItemId:", cartItemId, "with quantity:", quantity); // Debugging log
+
+            await axios.put(`/api/Cart/update`, null, {
+                params: {
+                    userId,
+                    productId: cartItems.value[index].productId,
+                    newQuantity: quantity
+                }
+            });
+
+            calculateTotal();
+
+            cartItems.value = [...cartItems.value]; // 讓 Vue 重新渲染商品
+        } catch (error) {
+            console.error("更新購物車數量失敗", error);
+        }
+    }
+};
+
+
+
 onMounted(() => {
-    loadOrders();
+    fetchCartItems();
 });
 </script>
 
 <template>
     <div>
-        <h2>訂單資料</h2>
         <v-container>
-            <v-data-table :items="orders" :headers="headers" item-value="orderId" class="orderTable" show-expand>
-                <!-- 展開的行 -->
-                <template v-slot:expanded-row="{ item }">
-                    <tr>
-                        <th colspan="5">商品明細</th>
-                    </tr>
-                    <tr v-for="product in item.orderItemsDtos" :key="product.productName">
-                        <td colspan="5">
-                            {{ product.productName }} - {{ product.quantity }} 件
-                        </td>
-                    </tr>
-                </template>
+            <h2 class="cart-title">購物車清單</h2>
+            <v-row v-for="item in cartItems" :key="item.cartItemId" class="cart-item">
+                <v-col cols="12" sm="6" md="12">
+                    <v-card class="d-flex align-center">
+                        <!-- 勾選放在最前面 -->
+                        <v-checkbox v-model="item.isSelected" label="選擇購買" @change="updateSelection"></v-checkbox>
 
-                <!-- 操作按鈕 -->
-                <template #item.actions="{ item }">
-                    <v-btn color="primary" class="mr-2" @click="viewOrder(item.orderId)">
-                        檢視詳情
-                    </v-btn>
-                </template>
-            </v-data-table>
+                        <v-img :src="BASE_URL + '/' + item.imageUrl" alt="product image" class="product-image"></v-img>
+                        <v-card-title>{{ item.productName }}</v-card-title>
+                        <v-card-subtitle>
+                            <span v-if="item.discount > 0">
+                                <s style="color: gray;">${{ item.unitPrice }}</s>
+                                <span style="color: #D94600;">${{ (item.unitPrice - item.discount).toFixed(0) }}</span>
+                            </span>
+                            <span v-else>{{ item.unitPrice }}</span>
+                        </v-card-subtitle>
+                        <v-card-actions class="d-flex justify-space-between">
+
+                            <!-- 顯示數量 -->
+                            <v-btn @click="updateQuantity(item.cartItemId, item.quantity - 1)" small>-</v-btn>
+                            {{ item.quantity }}
+                            <v-btn @click="updateQuantity(item.cartItemId, item.quantity + 1)" small>+</v-btn>
+
+                            <span>${{ item.subtotal }}</span>
+
+                            <!-- 刪除按鈕 -->
+                            <v-btn @click="removeFromCart(item.cartItemId)" color="red" small>刪除</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                </v-col>
+            </v-row>
         </v-container>
+
+        <v-row>
+            <v-col class="text-center">
+                <v-btn color="primary" @click="goToCheckout" :disabled="!cartItems.some(item => item.isSelected)">
+                    去結帳
+                </v-btn>
+            </v-col>
+        </v-row>
+
+        <v-row>
+            <v-col class="text-center">
+                <h3>總金額：${{ cartTotal }}</h3>
+            </v-col>
+        </v-row>
     </div>
 </template>
 
 
-<style lang="css" scoped></style>
+<style lang="css" scoped>
+.cart-item {
+    margin-bottom: 20px;
+}
+
+.cart-title {
+    text-align: left;
+    /* 標題靠右 */
+    margin-left: 175px;
+    /* 右邊距離 */
+}
+
+.v-card {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 10px;
+    align-items: center;
+    width: 70%;
+    /* 調整寬度 */
+    margin: 0 auto;
+    /* 使 v-card 在水平方向上置中 */
+
+}
+
+.v-container {
+    text-align: center;
+    /* 確保容器內的內容置中 */
+}
+
+.v-row {
+    justify-content: center;
+    /* 保證內容在行內置中 */
+}
+
+.v-col {
+    display: flex;
+    justify-content: center;
+    /* 保證每一列的內容置中 */
+}
+
+.product-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    margin-right: 15px;
+}
+
+.v-card-title,
+.v-card-subtitle {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.v-card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+
+.v-btn {
+    margin: 5px;
+}
+</style>
