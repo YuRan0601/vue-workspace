@@ -96,8 +96,15 @@ const updateQuantity = async (cartItemId, quantity) => {
             text: "數量為0時將自動刪除此商品。",
             icon: 'warning',
             showCancelButton: true,
+            confirmButtonColor: "#d33", // 確認按鈕顏色
+            cancelButtonColor: "#6c757d", // 取消按鈕顏色
             confirmButtonText: '刪除',
-            cancelButtonText: '取消'
+            cancelButtonText: '取消',
+            buttonsStyling: false, // 停用 SweetAlert2 預設樣式
+            customClass: {
+                confirmButton: "btn btn-danger text-white me-2", // 自定義確認按鈕
+                cancelButton: "btn btn-secondary text-white", // 自定義取消按鈕
+            },
         }).then(async (result) => {
             if (result.isConfirmed) {
                 await removeFromCart(cartItemId);
