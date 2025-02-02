@@ -19,7 +19,12 @@ if (!userId) {
         icon: 'warning',
         title: '請先登入',
         text: '您需要先登入才能查看購物車！',
+        confirmButtonColor: "#6a0dad",
         confirmButtonText: '去登入',
+        allowOutsideClick: false, // 禁止點擊外部關閉
+        customClass: {
+            confirmButton: "btn text-white me-2",
+        },
     }).then((result) => {
         if (result.isConfirmed) {
             window.location.href = '/login'; // 重定向到登入頁
@@ -54,13 +59,23 @@ const calculateTotal = () => {
 };
 
 // 刪除商品
-const removeFromCart = async (cartItemId) => {
+const removeFromCart = async (cartItemId, productId) => {
     try {
+        // 傳遞 userId 和 productId 參數
         await axios.delete(`/api/Cart/delete`, {
-            params: { userId, cartItemId },
+            params: { userId, productId }
         });
         cartItems.value = cartItems.value.filter((item) => item.cartItemId !== cartItemId); // 更新購物車列表
-        Swal.fire("商品已刪除", "", "success");
+        Swal.fire({
+            icon: 'success',
+            title: '商品已刪除',
+            confirmButtonText: "OK",
+            confirmButtonColor: "#6c757d",
+            allowOutsideClick: false, // 禁止點擊外部關閉
+            customClass: {
+                confirmButton: "btn text-white me-2",
+            },
+        });
     } catch (error) {
         Swal.fire("刪除失敗", "請稍後再試", "error");
     }
@@ -81,8 +96,15 @@ const updateQuantity = async (cartItemId, quantity) => {
             text: "數量為0時將自動刪除此商品。",
             icon: 'warning',
             showCancelButton: true,
+            confirmButtonColor: "#d33", // 確認按鈕顏色
+            cancelButtonColor: "#6c757d", // 取消按鈕顏色
             confirmButtonText: '刪除',
-            cancelButtonText: '取消'
+            cancelButtonText: '取消',
+            buttonsStyling: false, // 停用 SweetAlert2 預設樣式
+            customClass: {
+                confirmButton: "btn btn-danger text-white me-2", // 自定義確認按鈕
+                cancelButton: "btn btn-secondary text-white", // 自定義取消按鈕
+            },
         }).then(async (result) => {
             if (result.isConfirmed) {
                 await removeFromCart(cartItemId);
@@ -136,8 +158,10 @@ onMounted(() => {
                         <!-- 勾選放在最前面 -->
                         <v-checkbox v-model="item.isSelected" label="選擇購買" @change="updateSelection"></v-checkbox>
 
+                        <!-- 圖片與商品名距離更近 -->
                         <v-img :src="BASE_URL + '/' + item.imageUrl" alt="product image" class="product-image"></v-img>
-                        <v-card-title>{{ item.productName }}</v-card-title>
+                        <v-card-title class="product-name">{{ item.productName }}</v-card-title>
+
                         <v-card-subtitle>
                             <span v-if="item.discount > 0">
                                 <s style="color: gray;">${{ item.unitPrice }}</s>
@@ -145,8 +169,8 @@ onMounted(() => {
                             </span>
                             <span v-else>{{ item.unitPrice }}</span>
                         </v-card-subtitle>
-                        <v-card-actions class="d-flex justify-space-between">
 
+                        <v-card-actions class="d-flex justify-space-between">
                             <!-- 顯示數量 -->
                             <v-btn @click="updateQuantity(item.cartItemId, item.quantity - 1)" small>-</v-btn>
                             {{ item.quantity }}
@@ -155,7 +179,7 @@ onMounted(() => {
                             <span>${{ item.subtotal }}</span>
 
                             <!-- 刪除按鈕 -->
-                            <v-btn @click="removeFromCart(item.cartItemId)" color="red" small>刪除</v-btn>
+                            <v-btn @click="removeFromCart(item.cartItemId, item.productId)" color="red" small>刪除</v-btn>
                         </v-card-actions>
                     </v-card>
                 </v-col>
@@ -178,59 +202,57 @@ onMounted(() => {
     </div>
 </template>
 
-
 <style lang="css" scoped>
-.cart-item {
-    margin-bottom: 20px;
-}
-
 .cart-title {
     text-align: left;
-    /* 標題靠右 */
     margin-left: 175px;
-    /* 右邊距離 */
 }
 
 .v-card {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: flex-start;
+    /* 讓內容靠左顯示 */
     padding: 10px;
     align-items: center;
     width: 70%;
-    /* 調整寬度 */
     margin: 0 auto;
-    /* 使 v-card 在水平方向上置中 */
-
 }
 
 .v-container {
     text-align: center;
-    /* 確保容器內的內容置中 */
 }
 
 .v-row {
     justify-content: center;
-    /* 保證內容在行內置中 */
 }
 
 .v-col {
     display: flex;
     justify-content: center;
-    /* 保證每一列的內容置中 */
 }
 
 .product-image {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    /* 調整圖片大小 */
+    height: 80px;
     object-fit: cover;
-    margin-right: 15px;
+    margin-right: 10px;
+    /* 降低圖片與商品名之間的間距 */
 }
 
-.v-card-title,
-.v-card-subtitle {
+.product-name {
+    flex: 1;
+    /* 讓商品名稱佔據剩餘空間 */
     font-size: 16px;
     font-weight: bold;
+    margin-right: 10px;
+    /* 避免商品名和價格擁擠 */
+}
+
+.v-card-subtitle {
+    font-size: 14px;
+    color: gray;
 }
 
 .v-card-actions {

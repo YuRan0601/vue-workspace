@@ -88,7 +88,7 @@ const deleteOrder = async () => {
         Swal.fire({
             title: "刪除成功！",
             icon: "success",
-            confirmButtonText: "確認",
+            confirmButtonText: "OK",
             confirmButtonColor: "#6c757d",
             customClass: {
                 confirmButton: "btn text-white me-2", // 自定義確認按鈕
@@ -102,7 +102,7 @@ const deleteOrder = async () => {
             title: "刪除失敗",
             text: "刪除過程中發生錯誤。",
             icon: "error",
-            confirmButtonText: "確認",
+            confirmButtonText: "OK",
             confirmButtonColor: "#6c757d",
         });
     }
