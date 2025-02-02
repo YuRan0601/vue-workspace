@@ -1,9 +1,11 @@
 <script setup>
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
+import Swal from 'sweetalert2';
+
 
 const BASE_URL = import.meta.env.VITE_BACKEND_SERVER_URL;
-const CATEGORY_URL = `${BASE_URL}Product/select/allCategories`;
-const ADD_URL = `${BASE_URL}Product/insertProductWithImagesAndCategories`;
+const router = useRouter()
 
 const product = ref({
   productName: "",
@@ -21,6 +23,7 @@ const CoverImagePreview = ref(null);
 const CoverFile = ref(null);
 
 const fetchCategories = async () => {
+  const CATEGORY_URL = `${BASE_URL}Product/select/allCategories`;
   const response = await fetch(CATEGORY_URL);
   const data = await response.json();
   categoryOptions.value = data.map(cat => cat.categoriesName);
@@ -38,17 +41,17 @@ const removeCategory = (index) => {
 };
 
 // 單張圖片
-// 上傳圖片 顯示圖片
+// 上傳圖片與顯示圖片
 const CoverPreviewImages = (event) => {
   const file = event.target.files[0];
-  if (!file) return;
+  if (!file) return;//如果使用者點選圖片又取消，取得undefined就跳過
 
   const reader = new FileReader();
   reader.onload = (e) => {
-      CoverImagePreview.value = e.target.result;
-      CoverFile.value = file;
+      CoverImagePreview.value = e.target.result; // 將讀取的圖片資料設定給 CoverImagePreview，讓 UI 顯示圖片
+      CoverFile.value = file; // 存放檔案，之後會用於上傳
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(file);// 讀取檔案，並轉換成 Base64
 };
 
 // 移除指定圖片
@@ -59,7 +62,7 @@ const CoverRemoveImage = () => {
 
 
 // 多張圖片
-// 上傳圖片 顯示圖片
+// 上傳圖片與顯示圖片
 const previewImages = (event) => {
   const selectedFiles = Array.from(event.target.files);
   // files.value = selectedFiles;
@@ -81,8 +84,36 @@ const removeImage = (index) => {
   files.value.splice(index,1);
 }
 
+
+const insertCategory = async () => {
+  const ADD_CATEGORY_URL = `${BASE_URL}Product/insert/category`;
+  const newCategory = product.value.categories.filter(name => name.trim() !== "").map(name => ({ categoriesName: name }))
+  
+  const response = await fetch(ADD_CATEGORY_URL,{
+    method:'POST',
+    body: JSON.stringify(newCategory),
+    headers: {'Content-Type': 'application/json' }
+  })
+
+  // if (response.ok) {
+  //   product.value.categories = {
+  //     categoriesName:""
+  //   }
+  // }
+  
+  if (response.ok) {
+    Swal.fire("成功", "分類已新增", "success");
+    product.value.categories = []; // 清空輸入欄位
+    fetchCategories(); // 重新獲取分類選項
+  } else {
+    console.error("分類新增失敗", await response.text());
+    Swal.fire("錯誤", "分類新增失敗，請稍後再試", "error");
+  }
+}
+
 // 商品新增
 const productAdd = async () => {
+  const ADD_URL = `${BASE_URL}Product/insertProductWithImagesAndCategories`;
   const formData = new FormData();
 
   // 構造完整的 categories 結構
@@ -101,30 +132,42 @@ const productAdd = async () => {
   };
 
   formData.append("product", new Blob([JSON.stringify(productData)], { type: "application/json" }));
-  
+  formData.append("imageCover", CoverFile.value);
   if (files.value.length > 0) {
     files.value.forEach((file) => formData.append("images", file));
   }
   
-  formData.append("imageCover", CoverFile.value);
-
   const response = await fetch(ADD_URL, {
     method: "POST",
     body: formData,
   });
 
   if (response.ok) {
-    alert("新增成功");
+    Swal.fire({
+        title: "新增成功",
+        text:`${product.value.productName} 已新增 !`,
+        icon: "success",
+        confirmButtonColor: "#3085d6",
+    })
+    router.push({ name:'productAll' })
   } else {
     console.error("新增失敗", await response.text());
+    Swal.fire({
+        title:"錯誤",
+        text:"刪除失敗，請稍後再試",
+        icon:"error",
+        confirmButtonColor: "#3085d6",
+    })
   }
+  
+
 };
 
 </script>
 
 <template>
   <div class="container mt-5">
-    <h2 class="text-center mb-4">商品新增表單</h2>
+    <h2 class="text-center mb-4">商品新增</h2>
     <div class="mb-4">
       <div class="row mb-3 justify-content-center">
         <div class="col-lg-8">
@@ -185,11 +228,12 @@ const productAdd = async () => {
         <div class="col-lg-8">
           <div v-for="(category, index) in product.categories" :key="index" class="d-flex align-items-center mb-2">
             <input type="text"class="form-control" v-model="product.categories[index]"placeholder="新增分類"/>
+            <v-btn color="primary"  elevation="0"  @click="insertCategory">確認</v-btn>
             <button class="btn btn-danger btn-sm" @click="removeCategory(index)">x</button>
           </div>
-          <button class="btn btn-secondary mt-2" @click="addCategory">
+          <v-btn color="primary"  elevation="0"  @click="addCategory">
             新增分類
-          </button>
+          </v-btn>
         </div>
       </div>
     </div>
@@ -229,7 +273,7 @@ const productAdd = async () => {
     <div class="mb-4">
       <div class="row mb-3 justify-content-center">
         <div class="col-lg-8">
-          <label for="imageUpload" class="form-label">商品其他圖片<span class="Required">*</span></label>
+          <label for="imageUpload" class="form-label">商品其他圖片</label>
           <input
             type="file"
             id="imageUpload"
@@ -273,13 +317,15 @@ const productAdd = async () => {
     </div>
 
     <div class="d-flex justify-content-between align-items-center mt-5 mb-4 py-3 border-top">
-      <RouterLink :to="{ name: 'productAll' }" class="btn btn-secondary">
-        <i class="bi bi-arrow-left"></i> 返回
+      <RouterLink :to="{ name: 'productAll' }">
+        <v-btn color="grey-lighten-3" class="mr-2" elevation="0" >
+          <i class="bi bi-arrow-left"></i> 返回
+        </v-btn>
       </RouterLink>
       <div>
-        <button class="btn btn-primary" @click.prevent="productAdd">
-          新增商品確認
-        </button>
+        <v-btn color="primary"  elevation="0" @click.prevent="productAdd">
+          確認
+        </v-btn>
       </div>
     </div>
   </div>

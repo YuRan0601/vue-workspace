@@ -16,7 +16,7 @@ const getOneProduct = async () => {
   const GETONE_URL = `${BASE_URL}Product/select/${productId}`
   const response = await fetch(GETONE_URL)
   const data = await response.json()
-  product.value = data[0]
+  product.value = data[0] //不用會是[{ ... }] (陣列) 取不到資料，要有data[0]會是{ ... } (物件) 才能取到資料
   if (product.value.OneToManyProductImages.length > 0) {
     selectedImage.value = BASE_URL + product.value.OneToManyProductImages[0].imageUrl
   }
