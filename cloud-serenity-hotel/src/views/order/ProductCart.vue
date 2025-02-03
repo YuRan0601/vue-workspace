@@ -1,13 +1,18 @@
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRouter } from 'vue-router';
 import axios from "axios";
 import { useAuthStore } from "@/stores/authStore"; // 引入Pinia的authStore
+import { useCartStore } from "@/stores/cartStore"; // 引入Pinia的cartStore
 import Swal from "sweetalert2";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_SERVER_URL;
+const router = useRouter();
 
 // 引入Pinia store來獲取用戶資料
 const authStore = useAuthStore();
+const cartStore = useCartStore();  // 使用 Pinia store
+
 const cartItems = ref([]); // 購物車商品列表
 const cartTotal = ref(0); // 購物車總金額
 
@@ -141,7 +146,17 @@ const updateQuantity = async (cartItemId, quantity) => {
     }
 };
 
+// 在購物車頁面進行跳轉
+const goToCheckout = () => {
+    // 篩選選中的商品並儲存至 Pinia store
+    const selectedItems = cartItems.value.filter(item => item.isSelected);
+    //console.log("Selected Items:", selectedItems);  // 查看選中的商品資料
+    cartStore.setSelectedItems(selectedItems); // 使用 Pinia store 設定選中的商品
 
+    router.push({
+        name: 'productRecipient', // 跳轉至下一頁
+    });
+};
 
 onMounted(() => {
     fetchCartItems();
@@ -154,7 +169,7 @@ onMounted(() => {
             <h2 class="cart-title">購物車清單</h2>
             <v-row v-for="item in cartItems" :key="item.cartItemId" class="cart-item">
                 <v-col cols="12" sm="6" md="12">
-                    <v-card class="d-flex align-center">
+                    <v-card class="d-flex align-center product-card">
                         <!-- 勾選放在最前面 -->
                         <v-checkbox v-model="item.isSelected" label="選擇購買" @change="updateSelection"></v-checkbox>
 
@@ -164,10 +179,10 @@ onMounted(() => {
 
                         <v-card-subtitle>
                             <span v-if="item.discount > 0">
-                                <s style="color: gray;">${{ item.unitPrice }}</s>
-                                <span style="color: #D94600;">${{ (item.unitPrice - item.discount).toFixed(0) }}</span>
+                                <span class="original-price">${{ item.unitPrice }}</span>
+                                <span class="special-price">${{ (item.unitPrice - item.discount).toFixed(0) }}</span>
                             </span>
-                            <span v-else>{{ item.unitPrice }}</span>
+                            <span v-else class="normal-price">{{ item.unitPrice }}</span>
                         </v-card-subtitle>
 
                         <v-card-actions class="d-flex justify-space-between">
@@ -188,15 +203,15 @@ onMounted(() => {
 
         <v-row>
             <v-col class="text-center">
-                <v-btn color="primary" @click="goToCheckout" :disabled="!cartItems.some(item => item.isSelected)">
-                    去結帳
-                </v-btn>
+                <h3>總金額：${{ cartTotal }}</h3>
             </v-col>
         </v-row>
 
         <v-row>
             <v-col class="text-center">
-                <h3>總金額：${{ cartTotal }}</h3>
+                <v-btn color="primary" @click="goToCheckout" :disabled="!cartItems.some(item => item.isSelected)">
+                    去結帳
+                </v-btn>
             </v-col>
         </v-row>
     </div>
@@ -217,6 +232,13 @@ onMounted(() => {
     align-items: center;
     width: 70%;
     margin: 0 auto;
+}
+
+.product-card {
+    width: 80%;
+    /* 增大卡片寬度 */
+    margin: 10px auto;
+    /* 中央對齊 */
 }
 
 .v-container {
@@ -259,6 +281,23 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: flex-end;
+}
+
+.original-price {
+    font-size: 16px;
+    color: black;
+    text-decoration: line-through;
+}
+
+.special-price {
+    font-size: 18px;
+    color: red;
+    font-weight: bold;
+}
+
+.normal-price {
+    font-size: 18px;
+    color: black;
 }
 
 .v-btn {
