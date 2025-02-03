@@ -4,7 +4,6 @@ import Start from '@/components/common/Start.vue'
 
 <template>
   <div>
-    <Start class="header"></Start>
     <div class="content">
       <RouterView></RouterView>
     </div>
@@ -13,15 +12,9 @@ import Start from '@/components/common/Start.vue'
 
 <style lang="css" scoped>
 @import '@/assets/css/style.css';
-  .header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-  }
 
   .content {
-    margin-top: 55px;
+    margin-top: 0px;
   }
 
   * {

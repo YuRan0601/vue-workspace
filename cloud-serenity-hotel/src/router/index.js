@@ -65,6 +65,7 @@ import indexVue from "@/views/common/index.vue";
 import BookingRoomTypeViewVue from "@/views/booking/BookingRoomTypeView.vue";
 import OneRoomTypeVue from "@/views/booking/OneRoomType.vue";
 import ProductCart from "@/views/order/ProductCart.vue";
+import ChartVue from "@/views/common/Chart.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -166,7 +167,7 @@ const router = createRouter({
               } else {
                 alert("管理員不能去會員中心!");
                 // useStores.logout();
-                next("/back");
+                next("/back/chart");
               }
             }
           },
@@ -357,6 +358,13 @@ const router = createRouter({
         }
       },
       children: [
+        //---數據---
+        {
+          path: "/back/chart",
+          component: ChartVue,
+          name: "chart",
+        },
+        //----------
         //---訂房後台---
         {
           path: "/back/bookingBack",

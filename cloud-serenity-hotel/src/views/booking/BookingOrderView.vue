@@ -52,6 +52,16 @@ function insertOrder() {
     cancelButtonText: "取消",
   }).then(async (res) => {
     if (res.isConfirmed) {
+
+      Swal.fire({
+        title: "處理中",
+        text: "請稍候...",
+        allowOutsideClick: false, // 防止使用者點擊背景關閉
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
       const { data } = await axiosInstance.post(
         `/booking/order/${bookingOrderStore.roomTypeId}`,
         bookingOrder.value,
@@ -61,6 +71,8 @@ function insertOrder() {
           },
         }
       );
+
+      Swal.close();
 
       if (data.code === 200) {
         Swal.fire({

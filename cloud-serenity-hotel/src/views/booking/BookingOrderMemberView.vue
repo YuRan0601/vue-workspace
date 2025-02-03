@@ -6,7 +6,8 @@ import { nextTick, onMounted, ref } from "vue";
 
 const userStore = useAuthStore();
 const orderTable = ref([]);
-const ecpayHtml = ref('')
+const ecpayHtml = ref("");
+const search = ref("");
 
 const orderStatus = [
   { name: "待付款", value: "pending" },
@@ -114,17 +115,16 @@ async function orderPay(item) {
     cancelButtonText: "取消",
   }).then(async (res) => {
     if (res.isConfirmed) {
-      const {data} = await axiosInstance.post("/booking/pay", payment.value);
+      const { data } = await axiosInstance.post("/booking/pay", payment.value);
 
       ecpayHtml.value = data;
 
       await nextTick();
 
-      const formEl = ecpayContainer.value.querySelector('#ecpay-form')
+      const formEl = ecpayContainer.value.querySelector("#ecpay-form");
       if (formEl) {
         formEl.submit();
       }
-      
     }
   });
 }
@@ -140,7 +140,9 @@ onMounted(() => {
   <div>
     <v-container class="typeBtnContainer">
       <v-row>
-        <v-btn class="typeBtn" color="black" @click="loadRoomTable">所有</v-btn>
+        <v-btn class="typeBtn" color="black" @click="loadOrderTable"
+          >所有</v-btn
+        >
         <v-btn
           class="typeBtn"
           v-for="(item, index) in orderStatus"

@@ -143,7 +143,7 @@ function bookingRoomTypeConfirm(item) {
 
     <hr />
 
-    <v-container>
+    <v-container v-if="searchRoomTypes">
       <v-row>
         <!-- 遍历 list 生成 v-card -->
         <v-col
@@ -186,6 +186,7 @@ function bookingRoomTypeConfirm(item) {
         </v-col>
       </v-row>
     </v-container>
+
     <div class="pa-4 text-center">
       <v-dialog v-model="roomTypeDialog" max-width="600">
         <v-card>

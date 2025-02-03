@@ -16,7 +16,7 @@ watch(() => useStores.user, () => {
         if (identity.value == 'user') {
             window.location.href = '/front/member/Overview'
         } else if (identity.value == 'admin') {
-            window.location.href = '/back';
+            window.location.href = '/back/chart';
         }
     } else {
         isLogin.value = false
@@ -68,7 +68,7 @@ const loginStatus = async () => {
     console.log(data);
 
     if (data == "admin") {
-        window.location.href = '/back';
+        window.location.href = '/back/chart';
     } else if (data == "member") {
         window.location.href = '/front/member/Overview';
     } else {

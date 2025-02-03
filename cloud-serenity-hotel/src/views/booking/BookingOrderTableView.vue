@@ -141,6 +141,11 @@ async function updateOrderHandler() {
   });
 }
 
+async function switchStatusSearch(status) {
+  const { data } = await axiosInstance.get(`/booking/order/status/${status}`);
+  orderTable.value = data;
+}
+
 onMounted(() => {
   loadOrderTable();
   loadRoomTypeTable();
@@ -149,7 +154,22 @@ onMounted(() => {
 
 <template>
   <div>
-    <h3>訂房訂單</h3>
+    <h1 class="bookingTitle">訂房訂單</h1>
+    <v-container class="typeBtnContainer">
+      <v-row>
+        <v-btn class="typeBtn" color="black" @click="loadOrderTable"
+          >所有</v-btn
+        >
+        <v-btn
+          class="typeBtn"
+          v-for="(item, index) in orderStatus"
+          :key="index"
+          color="black"
+          @click="switchStatusSearch(item.value)"
+          >{{ item.name }}</v-btn
+        >
+      </v-row>
+    </v-container>
     <!-- 訂單表 -->
     <v-container>
       <v-text-field v-model="search" label="查詢"></v-text-field>
@@ -292,5 +312,20 @@ onMounted(() => {
 
 .swal2-container {
   z-index: 9999 !important;
+}
+
+.bookingTitle {
+  margin-top: 30px;
+  margin-bottom: 50px;
+}
+
+.typeBtnContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.typeBtnContainer .typeBtn {
+  margin: 5px;
 }
 </style>

@@ -1,7 +1,19 @@
 <script setup>
 import axios from "axios";
+import { rule } from "postcss";
 import Swal from "sweetalert2";
 import { onMounted, ref, watchEffect } from "vue";
+
+const insertForm = ref(null);
+const isValidInsert = ref(false);
+const updateForm = ref(null);
+const isValidUpdate = ref(false);
+
+const rules = {
+  required: (value) => !!value || "此欄位為必填",
+  number: (value) => /^\d+$/.test(value) || "必須是數字",
+  positive: (value) => value > 0 || "數字必須大於 0",
+};
 
 function resetInsert() {
   insertRoomType.value.typeName = "";
@@ -80,7 +92,35 @@ function editItem(item) {
   selectOtherImg.value = item.imgs;
 }
 
-function updateRoomTypeHandler() {
+function checkUpdateRoomType(value) {
+  if (!value) return "房型名稱為必填";
+
+  for (let i = 0; i < roomTypeTable.value.length; i++) {
+    if (updateRoomType.value.typeId === roomTypeTable.value[i].typeId) {
+      continue;
+    }
+
+    if (value === roomTypeTable.value[i].typeName) {
+      return "房型名稱已存在";
+    }
+  }
+
+  return true;
+}
+
+async function updateRoomTypeHandler() {
+  const { valid } = await updateForm.value.validate();
+
+  if (!valid) {
+    await Swal.fire({
+      title: "請確定輸入的內容符合規則!",
+      icon: "error",
+      confirmButtonText: "確定",
+    });
+
+    return;
+  }
+
   Swal.fire({
     title: `確定要修改 ${updateRoomType.value.typeName} 房型?`,
     icon: "warning",
@@ -205,8 +245,33 @@ const insertOtherImg = ref([]);
 const insertPreviewUrl = ref(null); // 存储图片预览的 URL
 const insertPreviewUrls = ref([]);
 
+function checkInsertRoomType(value) {
+  if (!value) return "房型名稱為必填";
+
+  for (let i = 0; i < roomTypeTable.value.length; i++) {
+    if (value === roomTypeTable.value[i].typeName) {
+      return "房型名稱已存在";
+    }
+  }
+
+  return true;
+}
+
 async function insertRoomTypeHandler() {
   console.log(insertRoomType.value);
+
+  const { valid } = await insertForm.value.validate();
+
+  console.log(valid);
+
+  if (!valid) {
+    Swal.fire({
+      title: "請確定輸入的內容符合規則!",
+      icon: "error",
+      confirmButtonText: "確定",
+    });
+    return;
+  }
 
   Swal.fire({
     title: "確定要新增此房型?",
@@ -377,76 +442,85 @@ watchEffect(() => {
 
         <v-card prepend-icon="mdi-account" title="新增房型">
           <v-card-text>
-            <v-row dense>
-              <v-col cols="12">
-                <v-text-field
-                  label="房型名稱*"
-                  v-model="insertRoomType.typeName"
-                  required
-                ></v-text-field>
-              </v-col>
+            <v-form ref="insertForm" v-model="isValidInsert">
+              <v-row dense>
+                <v-col cols="12">
+                  <v-text-field
+                    label="房型名稱*"
+                    v-model="insertRoomType.typeName"
+                    :rules="[rules.required, checkInsertRoomType]"
+                    required
+                  ></v-text-field>
+                </v-col>
 
-              <v-col cols="12" md="6" sm="6">
-                <v-text-field
-                  hint="請輸入大於0的數字"
-                  v-model="insertRoomType.maxCapacity"
-                  label="容納人數*"
-                ></v-text-field>
-              </v-col>
+                <v-col cols="12" md="6" sm="6">
+                  <v-text-field
+                    hint="請輸入大於0的數字"
+                    v-model="insertRoomType.maxCapacity"
+                    :rules="[rules.required, rules.number, rules.positive]"
+                    label="容納人數*"
+                  ></v-text-field>
+                </v-col>
 
-              <v-col cols="12" md="6" sm="6">
-                <v-text-field
-                  hint="請輸入大於0的數字"
-                  v-model="insertRoomType.price"
-                  label="每晚房價*"
-                ></v-text-field>
-              </v-col>
+                <v-col cols="12" md="6" sm="6">
+                  <v-text-field
+                    hint="請輸入大於0的數字"
+                    v-model="insertRoomType.price"
+                    :rules="[rules.required, rules.number, rules.positive]"
+                    label="每晚房價*"
+                  ></v-text-field>
+                </v-col>
 
-              <v-col cols="12">
-                <v-file-input
-                  label="房型主圖片"
-                  v-model="insertPrImg"
-                  :multiple="false"
-                  accept="image/*"
-                >
-                </v-file-input>
-
-                <v-img
-                  v-if="insertPreviewUrl"
-                  :src="insertPreviewUrl"
-                  max-height="200"
-                  max-width="200"
-                  class="mt-4"
-                ></v-img>
-              </v-col>
-
-              <v-col cols="12">
-                <v-file-input
-                  label="房型其他圖片"
-                  accept="image/*"
-                  v-model="insertOtherImg"
-                  multiple
-                >
-                </v-file-input>
-
-                <v-row v-if="insertPreviewUrls.length > 0" class="mt-4">
-                  <v-col
-                    v-for="(url, index) in insertPreviewUrls"
-                    :key="index"
-                    cols="4"
+                <v-col cols="12">
+                  <v-file-input
+                    label="房型主圖片"
+                    v-model="insertPrImg"
+                    :multiple="false"
+                    accept="image/*"
                   >
-                    <v-img :src="url" max-height="200" max-width="200"></v-img>
-                  </v-col>
-                </v-row>
-              </v-col>
+                  </v-file-input>
 
-              <v-col cols="12">
-                <v-textarea
-                  label="房型描述"
-                  v-model="insertRoomType.typeDesc"
-                ></v-textarea>
-              </v-col>
-            </v-row>
+                  <v-img
+                    v-if="insertPreviewUrl"
+                    :src="insertPreviewUrl"
+                    max-height="200"
+                    max-width="200"
+                    class="mt-4"
+                  ></v-img>
+                </v-col>
+
+                <v-col cols="12">
+                  <v-file-input
+                    label="房型其他圖片"
+                    accept="image/*"
+                    v-model="insertOtherImg"
+                    multiple
+                  >
+                  </v-file-input>
+
+                  <v-row v-if="insertPreviewUrls.length > 0" class="mt-4">
+                    <v-col
+                      v-for="(url, index) in insertPreviewUrls"
+                      :key="index"
+                      cols="4"
+                    >
+                      <v-img
+                        :src="url"
+                        max-height="200"
+                        max-width="200"
+                      ></v-img>
+                    </v-col>
+                  </v-row>
+                </v-col>
+
+                <v-col cols="12">
+                  <v-textarea
+                    label="房型描述"
+                    v-model="insertRoomType.typeDesc"
+                  ></v-textarea>
+                </v-col>
+              </v-row>
+            </v-form>
           </v-card-text>
 
           <v-divider></v-divider>
@@ -477,115 +551,126 @@ watchEffect(() => {
       <v-dialog v-model="updateDialog" max-width="1000">
         <v-card title="修改房型">
           <v-card-text>
-            <v-row dense>
-              <v-col cols="12">
-                <v-text-field
-                  label="房型名稱*"
-                  v-model="updateRoomType.typeName"
-                  required
-                ></v-text-field>
-              </v-col>
+            <v-form ref="updateForm" v-model="isValidUpdate">
+              <v-row dense>
+                <v-col cols="12">
+                  <v-text-field
+                    label="房型名稱*"
+                    v-model="updateRoomType.typeName"
+                    :rules="[rules.required, checkUpdateRoomType]"
+                    required
+                  ></v-text-field>
+                </v-col>
 
-              <v-col cols="12" md="6" sm="6">
-                <v-text-field
-                  hint="請輸入大於0的數字"
-                  v-model="updateRoomType.maxCapacity"
-                  label="容納人數*"
-                ></v-text-field>
-              </v-col>
+                <v-col cols="12" md="6" sm="6">
+                  <v-text-field
+                    hint="請輸入大於0的數字"
+                    v-model="updateRoomType.maxCapacity"
+                    :rules="[rules.required, rules.number, rules.positive]"
+                    label="容納人數*"
+                  ></v-text-field>
+                </v-col>
 
-              <v-col cols="12" md="6" sm="6">
-                <v-text-field
-                  hint="請輸入大s於0的數字"
-                  v-model="updateRoomType.price"
-                  label="每晚房價*"
-                ></v-text-field>
-              </v-col>
+                <v-col cols="12" md="6" sm="6">
+                  <v-text-field
+                    hint="請輸入大於0的數字"
+                    v-model="updateRoomType.price"
+                    :rules="[rules.required, rules.number, rules.positive]"
+                    label="每晚房價*"
+                  ></v-text-field>
+                </v-col>
 
-              <v-col cols="12">
-                <v-file-input
-                  label="房型主圖片"
-                  v-model="updatePrImg"
-                  :multiple="false"
-                  accept="image/*"
-                >
-                </v-file-input>
-
-                <v-img
-                  v-if="updatePreviewUrl"
-                  :src="updatePreviewUrl"
-                  max-height="200"
-                  max-width="200"
-                  class="mt-4"
-                ></v-img>
-              </v-col>
-
-              <v-col cols="12">
-                <v-file-input
-                  label="房型其他圖片"
-                  accept="image/*"
-                  v-model="updateOtherImg"
-                  multiple
-                >
-                </v-file-input>
-
-                <v-row v-if="updatePreviewUrls.length > 0" class="mt-4">
-                  <v-col
-                    v-for="(url, index) in updatePreviewUrls"
-                    :key="index"
-                    cols="4"
+                <v-col cols="12">
+                  <v-file-input
+                    label="房型主圖片"
+                    v-model="updatePrImg"
+                    :multiple="false"
+                    accept="image/*"
                   >
-                    <v-img :src="url" max-height="200" max-width="200"></v-img>
-                  </v-col>
-                </v-row>
-              </v-col>
+                  </v-file-input>
 
-              <v-col v-if="selectPrImg" cols="12">
-                <div id="prImgDiv">
-                  <span>選取刪除已有的房型主圖片：</span><br />
-                  <div>
-                    <v-checkbox
-                      :value="selectPrImg.imgId + '，' + selectPrImg.imgUrl"
-                      v-model="deletePrImgIdAndUrl"
+                  <v-img
+                    v-if="updatePreviewUrl"
+                    :src="updatePreviewUrl"
+                    max-height="200"
+                    max-width="200"
+                    class="mt-4"
+                  ></v-img>
+                </v-col>
+
+                <v-col cols="12">
+                  <v-file-input
+                    label="房型其他圖片"
+                    accept="image/*"
+                    v-model="updateOtherImg"
+                    multiple
+                  >
+                  </v-file-input>
+
+                  <v-row v-if="updatePreviewUrls.length > 0" class="mt-4">
+                    <v-col
+                      v-for="(url, index) in updatePreviewUrls"
+                      :key="index"
+                      cols="4"
                     >
-                      <template #label>
-                        <div class="prImg">
-                          <img :src="selectPrImg.imgUrl" />
-                        </div>
-                      </template>
-                    </v-checkbox>
-                  </div>
-                </div>
-              </v-col>
+                      <v-img
+                        :src="url"
+                        max-height="200"
+                        max-width="200"
+                      ></v-img>
+                    </v-col>
+                  </v-row>
+                </v-col>
 
-              <v-col
-                v-if="selectOtherImg !== undefined && selectOtherImg.length > 0"
-                cols="12"
-              >
-                <div id="otherImgsDiv">
-                  <span>選取刪除已有的其他房型圖片：</span><br />
-                  <div v-for="img in selectOtherImg" :key="img.imgId">
-                    <v-checkbox
-                      :value="img.imgId + '，' + img.imgUrl"
-                      v-model="deleteOtherImgsIdAndUrl"
-                    >
-                      <template #label>
-                        <div class="prImg">
-                          <img :src="img.imgUrl" />
-                        </div>
-                      </template>
-                    </v-checkbox>
+                <v-col v-if="selectPrImg" cols="12">
+                  <div id="prImgDiv">
+                    <span>選取刪除已有的房型主圖片：</span><br />
+                    <div>
+                      <v-checkbox
+                        :value="selectPrImg.imgId + '，' + selectPrImg.imgUrl"
+                        v-model="deletePrImgIdAndUrl"
+                      >
+                        <template #label>
+                          <div class="prImg">
+                            <img :src="selectPrImg.imgUrl" />
+                          </div>
+                        </template>
+                      </v-checkbox>
+                    </div>
                   </div>
-                </div>
-              </v-col>
+                </v-col>
 
-              <v-col cols="12">
-                <v-textarea
-                  label="房型描述"
-                  v-model="updateRoomType.typeDesc"
-                ></v-textarea>
-              </v-col>
-            </v-row>
+                <v-col
+                  v-if="
+                    selectOtherImg !== undefined && selectOtherImg.length > 0
+                  "
+                  cols="12"
+                >
+                  <div id="otherImgsDiv">
+                    <span>選取刪除已有的其他房型圖片：</span><br />
+                    <div v-for="img in selectOtherImg" :key="img.imgId">
+                      <v-checkbox
+                        :value="img.imgId + '，' + img.imgUrl"
+                        v-model="deleteOtherImgsIdAndUrl"
+                      >
+                        <template #label>
+                          <div class="prImg">
+                            <img :src="img.imgUrl" />
+                          </div>
+                        </template>
+                      </v-checkbox>
+                    </div>
+                  </div>
+                </v-col>
+
+                <v-col cols="12">
+                  <v-textarea
+                    label="房型描述"
+                    v-model="updateRoomType.typeDesc"
+                  ></v-textarea>
+                </v-col>
+              </v-row>
+            </v-form>
           </v-card-text>
 
           <v-divider></v-divider>

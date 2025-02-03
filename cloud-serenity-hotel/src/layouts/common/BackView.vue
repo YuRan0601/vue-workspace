@@ -29,6 +29,24 @@ function logout() {
           <button
             class="btn btn-toggle align-items-center rounded collapsed"
             data-bs-toggle="collapse"
+            data-bs-target="#chart-collapse"
+            aria-expanded="true"
+          >
+            統計資料
+          </button>
+          <div class="collapse show" id="chart-collapse">
+            <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
+              <li>
+                <RouterLink :to="{ name: 'chart' }">chart</RouterLink>
+              </li>
+            </ul>
+          </div>
+        </li>
+
+        <li class="mb-1">
+          <button
+            class="btn btn-toggle align-items-center rounded collapsed"
+            data-bs-toggle="collapse"
             data-bs-target="#user-collapse"
             aria-expanded="true"
           >
@@ -42,6 +60,7 @@ function logout() {
             </ul>
           </div>
         </li>
+
         <li class="mb-1">
           <button
             class="btn btn-toggle align-items-center rounded collapsed"
@@ -57,7 +76,9 @@ function logout() {
                 <RouterLink :to="{ name: 'roomType' }">房型、房間</RouterLink>
               </li>
               <li>
-                <RouterLink :to="{ name: 'bookingOrderTable' }">訂房訂單</RouterLink>
+                <RouterLink :to="{ name: 'bookingOrderTable' }"
+                  >訂房訂單</RouterLink
+                >
               </li>
             </ul>
           </div>
@@ -186,7 +207,7 @@ function logout() {
 
 .content {
   margin-left: 280px;
-  margin-top: 66px;
+  margin-top: 10px;
 }
 
 .container {
@@ -196,7 +217,7 @@ function logout() {
 .aside {
   position: fixed;
   left: 0;
-  top: 55px;
+  top: 0;
   bottom: 0;
   overflow-y: auto;
 }

@@ -30,7 +30,7 @@ watch(
 
 function logout() {
   useStores.logout();
-  window.location.href = "/front";
+  window.location.href = "/";
 }
 </script>
 
@@ -73,7 +73,9 @@ function logout() {
                 >
               </li>
               <li class="nav-item">
-                <RouterLink class="nav-link" :to="{ name: 'oneRoomType', params: { id: 1 } }"
+                <RouterLink
+                  class="nav-link"
+                  :to="{ name: 'oneRoomType', params: { id: 1 } }"
                   >房型介紹</RouterLink
                 >
               </li>
@@ -114,6 +116,11 @@ function logout() {
                     >登入會員</RouterLink
                   >
                 </div>
+              </li>
+              <li v-if="userData.userIdentity === 'admin'" class="nav-item">
+                <RouterLink class="nav-link" :to="{ name: 'chart' }"
+                  >進入後台</RouterLink
+                >
               </li>
               <li v-if="isLogin" class="nav-item">
                 <a href="#" @click="logout()" class="nav-link">登出帳號</a>
