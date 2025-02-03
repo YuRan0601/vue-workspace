@@ -68,10 +68,10 @@ import ProductCart from "@/views/order/ProductCart.vue";
 import ChartVue from "@/views/common/Chart.vue";
 import ProductRecipient from "@/views/order/ProductRecipient.vue";
 import ProductCheckout from "@/views/order/ProductCheckout.vue";
-
 import ProductEdit from "@/views/product/ProductEdit.vue";
 import CarRentalHistory from "@/views/rent/CarRentalHistory.vue";
 import CarReservationDetail from "@/views/rent/CarReservationDetail.vue";
+import ResetPassword from "@/views/user/ResetPassword.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -214,6 +214,11 @@ const router = createRouter({
           path: "/front/register",
           name: "register",
           component: Register,
+        },
+        {
+          path: "/front/resetPassword",
+          name: "resetPassword",
+          component: ResetPassword,
         },
         //-------------
 
