@@ -1,9 +1,10 @@
 <script setup>
 import Swal from 'sweetalert2';
 import { ref } from 'vue';
-import { RouterLink } from 'vue-router';
+import { RouterLink, useRouter } from 'vue-router';
 
 const BASE_URL = import.meta.env.VITE_BACKEND_SERVER_URL;
+const router = useRouter();
 
 const headers = [
     { title: "商品ID", key: 'productId' },
@@ -78,10 +79,30 @@ function listingStatus(item){
     
 }
 
+// 查詢單筆
+// const getOne = ref('');
+// const getOneProduct = async () => {
+//     const GETONE_URL = `${BASE_URL}Product/select/${getOne.value}`
+//     const response = await fetch(GETONE_URL)
 
+//     const data = await response.json()
+//     console.log(data);
+//     product.value = data
+    
+// }
+
+const update = async () => {
+    const UPDATE_URL = `${BASE_URL}Product/update/${item.productId}`
+    const response = await fetch(UPDATE_URL)
+    const data = await response.json()
+    product.value = data
+}
+
+// 點編輯
 function editItem(item) {
     console.log('编辑项目：', item);
-    Swal.fire('123');
+    router.push({ name: 'productEdit', params: { id: item.productId } });
+    
 }
 
 

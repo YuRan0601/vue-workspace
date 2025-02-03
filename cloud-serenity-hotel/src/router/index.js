@@ -69,6 +69,7 @@ import ChartVue from "@/views/common/Chart.vue";
 import ProductRecipient from "@/views/order/ProductRecipient.vue";
 import ProductCheckout from "@/views/order/ProductCheckout.vue";
 
+import ProductEdit from "@/views/product/ProductEdit.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -420,6 +421,11 @@ const router = createRouter({
           path: "/productAdd",
           component: ProductAdd,
           name: "productAdd",
+        },
+        {
+          path: "/productEdit/:id",
+          component: ProductEdit,
+          name: "productEdit",
         },
         //-------------
 
