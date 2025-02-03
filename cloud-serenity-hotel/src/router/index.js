@@ -65,6 +65,8 @@ import indexVue from "@/views/common/index.vue";
 import BookingRoomTypeViewVue from "@/views/booking/BookingRoomTypeView.vue";
 import OneRoomTypeVue from "@/views/booking/OneRoomType.vue";
 import ProductCart from "@/views/order/ProductCart.vue";
+import CarRentalHistory from "@/views/rent/CarRentalHistory.vue";
+import CarReservationDetail from "@/views/rent/CarReservationDetail.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -475,6 +477,17 @@ const router = createRouter({
               props: true,
             },
           ],
+        },
+        {
+          path: "/rent/CarRentalHistory",
+          name: "CarRentalHistory",
+          component: CarRentalHistory,
+        },
+        {
+          path: "/rent/CarReservationDetail/:id",
+          name: "CarReservationDetail",
+          component: CarReservationDetail,
+          props: true,
         },
         //-------------
 

@@ -12,6 +12,10 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  carId: {
+    type: String,
+    required: true,
+  },
   orderId: {
     type: String,
     required: true,
@@ -23,19 +27,20 @@ console.log("接收到的 orderId:", props.orderId);
 const carModels = ref([]); // 車型資料
 const carUser = ref([]); //使用者資料
 const image = ref([]); //圖片資料
+const licenseImage = ref(null);
 
 const form = ref({
   personalIdNo: "",
   userName: "",
   email: "",
-  phone: "",
   birthday: "",
   gender: "",
+  phone: "",
   licenseNumber: "",
-  passportNumber: "",
-  carType: "",
-  pickupTime: "",
-  returnTime: "",
+  licenseImage: "",
+  passportNo: "",
+  pickupTime: "", // 取車時間
+  returnTime: "", // 還車時間
 });
 
 const formatDate = (dateString) => {
@@ -67,11 +72,11 @@ onMounted(async () => {
   }
 
   try {
-    // 發送車型資料請求
+    // 發送圖片資料請求
     const imageResponse = await axios.get(
       `http://localhost:8080/CloudSerenityHotel/ImageCar/queryOne/${props.carModelId}`
     );
-    // 更新車型資料
+    // 更新圖片資料
     image.value = imageResponse.data;
     console.log("圖片資料已加載", image.value);
   } catch (error) {
@@ -79,7 +84,7 @@ onMounted(async () => {
   }
 
   try {
-    // 發送車型資料請求
+    // 發送訂房資料請求
     const orderResponse = await axios.get(
       `http://localhost:8080/CloudSerenityHotel/CarModel/UserDetailByOrderId/${props.orderId}`
     );
@@ -100,11 +105,70 @@ onMounted(async () => {
     console.error("車型資料請求失敗:", error);
   }
 });
+
+const handleSubmit = async () => {
+  console.log("表單資料:", form.value); // 確認資料是否正確綁定
+  const userId = carUser.value.userId || "";
+  const pickupTime = form.value.pickupTime;
+  // 格式化時間
+  const requestData = {
+    carId: props.carId,
+    carUserInfo: {
+      userId: userId,
+      personalIdNo: form.value.personalIdNo,
+      userName: form.value.userName,
+      email: form.value.email,
+      birthday: form.value.birthday,
+      gender: form.value.gender,
+      phone: form.value.phone,
+      driverLicenseNumber: form.value.licenseNumber,
+      bookingId: "",
+      bookingStatus: "",
+      licenseImage: form.value.licenseImage,
+      passportNo: form.value.passportNo,
+    },
+    rentalStart: form.value.pickupTime, // 格式化取車時間
+    rentalEnd: form.value.returnTime, // 格式化還車時間
+  };
+
+  try {
+    const response = await axios.post(
+      "http://localhost:8080/CloudSerenityHotel/car-reservation/create",
+      requestData // 傳遞處理後的資料
+    );
+
+    if (response.data.status == "FAIL") {
+      alert(response.data.data);
+    } else {
+      console.log("成功:", response.data);
+      alert("預約成功");
+      this.$router.push({ name: "CarRentalHome" });
+    }
+  } catch (error) {
+    console.error("錯誤:", error);
+    alert("提交失敗");
+  }
+};
+
+// 處理檔案變動並轉換為 base64
+const handleFileChange = (event) => {
+  const file = event.target.files[0]; // 取得選擇的檔案
+
+  if (file) {
+    const reader = new FileReader(); // 創建 FileReader 來讀取檔案
+    reader.onload = () => {
+      // 將檔案讀取後轉換成 base64 字串
+      licenseImage.value = reader.result.split(",")[1]; // 只取 base64 字串部分
+      form.value.licenseImage = licenseImage.value;
+    };
+    reader.readAsDataURL(file); // 讀取檔案並轉換為 base64
+  }
+};
 </script>
 <template>
   <div class="color-div">
     <div class="grid-container">
-      <form class="row g-2" @submit="handleSubmit">
+      <form class="row g-2" @submit.prevent="handleSubmit">
         <!-- 顯示車型圖片 -->
         <div class="row">
           <div class="col-md-6 center-img">
@@ -235,8 +299,7 @@ onMounted(async () => {
               type="text"
               class="form-control"
               id="passportNumber"
-              v-model="form.passportNumber"
-              required
+              v-model="form.passportNo"
             />
           </div>
         </div>
@@ -244,7 +307,12 @@ onMounted(async () => {
         <div class="row">
           <div class="col-md-10">
             <label for="formFile" class="form-label">請上傳駕照照片</label>
-            <input class="form-control" type="file" id="formFile" required />
+            <input
+              class="form-control"
+              type="file"
+              id="formFile"
+              v-on:change="handleFileChange"
+            />
             <div class="invalid-feedback">必須上傳駕照照片。</div>
           </div>
         </div>
@@ -256,6 +324,7 @@ onMounted(async () => {
               type="datetime-local"
               class="form-control"
               id="pickupTime"
+              v-model="form.pickupTime"
               required
             />
             <div class="invalid-feedback">取車時間為必填項。</div>
@@ -266,6 +335,7 @@ onMounted(async () => {
               type="datetime-local"
               class="form-control"
               id="returnTime"
+              v-model="form.returnTime"
               required
             />
             <div class="invalid-feedback">還車時間為必填項。</div>

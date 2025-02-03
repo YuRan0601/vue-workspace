@@ -59,16 +59,26 @@ const getCarBrandName = (carModelId) => {
   return carModel ? carModel.brand : "未知品牌";
 };
 
+const statusMap = {
+  RENTED: "租借中",
+  RESERVED: "已預約",
+  AVAILABLE: "可租用",
+};
+
 const getStatusClass = (status) => {
+  // 根據英文狀態轉換為對應的中文顯示
+  const statusText = statusMap[status] || status; // 如果沒有對應的英文狀態，則顯示原始狀態
+
+  let statusClass = "";
   if (status === "可租用") {
-    return "status-available";
+    statusClass = "status-available";
   } else if (status === "已預約") {
-    return "status-booked";
+    statusClass = "status-booked";
   } else if (status === "租借中") {
-    return "status-rented";
-  } else {
-    return ""; // 預設狀態
+    statusClass = "status-rented";
   }
+
+  return { statusText, statusClass }; // 返回轉換後的狀態顯示字串和對應的 CSS 類別
 };
 </script>
 <template>
@@ -101,9 +111,9 @@ const getStatusClass = (status) => {
           <td class="text-center align-middle">{{ car.colorOptions }}</td>
           <td
             class="text-center align-middle"
-            :class="getStatusClass(car.status)"
+            :class="getStatusClass(car.status).statusClass"
           >
-            {{ car.status }}
+            {{ getStatusClass(car.status).statusText }}
           </td>
           <td class="text-center align-middle">
             <RouterLink

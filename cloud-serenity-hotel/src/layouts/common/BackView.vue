@@ -57,7 +57,9 @@ function logout() {
                 <RouterLink :to="{ name: 'roomType' }">房型、房間</RouterLink>
               </li>
               <li>
-                <RouterLink :to="{ name: 'bookingOrderTable' }">訂房訂單</RouterLink>
+                <RouterLink :to="{ name: 'bookingOrderTable' }"
+                  >訂房訂單</RouterLink
+                >
               </li>
             </ul>
           </div>
@@ -143,7 +145,11 @@ function logout() {
                   >車輛管理</RouterLink
                 >
               </li>
-              <li><a href="#" class="link-dark rounded">訂單管理</a></li>
+              <li>
+                <RouterLink :to="{ name: 'CarRentalHistory' }"
+                  >訂單管理</RouterLink
+                >
+              </li>
             </ul>
           </div>
         </li>
