@@ -10,12 +10,17 @@ const route = useRoute();
 const carModelId = ref(route.params.id); // 從 URL 中提取 `id`
 // 從查詢參數中獲取 bookingNumber
 const orderId = ref(route.query.orderId);
+const carId = ref(route.query.carId);
 
 // const carId = route.params.id; // 這就是從 URL 中提取的車輛 ID
 </script>
 <template>
   <div>
-    <CarReservation :carModelId="carModelId" :orderId="orderId" />
+    <CarReservation
+      :carModelId="carModelId"
+      :carId="carId"
+      :orderId="orderId"
+    />
   </div>
 </template>
 

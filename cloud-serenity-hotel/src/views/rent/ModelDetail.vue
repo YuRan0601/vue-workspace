@@ -12,6 +12,7 @@ defineProps({
 const route = useRoute();
 const carModelId = route.params.id; // 這就是從 URL 中提取的車輛 ID
 const carModels = ref([]); // 車型資料
+const carDetails = ref([]);
 
 const showBookingDialog = () => {
   // 顯示 SweetAlert2 彈窗，要求用戶輸入訂房編號
@@ -41,11 +42,12 @@ const showBookingDialog = () => {
         );
 
         if (response.data.bookingId) {
+          const carId = carDetails.value.carId;
           // 訂單存在，跳轉到 RentalForm 頁面並傳遞訂房編號作為查詢參數
           router.push({
             name: "RentalForm",
             params: { id: carModelId }, // 假設 carModelId 作為 :id 路由參數傳遞
-            query: { orderId }, // 訂房編號作為查詢參數
+            query: { orderId, carId }, // 訂房編號作為查詢參數
           });
         } else {
           // 訂單不存在，提示用戶
@@ -74,18 +76,47 @@ onMounted(async () => {
   try {
     // 發送車型資料請求
     const carResponse = await axios.get(
+      `http://localhost:8080/CloudSerenityHotel/CarDetails/available-vehicles/${carModelId}`
+    );
+
+    // 判斷是否有可租用車輛
+    if (carResponse.data.status == "SUCCESS") {
+      // 取得車輛資料
+      carDetails.value = carResponse.data.data;
+      console.log("車輛資料已加載", carDetails.value);
+    } else {
+      // 沒有可租用的車輛
+      console.error("未找到可租用的車輛");
+      await Swal.fire({
+        icon: "error",
+        title: "無空閒中的車輛",
+        text: "未找到可租用的車輛",
+      });
+
+      // 彈出框關閉後跳轉
+      router.push({ name: "CarRentalHome" });
+      return; // 停止執行後續的請求
+    }
+  } catch (error) {
+    console.error("車輛資料請求失敗:", error);
+    Swal.fire({
+      icon: "error",
+      title: "無空閒中的車輛",
+      text: "未找到可租用的車輛",
+    });
+    return; // 停止執行後續的請求
+  }
+
+  try {
+    // 發送車型資料請求
+    const carModelResponse = await axios.get(
       `http://localhost:8080/CloudSerenityHotel/CarModel/queryOne/${carModelId}`
     );
     // 更新車型資料
-    carModels.value = carResponse.data;
+    carModels.value = carModelResponse.data;
     console.log("車型資料已加載", carModels.value);
   } catch (error) {
     console.error("車型資料請求失敗:", error);
-    Swal.fire({
-      icon: "error",
-      title: "車型資料載入失敗",
-      text: "無法載入車型資料，請稍後再試",
-    });
   }
 });
 </script>

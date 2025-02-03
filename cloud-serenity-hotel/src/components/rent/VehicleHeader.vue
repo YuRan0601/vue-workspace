@@ -13,7 +13,7 @@ const formData = ref({
   status: "",
   createdAt: "",
   updatedAt: "",
-  status: " 可租用 ",
+  status: "",
 });
 
 // 對話框顯示狀態
