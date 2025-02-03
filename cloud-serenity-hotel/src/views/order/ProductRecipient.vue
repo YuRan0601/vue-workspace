@@ -1,18 +1,18 @@
 <script setup>
-import { ref, computed } from 'vue';
+import { ref } from 'vue';
+import { useCartStore } from "@/stores/cartStore"; // 引入 Pinia store
 import axios from "axios"; // 引入 axios 用於 API 請求
 import { useAuthStore } from "@/stores/authStore"; // 引入 Pinia store
 import { useRouter } from 'vue-router'; // 引入 Vue Router
 
 const authStore = useAuthStore(); // 使用 Pinia Store
+const cartStore = useCartStore(); // 使用 Pinia store 來存取選中的商品
 const router = useRouter(); // 使用 Vue Router
-const useMemberInfo = ref(false);
 
-// 直接使用 Pinia store 中的 userId
-const userId = authStore.user?.userId;
-console.log("authStore.userId:", userId);  // 確認 userId 是否有正確傳遞
+const useMemberInfo = ref(false);  // 控制是否從會員資料填充
+const userId = authStore.user?.userId; // 從 authStore 中獲取 userId
 
-// 初始化 errorMessages 和 recipient 物件，確保它們是空的預設值
+// 初始化錯誤訊息和收件人資料
 const errorMessages = ref({
     name: '',
     phone: '',
@@ -29,14 +29,11 @@ const recipient = ref({
     paymentMethod: ''
 });
 
+// 填寫會員資料功能
 const fillMemberData = () => {
     if (useMemberInfo.value && userId) {
-        console.log(userId); // 確認 userId 是否有正確傳遞
-
-        // 呼叫 API 獲取會員資料
         axios.get(`/api/Cart/memberInfo`, { params: { userId } })
             .then(response => {
-                console.log('會員資料:', response.data);  // 檢查返回的資料
                 recipient.value = {
                     name: response.data.userName || '',
                     phone: response.data.phone || '',
@@ -44,15 +41,11 @@ const fillMemberData = () => {
                     address: response.data.address || '',
                     paymentMethod: recipient.value.paymentMethod || '' // 保留付款方式
                 };
-
-                // 確認填充後的 recipient
-                console.log('填充後的 recipient:', recipient.value);
             })
             .catch(error => {
                 console.error('會員資料載入錯誤', error);
             });
     } else {
-        // 如果取消選擇「與會員資料相同」，清空 recipient 資料
         recipient.value = {
             name: '',
             phone: '',
@@ -62,7 +55,7 @@ const fillMemberData = () => {
         };
     }
 
-    // 同時清除錯誤訊息
+    // 清除錯誤訊息
     errorMessages.value = {
         name: '',
         phone: '',
@@ -72,68 +65,52 @@ const fillMemberData = () => {
     };
 };
 
-// 假設的購物車資料
-const cartItems = ref([{ name: '雲新禮盒', price: 800, quantity: 5 }]);
-
-const totalAmount = computed(() => {
-    return cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0);
-});
+// 清除錯誤訊息的方法
+const clearNameError = () => { errorMessages.value.name = ''; };
+const clearPhoneError = () => { errorMessages.value.phone = ''; };
+const clearEmailError = () => { errorMessages.value.email = ''; };
+const clearAddressError = () => { errorMessages.value.address = ''; };
+const clearPaymentMethodError = () => { errorMessages.value.paymentMethod = ''; };
 
 // 提交表單
 const handleSubmit = () => {
-    console.log('提交前的 recipient:', recipient.value);  // 檢查 recipient
-
     let isValid = true;
 
     // 檢查所有欄位是否已填寫
     if (!recipient.value.name) {
         errorMessages.value.name = '姓名為必填';
         isValid = false;
-    } else {
-        errorMessages.value.name = '';
-    }
+    } else { errorMessages.value.name = ''; }
 
     if (!recipient.value.phone) {
         errorMessages.value.phone = '電話為必填';
         isValid = false;
-    } else {
-        errorMessages.value.phone = '';
-    }
+    } else { errorMessages.value.phone = ''; }
 
     if (!recipient.value.email) {
         errorMessages.value.email = 'Email為必填';
         isValid = false;
-    } else {
-        errorMessages.value.email = '';
-    }
+    } else { errorMessages.value.email = ''; }
 
     if (!recipient.value.address) {
         errorMessages.value.address = '地址為必填';
         isValid = false;
-    } else {
-        errorMessages.value.address = '';
-    }
+    } else { errorMessages.value.address = ''; }
 
     if (!recipient.value.paymentMethod) {
         errorMessages.value.paymentMethod = '付款方式為必填';
         isValid = false;
-    } else {
-        errorMessages.value.paymentMethod = '';
-    }
+    } else { errorMessages.value.paymentMethod = ''; }
 
     if (!isValid) {
-        console.log('有欄位未填寫');
-        return;
+        return;  // 如果表單驗證不通過，不進行下一步
     }
 
-    const orderData = {
-        recipient: recipient.value,
-        orderItems: cartItems.value, // 傳遞已勾選的商品
-    };
-    console.log('提交的訂單資料：', orderData);
+    // 將資料儲存到 Pinia store
+    cartStore.setRecipientData(recipient.value);
 
-    // 這裡進行頁面跳轉到結帳頁面
-    router.push({ name: 'productCheckout', params: { orderData } });
+    // 跳轉到結帳頁面
+    router.push({ name: 'productCheckout' });
 };
 </script>
 
@@ -143,44 +120,43 @@ const handleSubmit = () => {
             <v-col cols="12" md="8">
                 <v-card>
                     <v-card-title class="headline" style="font-size: 32px; font-weight: bold;">
-                        填寫收件人資料與付款方式
+                        收件人資料與付款方式
                     </v-card-title>
                     <!-- 加入 "與會員資料相同" 的勾選框 -->
                     <v-checkbox v-model="useMemberInfo" label="與會員資料相同" @change="fillMemberData"></v-checkbox>
                     <v-form @submit.prevent="handleSubmit">
                         <!-- 姓名 -->
                         <v-text-field v-model="recipient.name" label="姓名" outlined class="mb-4" style="font-size: 18px;"
-                            :error-messages="errorMessages.name ? [errorMessages.name] : []"></v-text-field>
+                            :error-messages="errorMessages.name ? [errorMessages.name] : []"
+                            @input="clearNameError"></v-text-field>
 
                         <!-- 電話 -->
                         <v-text-field v-model="recipient.phone" label="電話" outlined class="mb-4"
-                            style="font-size: 18px;"
-                            :error-messages="errorMessages.phone ? [errorMessages.phone] : []"></v-text-field>
+                            style="font-size: 18px;" :error-messages="errorMessages.phone ? [errorMessages.phone] : []"
+                            @input="clearPhoneError"></v-text-field>
 
                         <!-- Email -->
                         <v-text-field v-model="recipient.email" label="Email" outlined class="mb-4"
-                            style="font-size: 18px;"
-                            :error-messages="errorMessages.email ? [errorMessages.email] : []"></v-text-field>
+                            style="font-size: 18px;" :error-messages="errorMessages.email ? [errorMessages.email] : []"
+                            @input="clearEmailError"></v-text-field>
 
                         <!-- 地址 -->
                         <v-text-field v-model="recipient.address" label="地址" outlined class="mb-4"
                             style="font-size: 18px;"
-                            :error-messages="errorMessages.address ? [errorMessages.address] : []"></v-text-field>
+                            :error-messages="errorMessages.address ? [errorMessages.address] : []"
+                            @input="clearAddressError"></v-text-field>
 
                         <!-- 付款方式 -->
                         <v-select v-model="recipient.paymentMethod" :items="['信用卡', '貨到付款', '銀行轉帳']" label="付款方式"
                             outlined class="mb-4" style="font-size: 18px;"
-                            :error-messages="errorMessages.paymentMethod ? [errorMessages.paymentMethod] : []"></v-select>
+                            :error-messages="errorMessages.paymentMethod ? [errorMessages.paymentMethod] : []"
+                            @blur="clearPaymentMethodError"></v-select>
 
-                        <v-row justify="space-between" align="center">
-                            <v-col cols="6">
-                                <h3 style="font-size: 32px;">總金額：${{ totalAmount }}</h3>
-                            </v-col>
-                            <v-col cols="6" class="text-right">
-                                <!-- 使用HTML button 來取代 v-btn -->
-                                <button type="submit" class="next-button">
+                        <v-row justify="end" align="center">
+                            <v-col cols="auto">
+                                <v-btn color="primary" type="submit">
                                     下一步
-                                </button>
+                                </v-btn>
                             </v-col>
                         </v-row>
                     </v-form>
@@ -196,33 +172,14 @@ const handleSubmit = () => {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.next-button {
-    background-color: #007bff;
-    color: white;
-    font-size: 20px;
-    padding: 15px 25px;
-    width: auto;
-    /* 確保按鈕大小符合文字 */
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-align: center;
-}
-
-.next-button:hover {
-    background-color: #0056b3;
-}
-
 .v-select .v-select__selections {
     font-size: 18px;
-    /* 設置v-select選項的字體大小 */
 }
 
 .v-text-field,
 .v-select {
     width: 100%;
     font-size: 18px;
-    /* 統一調整文字大小 */
 }
 
 .v-card-title {
