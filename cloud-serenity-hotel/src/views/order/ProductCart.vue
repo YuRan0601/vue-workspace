@@ -301,6 +301,6 @@ onMounted(() => {
 }
 
 .v-btn {
-    margin: 5px;
+    margin: 15px;
 }
 </style>
