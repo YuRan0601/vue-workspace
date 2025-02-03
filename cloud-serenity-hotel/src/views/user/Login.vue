@@ -1,6 +1,7 @@
 <script setup>
 import { useAuthStore } from '@/stores/authStore';
 import { ref, computed, watch } from 'vue';
+import { RouterLink } from 'vue-router';
 const useStores = useAuthStore()
 const isLogin = ref()
 const identity = ref()
@@ -111,8 +112,12 @@ const loginStatus = async () => {
                     <v-icon>mdi-alert</v-icon>
                     <span v-text="errorMsg"></span>
                 </p>
-                <p style='text-align: center; margin: 0;'>
+                <p style='text-align: center; margin: 0;' class="fs-5">
                     沒有帳號? <RouterLink :to="{ name: 'register' }">立即註冊</RouterLink>
+
+                </p>
+                <p style='text-align: center; margin: 0;' class="mt-2 fs-5">
+                    <RouterLink :to="{ name: 'resetPassword' }">忘記密碼</RouterLink>
                 </p>
             </form>
         </div>
@@ -137,6 +142,7 @@ const loginStatus = async () => {
     padding: 10px 0;
     border-radius: 50px;
     background-color: skyblue;
+    margin: 0 20px;
 }
 
 #errorMessage {

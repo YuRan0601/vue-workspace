@@ -295,11 +295,11 @@ function validateTaiwanID(id) {
                 <span class="twIdMsg" v-show="twIdMsg">身分證字號錯誤</span>
                 <br />
 
-                <label for="country" class="form-label fs-5">國家<span
+                <label for="country" class="form-label fs-5">國籍(國家三位字母代碼)<span
                         style="color: red; font-weight: bold;">*</span></label>
                 <select class="form-select" v-model="registerData.member.country" name="country" required>
                     <option v-for="countrys in countryArray" :value="countrys.cca3">
-                        {{ countrys.name.common }}
+                        {{ countrys.cca3 }}
                     </option>
                 </select>
                 <br />

@@ -127,18 +127,18 @@ onMounted(() => {
         <h6 style="color: #c70000; font-weight: bold;">至少8字,上限為64字,需有大小寫英文,數字,特殊字元 (!@#$%^*)</h6>
         <form @submit.prevent="submitEditForm" class="mt-2">
             <div class="col-4 mb-4">
-                <label for="nowpassword">目前密碼</label>
+                <label for="nowpassword" class="form-label fs-5">目前密碼</label>
                 <input type="password" class="form-control" v-model="nowPassword" name="nowpassword"
                     placeholder="請輸入目前密碼" minlength="8" maxlength="64" required />
             </div>
             <div class=" col-4 mb-4">
-                <label for="newpassword">新密碼</label>
+                <label for="newpassword" class="form-label fs-5">新密碼</label>
                 <input type="password" class="form-control" v-model="newPassword" name="newpassword"
                     placeholder="請輸入新密碼" minlength="8" maxlength="64" @blur="passwordCheck()" required />
                 <span class="passwordMsg" v-if="passwordMsg.length > 0">{{ passwordMsg }}</span>
             </div>
             <div class="col-4 mb-4">
-                <label for="checkpassword">確認新密碼</label>
+                <label for="checkpassword" class="form-label fs-5">確認新密碼</label>
                 <input type="password" class="form-control" v-model="checkNewPassword" name="checkpassword"
                     placeholder="請再輸入新密碼" minlength="8" maxlength="64" @blur="confirmNewPassword()" required />
                 <span class="password2Msg" v-if="password2Msg.length > 0">{{ password2Msg }}</span>

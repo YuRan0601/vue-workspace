@@ -16,7 +16,7 @@ function logout() {
         <h5>透過下方的快速連結，您可以方便地進行操作!</h5>
         <div class="container">
             <div class="row row-col-3">
-                <RouterLink class="function-card btn btn-light" :to="{ name: '' }">
+                <RouterLink class="function-card btn btn-light" :to="{ name: 'memberBookingOrder' }">
                     <v-icon class="fa-solid fa-hotel icon"></v-icon>
                     <h4 class="mt-2">訂房</h4>
                 </RouterLink>
