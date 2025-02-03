@@ -60,12 +60,12 @@ function goToProduct(id) {
         </div>
 
         <!-- 加入購物車 -->
-        <button
+        <!-- <button
           class="add-to-cart-button"
           @click.stop="addToCart(product)"
         >
           加入購物車
-        </button>
+        </button> -->
       </div>
     </div>
   </div>

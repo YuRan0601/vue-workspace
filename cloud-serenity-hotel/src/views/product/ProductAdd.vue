@@ -111,8 +111,52 @@ const insertCategory = async () => {
   }
 }
 
+// 存放錯誤訊息
+const errorMessages = ref({
+  productName: "",
+  price: "",
+  coverImage: "",
+});
+
+// 先檢查是否有輸入值，如果沒填，就更新 errorMessages 變數，讓錯誤訊息顯示出來
+const validateForm = () => {
+  let isValid = true; // 預設表單是有效的
+
+  // 商品名稱
+  if (!product.value.productName.trim()) {
+    errorMessages.value.productName = "請輸入商品名稱 !";
+    isValid = false; // 如果商品名稱沒填寫，則設為 false
+  } else {
+    errorMessages.value.productName = ""; //當使用者已經輸入正確資料時，清除錯誤訊息不會顯示。
+  }
+
+  // 售價
+  if (!product.value.price.trim()) {
+    errorMessages.value.price = "請輸入售價 !";
+    isValid = false;
+  } else {
+    errorMessages.value.price = "";
+  }
+
+  // 商品封面
+  if (!CoverFile.value) {
+    errorMessages.value.coverImage = "請上傳至少一張商品封面 !";
+    isValid = false;
+  } else {
+    errorMessages.value.coverImage = "";
+  }
+
+  return isValid;
+};
+
+
+
 // 商品新增
 const productAdd = async () => {
+  if (!validateForm()) {
+    return; // 如果驗證沒通過，就不繼續執行
+  }
+
   const ADD_URL = `${BASE_URL}Product/insertProductWithImagesAndCategories`;
   const formData = new FormData();
 
@@ -160,24 +204,41 @@ const productAdd = async () => {
     })
   }
   
+  
 
 };
 
 </script>
 
 <template>
+  <!-- <h2 class="text-center mb-4 ">商品新增</h2> -->
+
+  <div class="d-flex justify-content-center">
+  <h3 class="title-box">商品新增</h3>
+</div>
+
   <div class="container mt-5">
-    <h2 class="text-center mb-4">商品新增</h2>
+
+  <div class="row mb-3 justify-content-center  section-title">
+    <div class="col-lg-8">
+      <h4 class="text-start border-bottom pb-2">基本資料</h4>
+    </div>
+  </div>
+
     <div class="mb-4">
       <div class="row mb-3 justify-content-center">
         <div class="col-lg-8">
-          <label for="productName" class="form-label">商品名稱<span class="Required">*</span></label>
+          <div class="d-flex align-items-center">
+            <label for="productName" class="form-label">商品名稱<span class="Required">*</span></label>
+            <p v-if="errorMessages.productName" class="error-message ms-2 ">{{ errorMessages.productName }}</p>
+          </div>
           <input
             type="text"
             class="form-control"
             id="productName"
             v-model="product.productName"
           />
+
         </div>
       </div>
     </div>
@@ -185,7 +246,10 @@ const productAdd = async () => {
     <div class="mb-4">
       <div class="row mb-3 justify-content-center">
         <div class="col-lg-8">
-          <label for="price" class="form-label">售價<span class="Required">*</span></label>
+          <div class="d-flex align-items-center">
+            <label for="price" class="form-label">售價<span class="Required">*</span></label>
+            <p v-if="errorMessages.price" class="error-message ms-2 ">{{ errorMessages.price }}</p>
+          </div> 
           <input type="text" class="form-control" id="price" v-model="product.price" />
         </div>
       </div>
@@ -205,11 +269,37 @@ const productAdd = async () => {
       </div>
     </div>
 
+
+  <div class="row mb-3 justify-content-center  section-title">
+    <div class="col-lg-8">
+      <h4 class="text-start border-bottom pb-2">分類</h4>
+    </div>
+  </div>
+
+
+<!-- 分類標題 + 新增分類按鈕 -->
+<!-- <div class="row mb-3 justify-content-center section-title">
+  <div class="col-lg-8">
+    <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+      <h4 class="text-start mb-0 flex-grow-1">分類</h4>
+      <v-btn 
+        color="primary" 
+        elevation="0" 
+        class="add-category-btn"
+        @click="addCategory"
+      >
+        新增分類
+      </v-btn>
+    </div>
+  </div>
+</div> -->
+
+
     <!-- 選擇分類 -->
-    <div class="mb-4">
+     <div class="mb-4">
       <div class="row mb-3 justify-content-center">
         <div class="col-lg-8">
-          <label class="form-label">選擇分類</label>
+          <!-- <label class="form-label">選擇分類</label> -->
           <v-select
             v-model="selectedCategories"
             :items="categoryOptions"
@@ -217,6 +307,7 @@ const productAdd = async () => {
             multiple
             chips
             clearable
+            class="category-select"
           ></v-select>
         </div>
       </div>
@@ -226,22 +317,32 @@ const productAdd = async () => {
     <div class="mb-4">
       <div class="row mb-3 justify-content-center">
         <div class="col-lg-8">
-          <div v-for="(category, index) in product.categories" :key="index" class="d-flex align-items-center mb-2">
-            <input type="text"class="form-control" v-model="product.categories[index]"placeholder="新增分類"/>
+          <div v-for="(category, index) in product.categories" :key="index" class="d-flex align-items-center gap-2 mb-2">
+            <input type="text"class="form-control" v-model="product.categories[index]"placeholder="請輸入分類名稱"/>
             <v-btn color="primary"  elevation="0"  @click="insertCategory">確認</v-btn>
-            <button class="btn btn-danger btn-sm" @click="removeCategory(index)">x</button>
+            <v-btn color="red"  elevation="0"  @click="removeCategory(index)">刪除</v-btn>
           </div>
-          <v-btn color="primary"  elevation="0"  @click="addCategory">
+          <v-btn color="primary"  elevation="0"  @click="addCategory" v-if="product.categories.length === 0">
             新增分類
           </v-btn>
         </div>
       </div>
     </div>
 
+  <div class="row mb-3 justify-content-center section-title">
+    <div class="col-lg-8">
+      <h4 class="text-start border-bottom pb-2">圖片</h4>
+    </div>
+  </div>
+
     <div class="mb-4">
       <div class="row mb-3 justify-content-center">
         <div class="col-lg-8">
-          <label for="imageUpload" class="form-label">商品封面<span class="Required">*</span></label>
+          <div class="d-flex align-items-center">
+            <label for="imageUpload" class="form-label">商品封面<span class="Required">*</span></label>
+            <p v-if="errorMessages.coverImage" class="error-message ms-2">{{ errorMessages.coverImage }}</p>
+          </div> 
+          
           <input
             type="file"
             id="imageUpload"
@@ -254,7 +355,6 @@ const productAdd = async () => {
               :src="CoverImagePreview"
               alt="封面預覽"
               class="me-2 mb-2"
-              style="max-height: 100px; border-radius: 5px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1)"
             />
             <button 
             class="btn btn-danger btn-sm position-absolute top-0 end-0" 
@@ -287,7 +387,6 @@ const productAdd = async () => {
               :src="src"
               alt="Preview"
               class="me-2 mb-2"
-              style="max-height: 100px; border-radius: 5px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1)"
             />
             <button 
             class="btn btn-danger btn-sm position-absolute top-0 end-0" 
@@ -302,6 +401,12 @@ const productAdd = async () => {
       </div>
     </div>
 
+  <div class="row mb-3 justify-content-center section-title ">
+    <div class="col-lg-8">
+      <h4 class="text-start border-bottom pb-2">其他</h4>
+    </div>
+  </div>
+
     <div class="mb-4">
       <div class="row mb-3 justify-content-center">
         <div class="col-lg-8">
@@ -311,6 +416,7 @@ const productAdd = async () => {
             id="description"
             rows="3"
             v-model="product.description"
+            style="resize: none;"
           ></textarea>
         </div>
       </div>
@@ -333,7 +439,9 @@ const productAdd = async () => {
 
 <style scoped>
 img {
-  max-height: 100px;
+  width: 100px; /* 設定寬度 */
+  height: 100px; /* 設定高度，確保圖片為正方形 */
+  object-fit: cover; /* 確保圖片填滿且不變形 */
   margin-right: 10px;
   margin-bottom: 10px;
   border-radius: 5px;
@@ -341,20 +449,55 @@ img {
 }
 
 button.position-absolute {
-  background-color: red;
+  background-color: rgb(216, 64, 64);
   color: white;
   font-weight: bold;
-  border-radius: 50%;
+  border-radius: 20%; /* 確保按鈕是圓形 */
   width: 24px;
   height: 24px;
-  line-height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   text-align: center;
   font-size: 16px;
   cursor: pointer;
   border: none;
+  
+  /* 調整 X 按鈕的位置 */
+  top: 6px !important;  /* 向下移動一點 */
+  right: 12px !important; /* 向左移動一點 */
+  transform: none !important; /* 取消之前的偏移 */
 }
 
+/* 必填 */
 .Required {
   color: brown;
 }
+
+.section-title {
+  margin-top: 50px; /* 這裡可以改成更大的數值 */
+}
+
+/* 修改底線顏色 */
+/* .border-bottom {
+  border-bottom: 1px solid rgb(180, 191, 255) !important; 
+} */
+
+.add-category-btn {
+  height: 40px; /* 與輸入框高度一致 */
+  white-space: nowrap; /* 防止按鈕內文字換行 */
+}
+
+.category-select {
+  margin-bottom: -20px !important; /* 減少底部間距 */
+}
+
+/* 錯誤訊息 */
+.error-message {
+  color: rgb(216, 64, 64);
+  font-size: 14px;
+  margin-top: 4px;
+  font-size: 14px;
+}
+
 </style>
