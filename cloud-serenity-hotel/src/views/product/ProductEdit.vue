@@ -54,31 +54,43 @@ const CoverFile = ref(null);
 //   }
 // };
 
+// 顯示此商品的資料
 const getOneProduct = async () => {
   const GETONE_URL = `${BASE_URL}Product/select/${productId}`;
 
   try {
-    // 獲取商品主要資訊（包含分類）
+    // 獲取商品主要資訊（包含分類、圖片）
     const response = await fetch(GETONE_URL);
     const data = await response.json();
-    product.value = { ...data[0] };
+    product.value = data[0]
+    // product.value = { ...data[0] };
 
-    // 如果 data[0] 內包含 categories，就直接使用
-    // if (product.value.categories) {
-    //   selectedCategories.value = [...product.value.categories];
-    // }
+
+    // 顯示封面圖片 (找到 isPrimary: true 的圖片)
+    const primaryImage = product.value.OneToManyProductImages.find(img => img.isPrimary);
+    if (primaryImage) {
+      CoverImagePreview.value = `${BASE_URL}${primaryImage.imageUrl}`;
+    }
+
+    // 顯示其他商品圖片 (排除 isPrimary: true 的圖片)
+    if (product.value.OneToManyProductImages.length > 0) {
+      imagePreview.value = product.value.OneToManyProductImages
+        .filter(img => !img.isPrimary)
+        .map(img => `${BASE_URL}${img.imageUrl}`);
+    }
 
     // 將 categories 轉換為名稱陣列
     if (product.value.ManyToManyCategories) {
+      // 讓 v-select 可以選  因為v-select只能用[]，例如["測試", "熱門"]，不能用{}
       product.value.categories = product.value.ManyToManyCategories.map(cat => cat.categoriesName);
-      selectedCategories.value = [...product.value.categories]; // 讓 v-select 可以選  因為v-select只能用[]，不能用{}
+      // vue無法偵測陣列的變化(?，所以要展開，才能有響應式
+      selectedCategories.value = [...product.value.categories]; 
     }
 
   } catch (error) {
     console.error("獲取商品資料失敗:", error);
   }
 };
-
 
 getOneProduct()
 
@@ -103,10 +115,6 @@ const removeCategory = (index) => {
 // 單張圖片
 // 上傳圖片與顯示圖片
 const CoverPreviewImages = (event) => {
-  
-  if (product.productImages) {
-    CoverImagePreview.value  = product.value.productImages
-  }
 
   const file = event.target.files[0];
   if (!file) return;//如果使用者點選圖片又取消，取得undefined就跳過
@@ -217,12 +225,12 @@ const validateForm = () => {
 
 
 // 商品新增
-const productAdd = async () => {
+const productUpdate = async () => {
   if (!validateForm()) {
     return; // 如果驗證沒通過，就不繼續執行
   }
 
-  const ADD_URL = `${BASE_URL}Product/insertProductWithImagesAndCategories`;
+  const ADD_URL = `${BASE_URL}Product/update/productWithImagesAndCategories`;
   const formData = new FormData();
 
   // 構造完整的 categories 結構
@@ -247,7 +255,7 @@ const productAdd = async () => {
   }
   
   const response = await fetch(ADD_URL, {
-    method: "POST",
+    method: "PUT",
     body: formData,
   });
 
@@ -383,7 +391,7 @@ const productAdd = async () => {
       <div class="row mb-3 justify-content-center">
         <div v-if="Array.isArray(product.categories)" class="col-lg-8">
           <div v-for="(category, index) in product.categories" :key="index" class="d-flex align-items-center gap-2 mb-2" >
-            <!-- v-if="!product.categories[index]" 因為會不小心把是用來新增分類的欄位  當作放此商品的分類名稱 所以用這個做假空值判斷 -->
+            <!-- v-if="!product.categories[index]" 因為會不小心把是用來新增分類的欄位  當作放此商品的分類名稱而上去 所以用這個做假空值判斷 -->
             <input type="text"class="form-control" v-model="product.categories[index]"placeholder="請輸入分類名稱" v-if="!product.categories[index]" />
             <v-btn color="primary"  elevation="0"  @click="insertCategory" v-if="!product.categories[index]">確認</v-btn>
             <v-btn color="red"  elevation="0"  @click="removeCategory(index)" v-if="!product.categories[index]">刪除</v-btn>
@@ -501,7 +509,7 @@ const productAdd = async () => {
         </v-btn>
       </RouterLink>
       <div>
-        <v-btn color="primary"  elevation="0" @click.prevent="productAdd">
+        <v-btn color="primary"  elevation="0" @click.prevent="productUpdate">
           確認
         </v-btn>
       </div>
