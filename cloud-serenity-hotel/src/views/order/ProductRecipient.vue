@@ -1,9 +1,9 @@
 <script setup>
 import { ref } from 'vue';
 import { useCartStore } from "@/stores/cartStore"; // 引入 Pinia store
-import axios from "axios"; // 引入 axios 用於 API 請求
 import { useAuthStore } from "@/stores/authStore"; // 引入 Pinia store
 import { useRouter } from 'vue-router'; // 引入 Vue Router
+import axios from "axios"; // 引入 axios 用於 API 請求
 
 const authStore = useAuthStore(); // 使用 Pinia Store
 const cartStore = useCartStore(); // 使用 Pinia store 來存取選中的商品
@@ -26,7 +26,8 @@ const recipient = ref({
     address: '',
     phone: '',
     email: '',
-    paymentMethod: ''
+    paymentMethod: '',
+    userid: userId // 將當前用戶的 userId 填入 recipient
 });
 
 // 填寫會員資料功能
@@ -35,7 +36,7 @@ const fillMemberData = () => {
         axios.get(`/api/Cart/memberInfo`, { params: { userId } })
             .then(response => {
                 recipient.value = {
-                    name: response.data.userName || '',
+                    name: response.data.userName || '', // 使用會員的 userName 來填充姓名
                     phone: response.data.phone || '',
                     email: response.data.email || '',
                     address: response.data.address || '',

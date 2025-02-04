@@ -1,13 +1,19 @@
 <script setup>
 import { ref, computed } from 'vue';
 import { useCartStore } from "@/stores/cartStore";  // 引入 Pinia store
+import { useAuthStore } from "@/stores/authStore"; // 引入 Pinia store
 import { useRouter } from 'vue-router'; // 引入 Vue Router
+import axios from 'axios'; // 引入 axios
+import Swal from "sweetalert2";
 
 const BASE_URL = import.meta.env.VITE_BACKEND_SERVER_URL;
 const router = useRouter(); // 使用 Vue Router
 
 // 使用 Pinia store
 const cartStore = useCartStore();
+
+// ===== 使用 authStore =====
+const authStore = useAuthStore(); // 取得 authStore 的實例
 
 // 直接訪問 Pinia store 中的 orderItems 和 recipient
 const orderItems = ref(cartStore.selectedItems);  // 獲取選中的商品
@@ -30,8 +36,64 @@ const goBackToRecipient = () => {
 
 // 提交訂單
 const submitOrder = () => {
-    console.log('提交的訂單資料:', { orderItems: orderItems.value, recipient: recipient.value });
-    // 你可以在這裡執行提交訂單的 API 調用或跳轉到另一個頁面
+    const userId = authStore.user?.userId;  // 使用正確的大小寫，獲取當前登入的 userId
+
+    if (!userId) {
+        alert("請先登入！");
+        return;
+    }
+
+    const orderData = {
+        recipient: {
+            receiveName: recipient.value.name,  // 傳送 receive_name 給後端
+            phone: recipient.value.phone,
+            email: recipient.value.email,
+            address: recipient.value.address,
+            paymentMethod: recipient.value.paymentMethod,
+            userid: userId  // 加入 userId
+        },
+        orderItems: orderItems.value
+    };
+
+    console.log('提交的訂單資料:', orderData); // 確保資料傳送正確
+
+    axios.post(`/api/Order/CartToOrder`, orderData)
+        .then(response => {
+            if (response.status === 200 || response.status === 201) { // 如果有做成工業面畫面可以倒過去或許不會有200、201
+                console.log('訂單提交成功:', response.data);
+
+                // 使用 SweetAlert 顯示成功訊息
+                Swal.fire({
+                    title: '新增訂單成功!',
+                    text: '詳情請看會員中心的訂單資料。',
+                    icon: 'success',
+                    confirmButtonColor: "#6a0dad",
+                    confirmButtonText: "OK",
+                    allowOutsideClick: false, // 禁止點擊外部關閉
+                    customClass: {
+                        confirmButton: "btn text-white me-2",
+                    },
+                }).then(() => {
+                    // 更新購物車中所有已結帳商品的狀態，設為 4 (已結帳)
+                    cartStore.selectedItems.forEach(item => {
+                        item.status = 4;  // 假設狀態 4 代表已結帳
+                    });
+
+                    // 從購物車中刪除所有已結帳的商品
+                    cartStore.setSelectedItems([]);
+
+                    // 跳轉到訂單成功頁面
+                    router.push({ name: 'orderSuccess', params: { orderId: response.data.orderId } });
+                });
+            } else {
+                console.error('訂單提交失敗：狀態碼不正確', response.status);
+                alert('訂單提交失敗，請稍後再試');
+            }
+        })
+        .catch(error => {
+            console.error('訂單提交失敗:', error);
+            alert('訂單提交失敗，請稍後再試');
+        });
 };
 </script>
 
