@@ -137,8 +137,8 @@ function logout() {
           </button>
           <div class="collapse" id="attraction-collapse">
             <ul class="btn-toggle-nav list-unstyled fw-normal pb-1 small">
-              <li><a href="#" class="link-dark rounded">查詢所有景點</a></li>
-              <li><a href="#" class="link-dark rounded">查詢所有圖片</a></li>
+              <li><a href="http://localhost:8080/CloudSerenityHotel/static/attraction/GetAllAttractions.html" class="link-dark rounded">查詢所有景點</a></li>
+              <li><a href="#" class="link-dark rounded">上傳圖片</a></li>
               <li><a href="#" class="link-dark rounded">景點1</a></li>
               <li><a href="#" class="link-dark rounded">景點2</a></li>
             </ul>

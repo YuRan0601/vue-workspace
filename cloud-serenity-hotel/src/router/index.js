@@ -58,6 +58,8 @@ import ShilinResidence from "@/components/Attraction/ShilinResidence.vue";
 import IndigenousCulturePark from "@/components/Attraction/IndigenousCulturePark.vue";
 import MiramarFerrisWheel from "@/components/Attraction/MiramarFerrisWheel.vue";
 import BihuPark from "@/components/Attraction/BihuPark.vue";
+import TravelerComponent from "@/components/Attraction/TravelerComponent.vue";
+import about from "@/components/Attraction/about.vue";
 import BookingOrderPaySuccessVue from "@/views/booking/BookingOrderPaySuccess.vue";
 import BookingOrderPayFailVue from "@/views/booking/BookingOrderPayFail.vue";
 import Headerbar from "@/layouts/product/Headerbar.vue";
@@ -242,6 +244,9 @@ const router = createRouter({
         },
         { path: "/attraction/美麗華摩天輪", component: MiramarFerrisWheel },
         { path: "/attraction/內湖碧湖公園", component: BihuPark },
+        { path: "/attraction/TravelerComponent", component: TravelerComponent },
+        { path: "/attraction/about", component: about },
+
 
         //-------------
 
