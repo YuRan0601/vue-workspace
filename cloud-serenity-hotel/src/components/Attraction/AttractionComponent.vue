@@ -1,7 +1,8 @@
 <template>
     <div id="page">
         <!-- 頁面載入動畫 -->
-        <header id="gtco-header" class="gtco-cover gtco-cover-sm" role="banner">
+        <header id="gtco-header" class="gtco-cover gtco-cover-sm" role="banner" style="background-image: url('/Attraction/images/Background1.jpeg'); 
+        background-size: cover; background-position: center;">
             <div class="overlay"></div>
             <div class="gtco-container">
                 <h1>雲澄 CloudSerenity Hotel</h1>
@@ -58,6 +59,18 @@
             </div>
         </footer>
     </div>
+  
+      <section class="gtco-cover gtco-cover-sm" :style="backgroundStyle" data-stellar-background-ratio="0.5">
+        <div class="overlay"></div>
+        <div class="gtco-container text-center">
+          <div class="display-t">
+            <div class="display-tc">
+              <h1>從雲澄旅館出發<br>探索士林的美景與文化！</h1>
+            </div>
+          </div>
+        </div>
+      </section>
+  
 </template>
 
 
@@ -76,7 +89,7 @@ export default {
                 {
                     title: "雙溪公園",
                     description: "雙溪之美，士林的綠色心臟。",
-                    image: "/images/雙溪公園.jpg",
+                    image: "/Attraction/images/雙溪公園.jpg",
                 },
                 {
                     title: "士林科教館",
@@ -114,6 +127,7 @@ export default {
                     image: "/Attraction/images/碧湖公園.jpg",
                 },
             ],
+            
         };
     },
     computed: {
@@ -159,6 +173,7 @@ export default {
         },
     }
 };
+
 </script>
 
 <style scoped>
