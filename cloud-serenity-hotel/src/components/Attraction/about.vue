@@ -41,7 +41,7 @@
 							<h3><a href="#">Modeling &amp; Stylist in USA</a></h3>
 							<span class="category">Lifestyle</span>
 						</div>
-						<a href="#"><img class="img-responsive" src="/Attraction/images/blog-2.jpg" alt=""></a>
+						<!-- <a href="#"><img class="img-responsive" src="/Attraction/images/blog-2.jpg" alt=""></a> -->
 						<div class="blog-text text-center">
 							<p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
 						</div> 
@@ -54,7 +54,7 @@
 							<h3><a href="#">Modeling &amp; Stylist in USA</a></h3>
 							<span class="category">Lifestyle</span>
 						</div>
-						<a href="#"><img class="img-responsive" src="/Attraction/images/blog-1.jpg" alt=""></a>
+						<!-- <a href="#"><img class="img-responsive" src="/Attraction/images/blog-1.jpg" alt=""></a> -->
 						<div class="blog-text text-center">
 							<p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
 
@@ -68,7 +68,7 @@
 							<h3><a href="#">Modeling &amp; Stylist in USA</a></h3>
 							<span class="category">Lifestyle</span>
 						</div>
-						<a href="#"><img class="img-responsive" src="/Attraction/images/blog-2.jpg" alt=""></a>
+						<!-- <a href="#"><img class="img-responsive" src="/Attraction/images/blog-2.jpg" alt=""></a> -->
 						<div class="blog-text text-center">
 							<p>Far far away, behind the word mountains, far from the countries Vokalia and Consonantia, there live the blind texts.</p>
 
