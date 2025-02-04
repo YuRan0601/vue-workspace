@@ -8,6 +8,7 @@ export const useProductStore = defineStore('product', () => {
 
     const products = ref([])
     const categories = ref([])
+    const searchQuery = ref("")
     // const selectedCategory = ref(null) 
 
     // 顯示全部商品
@@ -32,6 +33,18 @@ export const useProductStore = defineStore('product', () => {
         products.value = await response.json()
     }
 
-    return { products, categories, loadProduct, loadCategories, filterByCategory }
+    const searchProducts = async () => {
+
+        if (!searchQuery.value.trim()) {
+            loadProduct(); // 如果搜尋框是空的，載入全部商品
+            return;
+        }
+        const response = await fetch(`${BASE_URL}/Product/search?name=${encodeURIComponent(searchQuery.value)}`);
+        products.value = await response.json();
+        console.log("搜尋中:", store.searchQuery);
+        console.log("搜尋結果：", JSON.stringify(store.filteredProducts, null, 2));
+    };
+
+    return { products, categories, loadProduct, loadCategories, filterByCategory, searchProducts, searchQuery, }
 
 })

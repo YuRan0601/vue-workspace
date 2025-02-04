@@ -72,12 +72,35 @@ function goToCart() {
       {{ category.categoriesName }}
     </button> -->
 
+
       <!-- 購物車 icon -->
+       
       <div class="cart-icon-container">
+       <!-- 搜尋框 -->
+       <div class="search-bar">
+    <input
+      type="text"
+      v-model="store.searchQuery"
+      placeholder="輸入商品名稱..."
+      class="search-input"
+    />
+    <button class="search-button" @click="store.searchProducts">搜尋</button>
+  </div>
         <!-- <i class="fas fa-shopping-cart" @click="goToCart"></i> -->
         <!-- <i class="bi bi-bag" @click="goToCart"></i> -->
         <i class="bi bi-cart4" @click="goToCart"></i>
       </div>
+
+      <!-- <div class="products-container">
+    <div
+      v-for="product in store.products"
+      :key="product.productId"
+      class="product-card"
+    >
+      <div class="product-name">{{ product.productName }}</div>
+    </div>
+  </div> -->
+
     </div>
     <RouterView></RouterView>
   </div>
@@ -194,6 +217,7 @@ function goToCart() {
   align-items: center;
   padding: 0 16px;
   /* 左右預留一些空間 */
+  gap: 10px;
 }
 
 /* 如果是使用 FontAwesome icon 的話，可以再稍微調整大小、顏色 */
@@ -286,4 +310,20 @@ function goToCart() {
 .cart-icon-container i:hover {
   color: #555;
 }
+
+
+/* 搜尋框 */
+.search-bar {
+  display: flex;
+  align-items: center;
+}
+.search-input {
+  width: 250px; /* 設定搜尋框寬度 */
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+}
+
+
 </style>
