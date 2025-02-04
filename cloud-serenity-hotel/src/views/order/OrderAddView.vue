@@ -32,6 +32,7 @@ const loadProducts = async () => {
             id: product.productId, // 產品 ID
             name: product.productName, // 修正為 productName
             price: product.price, // 單價
+            specialPrice: product.specialPrice, // 商品特價
         }));
     } catch (error) {
         console.error("無法加載商品數據：", error);
@@ -50,29 +51,48 @@ const updatePrice = (index) => {
     updateSubtotal(index);
 };
 
+// 更新商品的小計計算邏輯
 const updateSubtotal = (index) => {
     const item = orderItems[index];
-    // 計算小計，並四捨五入到整數
-    item.subtotal = Math.round(item.price * item.quantity - item.discount);
-    updateTotalAmount();
+    const product = products.value.find(p => p.id === item.productId);
+
+    if (product && product.specialPrice) {
+        // 計算商品的折扣金額 (原價 - 特價)
+        item.discount = product.price - product.specialPrice;
+        // 計算商品的小計 (原價 - 折扣金額) * 數量
+        item.subtotal = Math.round((item.price - item.discount) * item.quantity);
+    } else {
+        item.discount = 0;
+        item.subtotal = Math.round(item.price * item.quantity);
+    }
+
+    updateTotalAmount(); // 更新總金額
 };
 
+// 更新總金額計算
 const updateTotalAmount = () => {
-    // 累加所有小計，並四捨五入到整數
+    // 計算訂單總金額（所有商品的原價 * 數量）
     order.totalAmount = Math.round(
-        orderItems.reduce((sum, item) => sum + item.subtotal, 0)
+        orderItems.reduce((sum, item) => sum + (item.price * item.quantity), 0)
     );
     updateDiscount();
 };
 
+// 更新折扣並計算最終金額
 const updateDiscount = () => {
-    // 計算折扣金額 (10點折抵1元)
-    order.discount = Math.floor(order.discountPoints / 10);
+    let totalDiscount = 0;
+    orderItems.forEach(item => {
+        totalDiscount += item.discount * item.quantity; // 計算所有商品的總折扣
+    });
+
+    // 加上點數折扣，假設10點折1元
+    order.discount = Math.floor(order.discountPoints / 10) + totalDiscount;
     updateFinalAmount();
 };
 
+// 更新最終金額計算
 const updateFinalAmount = () => {
-    // 確保最終金額為整數
+    // 最終金額 = 總金額 - 折扣金額
     order.finalAmount = Math.round(order.totalAmount - order.discount);
 };
 
@@ -401,7 +421,7 @@ const showErrorAlert = (title, text) => {
                             <input type="text" :value="item.price" readonly class="form-control" />
                         </td>
                         <td>
-                            <input type="number" v-model.number="item.discount" @input="updateSubtotal(index)"
+                            <input type="text" v-model.number="item.discount" @input="updateSubtotal(index)" readonly
                                 class="form-control" />
                         </td>
                         <td>{{ item.subtotal }}</td>

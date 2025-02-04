@@ -59,32 +59,19 @@ const submitOrder = () => {
 
     axios.post(`/api/Order/CartToOrder`, orderData)
         .then(response => {
-            if (response.status === 200 || response.status === 201) { // 如果有做成工業面畫面可以倒過去或許不會有200、201
+            if (response.status === 200 || response.status === 201) { // 如果訂單提交成功
                 console.log('訂單提交成功:', response.data);
 
-                // 使用 SweetAlert 顯示成功訊息
-                Swal.fire({
-                    title: '新增訂單成功!',
-                    text: '詳情請看會員中心的訂單資料。',
-                    icon: 'success',
-                    confirmButtonColor: "#6a0dad",
-                    confirmButtonText: "OK",
-                    allowOutsideClick: false, // 禁止點擊外部關閉
-                    customClass: {
-                        confirmButton: "btn text-white me-2",
-                    },
-                }).then(() => {
-                    // 更新購物車中所有已結帳商品的狀態，設為 4 (已結帳)
-                    cartStore.selectedItems.forEach(item => {
-                        item.status = 4;  // 假設狀態 4 代表已結帳
-                    });
-
-                    // 從購物車中刪除所有已結帳的商品
-                    cartStore.setSelectedItems([]);
-
-                    // 跳轉到訂單成功頁面
-                    router.push({ name: 'orderSuccess', params: { orderId: response.data.orderId } });
+                // 更新購物車中所有已結帳商品的狀態，設為 4 (已結帳)
+                cartStore.selectedItems.forEach(item => {
+                    item.status = 4;  // 假設狀態 4 代表已結帳
                 });
+
+                // 從購物車中刪除所有已結帳的商品
+                cartStore.setSelectedItems([]);
+
+                // 跳轉到訂單成功頁面
+                router.push({ name: 'cartToOrderSuccess' });
             } else {
                 console.error('訂單提交失敗：狀態碼不正確', response.status);
                 alert('訂單提交失敗，請稍後再試');

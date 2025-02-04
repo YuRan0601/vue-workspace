@@ -158,7 +158,7 @@ function debounce(func, delay) {
 }
 
 // ===== 防抖的單筆查詢 =====
-const debouncedValidateOrderId = debounce(validateOrderId, 200);
+const debouncedValidateOrderId = debounce(validateOrderId, 100);
 
 // ===== 初始化加載資料 =====
 onMounted(() => {

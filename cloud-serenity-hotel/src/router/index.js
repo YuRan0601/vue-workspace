@@ -72,6 +72,7 @@ import ProductEdit from "@/views/product/ProductEdit.vue";
 import CarRentalHistory from "@/views/rent/CarRentalHistory.vue";
 import CarReservationDetail from "@/views/rent/CarReservationDetail.vue";
 import ResetPassword from "@/views/user/ResetPassword.vue";
+import CartToOrderSuccess from "@/views/order/CartToOrderSuccess.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -275,6 +276,12 @@ const router = createRouter({
               path: "/front/product/checkout",
               name: "productCheckout",
               component: ProductCheckout,
+            },
+            //購物車成功轉成訂單畫面
+            {
+              path: "/front/product/cartToOrderSuccess",
+              name: "cartToOrderSuccess",
+              component: CartToOrderSuccess,
             }
           ],
         },
