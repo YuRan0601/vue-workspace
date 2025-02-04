@@ -4,7 +4,8 @@ import Swal from "sweetalert2";
 import "sweetalert2/dist/sweetalert2.min.css";
 import { onMounted, ref, defineProps } from "vue";
 
-import { useRoute } from "vue-router";
+import { useRouter } from "vue-router";
+const router = useRouter(); // 取得路由對象
 
 // 定義接收 `carModelId` 和 `bookingNumber` 的 props
 const props = defineProps({
@@ -89,7 +90,7 @@ onMounted(async () => {
       `http://localhost:8080/CloudSerenityHotel/CarModel/UserDetailByOrderId/${props.orderId}`
     );
     // 更新車型資料
-    carUser.value = orderResponse.data;
+    carUser.value = orderResponse.data.data;
     console.log("使用者資料已加載", carUser.value);
     form.value.personalIdNo = carUser.value.personalIdNo || "";
     form.value.userName = carUser.value.userName || "";
@@ -142,7 +143,7 @@ const handleSubmit = async () => {
     } else {
       console.log("成功:", response.data);
       alert("預約成功");
-      this.$router.push({ name: "CarRentalHome" });
+      router.push({ name: "CarRentalHome" });
     }
   } catch (error) {
     console.error("錯誤:", error);
@@ -362,16 +363,15 @@ const handleFileChange = (event) => {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* 陰影效果 */
   width: 100%; /* 讓表單容器佔滿 100% 寬度 */
   max-width: 700px; /* 設定最大寬度 */
-  margin-top: 500px;
 }
 
 .color-div {
   background-color: #ffffff; /* 背景顏色 */
-  height: 100vh; /* 讓容器的高度填滿視窗 */
+  /* height: 100%; 讓容器的高度填滿視窗 */
   display: flex; /* 啟用 Flexbox */
   justify-content: center; /* 水平居中 */
-  align-items: center; /* 垂直居中 */
   padding: 20px; /* 增加內邊距，避免內容太靠邊 */
+  align-items: flex-start; /* 垂直對齊到容器的上方 */
 }
 
 /* 設定表單欄位間距 */

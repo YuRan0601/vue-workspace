@@ -60,49 +60,154 @@ const getStatusClass = (status) => {
 
   return { statusText, statusClass }; // 返回轉換後的狀態顯示字串和對應的 CSS 類別
 };
+
+const reservedReservations = ref([]);
+const rentedReservations = ref([]);
+const routeName = ref("CarRentalHistory"); // 用來跟蹤當前顯示的是哪一個表格
+
+const handleClick = async (route) => {
+  routeName.value = route; // 根據選擇的路由切換顯示
+
+  try {
+    let response;
+    if (route === "CarRentalHistory") {
+      response = await axios.get(
+        "http://localhost:8080/CloudSerenityHotel/car-reservation/query-all/reserved"
+      );
+      reservedReservations.value = response.data.data;
+    } else if (route === "CarRentalHistoryRenthd") {
+      response = await axios.get(
+        "http://localhost:8080/CloudSerenityHotel/car-reservation/query-all/rented"
+      );
+      rentedReservations.value = response.data.data;
+    }
+
+    if (response && response.data.status === "SUCCESS") {
+      console.log("請求成功", response.data);
+    } else {
+      console.log("請求失敗", response.data);
+    }
+  } catch (error) {
+    console.error("請求錯誤", error);
+  }
+};
 </script>
 
 <template>
   <div>
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th scope="col">訂單編號</th>
-          <th scope="col">車輛編號</th>
-          <th scope="col">車輛狀態</th>
-          <th scope="col">開始時間</th>
-          <th scope="col">結束時間</th>
-          <th scope="col">操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="(reservation, index) in reser" :key="index">
-          <td>{{ reservation.id }}</td>
-          <td>{{ reservation.carId }}</td>
-          <td
-            class="text-center align-middle"
-            :class="getStatusClass(reservation.rentalStatus).statusClass"
+    <div>
+      <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="#">租車預約管理</a>
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarNavAltMarkup"
+            aria-controls="navbarNavAltMarkup"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
           >
-            {{ getStatusClass(reservation.rentalStatus).statusText }}
-          </td>
-          <!-- 使用 rentalStatus -->
-          <td>{{ formatDate(reservation.rentalStart) }}</td>
-          <!-- 格式化時間 -->
-          <td>{{ formatDate(reservation.rentalEnd) }}</td>
-          <!-- 格式化時間 -->
-          <td class="text-center align-middle">
-            <RouterLink
-              :to="{
-                name: 'CarReservationDetail',
-                params: { id: reservation.id },
-              }"
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="btn-group mb-4" role="group" aria-label="Rental Status">
+            <button
+              class="btn btn-primary"
+              @click="handleClick('CarRentalHistory')"
             >
-              <label class="btn btn-outline-secondary">查看</label>
-            </RouterLink>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+              預約中
+            </button>
+            <button
+              class="btn btn-secondary"
+              @click="handleClick('CarRentalHistoryRenthd')"
+            >
+              租借中
+            </button>
+          </div>
+        </div>
+      </nav>
+    </div>
+    <!-- 按鈕選擇區 -->
+
+    <!-- 預約中訂單的表格 -->
+    <div v-if="routeName === 'CarRentalHistory'">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">訂單編號</th>
+            <th scope="col">車輛編號</th>
+            <th scope="col">車輛狀態</th>
+            <th scope="col">開始時間</th>
+            <th scope="col">結束時間</th>
+            <th scope="col">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(reservation, index) in reservedReservations" :key="index">
+            <td>{{ reservation.id }}</td>
+            <td>{{ reservation.carId }}</td>
+            <td
+              class="text-center align-middle"
+              :class="getStatusClass(reservation.rentalStatus).statusClass"
+            >
+              {{ getStatusClass(reservation.rentalStatus).statusText }}
+            </td>
+            <td>{{ formatDate(reservation.rentalStart) }}</td>
+            <td>{{ formatDate(reservation.rentalEnd) }}</td>
+            <td class="text-center align-middle">
+              <RouterLink
+                :to="{
+                  name: 'CarReservationDetail',
+                  params: { id: reservation.id },
+                }"
+              >
+                <label class="btn btn-outline-secondary">查看</label>
+              </RouterLink>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 租借中訂單的表格 -->
+    <div v-if="routeName === 'CarRentalHistoryRenthd'">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">訂單編號</th>
+            <th scope="col">車輛編號</th>
+            <th scope="col">車輛狀態</th>
+            <th scope="col">開始時間</th>
+            <th scope="col">結束時間</th>
+            <th scope="col">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(reservation, index) in rentedReservations" :key="index">
+            <td>{{ reservation.id }}</td>
+            <td>{{ reservation.carId }}</td>
+            <td
+              class="text-center align-middle"
+              :class="getStatusClass(reservation.rentalStatus).statusClass"
+            >
+              {{ getStatusClass(reservation.rentalStatus).statusText }}
+            </td>
+            <td>{{ formatDate(reservation.rentalStart) }}</td>
+            <td>{{ formatDate(reservation.rentalEnd) }}</td>
+            <td class="text-center align-middle">
+              <RouterLink
+                :to="{
+                  name: 'CarReservationDetail',
+                  params: { id: reservation.id },
+                }"
+              >
+                <label class="btn btn-outline-secondary">查看</label>
+              </RouterLink>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 

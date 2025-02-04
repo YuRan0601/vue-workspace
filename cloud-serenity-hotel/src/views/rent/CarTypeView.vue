@@ -88,7 +88,7 @@ const getImageSrc = (carId) => {
           <td class="text-center align-middle">{{ car.engineDisplacement }}</td>
           <td class="text-center align-middle">{{ car.seatingCapacity }}</td>
           <td class="text-center align-middle">{{ car.carType }}</td>
-          <td class="text-center align-middle">{{ car.availableCount }}</td>
+          <td class="text-center align-middle">{{ car.totalVehicles }}</td>
           <td class="text-center align-middle">
             <RouterLink
               :to="{ name: 'carInfo', params: { id: car.carModelId } }"

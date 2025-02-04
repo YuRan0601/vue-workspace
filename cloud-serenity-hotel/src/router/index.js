@@ -76,6 +76,7 @@ import CarReservationDetail from "@/views/rent/CarReservationDetail.vue";
 import ForgotPassword from "@/views/user/ForgotPassword.vue";
 import ResetPassword from "@/views/user/ResetPassword.vue";
 import CartToOrderSuccess from "@/views/order/CartToOrderSuccess.vue";
+import CarOrderMember from "@/views/rent/CarOrderMember.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -203,6 +204,11 @@ const router = createRouter({
               component: bookingOrderMemberViewVue,
             },
             {
+              path: "/front/member/carOrderMember",
+              name: "CarOrderMember",
+              component: CarOrderMember,
+            },
+            {
               path: "/front/member/Order",
               name: "memberOrder",
               component: MemberOrder,
@@ -305,7 +311,7 @@ const router = createRouter({
 
         //---租車前台---
         {
-          path: "/front/CarRentalHome",
+          path: "/rent/CarRentalHome",
           name: "CarRentalHome",
           component: CarRentalHome,
           children: [
