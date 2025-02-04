@@ -123,7 +123,8 @@ const updateQuantity = async (cartItemId, quantity) => {
     const index = cartItems.value.findIndex(item => item.cartItemId === cartItemId);
     if (index !== -1) {
         cartItems.value[index].quantity = quantity;
-        cartItems.value[index].subtotal = quantity * cartItems.value[index].unitPrice;
+        // 修改為 (單價 - 折扣) * 數量 的邏輯
+        cartItems.value[index].subtotal = (cartItems.value[index].unitPrice - cartItems.value[index].discount) * quantity;
 
         try {
             // 記錄更新商品的請求

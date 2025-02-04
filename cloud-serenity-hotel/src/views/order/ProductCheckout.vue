@@ -60,6 +60,7 @@ const submitOrder = () => {
     axios.post(`/api/Order/CartToOrder`, orderData)
         .then(response => {
             if (response.status === 200 || response.status === 201) { // 如果訂單提交成功
+                const finalAmount = response.data.finalAmount; // 獲取最終金額
                 console.log('訂單提交成功:', response.data);
 
                 // 更新購物車中所有已結帳商品的狀態，設為 4 (已結帳)
@@ -71,7 +72,10 @@ const submitOrder = () => {
                 cartStore.setSelectedItems([]);
 
                 // 跳轉到訂單成功頁面
-                router.push({ name: 'cartToOrderSuccess' });
+                router.push({
+                    name: 'cartToOrderSuccess',
+                    query: { finalAmount: finalAmount }  // 將最終金額傳遞
+                });
             } else {
                 console.error('訂單提交失敗：狀態碼不正確', response.status);
                 alert('訂單提交失敗，請稍後再試');
