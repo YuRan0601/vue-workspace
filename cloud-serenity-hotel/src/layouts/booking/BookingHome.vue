@@ -17,31 +17,6 @@
         </div>
       </section>
     </div>
-    <div>
-      <nav class="navbar navbar-expand-lg bg-body-tertiary">
-        <div class="container-fluid">
-          <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#bookingHomeNavbar"
-            aria-controls="bookingHomeNavbar"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span class="navbar-toggler-icon"></span>
-          </button>
-          <div class="collapse navbar-collapse" id="bookingHomeNavbar">
-            <div class="navbar-nav">
-              <RouterLink class="nav-link" :to="{ name: 'bookingSearch' }"
-                >訂房</RouterLink
-              >
-              <!-- <RouterLink class="nav-link" :to="{ name: 'back' }">後台</RouterLink> -->
-            </div>
-          </div>
-        </div>
-      </nav>
-    </div>
 
     <div class="container bg-white">
       <RouterView></RouterView>

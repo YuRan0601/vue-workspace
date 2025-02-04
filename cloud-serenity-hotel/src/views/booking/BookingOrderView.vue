@@ -11,6 +11,15 @@ const bookingOrderStore = useBookingOrderStore();
 const router = useRouter();
 const paymentMethod = ["入住時付款", "信用卡"];
 
+const form = ref(null);
+const isValid = ref(false);
+
+const rules = {
+  required: (value) => !!value || "此欄位為必填",
+  number: (value) => /^\d+$/.test(value) || "必須是數字",
+  positive: (value) => value > 0 || "數字必須大於 0",
+};
+
 const bookingOrder = ref({
   user: {
     userId: null,
@@ -35,12 +44,25 @@ onMounted(() => {
   order.totalPrice = bookingOrderStore.totalPrice;
 });
 
-function insertOrder() {
+async function insertOrder() {
   userStore.checkMember();
 
   if (!userStore.user) {
     return;
   }
+
+  const { valid } = await form.value.validate();
+
+  if (!valid) {
+    await Swal.fire({
+      title: "請確定輸入的內容符合規則!",
+      icon: "error",
+      confirmButtonText: "確定",
+    });
+
+    return;
+  }
+
 
   Swal.fire({
     title: "確定要提交訂單?",
@@ -152,7 +174,7 @@ function insertOrder() {
           v-model="bookingOrder.paymentMethod"
           label="付款方式"
           :items="paymentMethod"
-          required
+          :rules="[rules.required]"
         >
         </v-select>
 

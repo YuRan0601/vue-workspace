@@ -62,7 +62,11 @@ function onSelectCheckInDate() {
 
 async function searchRoomTypeByDate() {
   if (selectedCheckInDate.value == null || selectedCheckOutDate.value == null) {
-    alert("請選擇日期!");
+    Swal.fire({
+      title: "請選擇日期!",
+      icon: "error",
+      confirmButtonText: "確定",
+    });
     return;
   }
 
@@ -143,7 +147,8 @@ function bookingRoomTypeConfirm(item) {
 
     <hr />
 
-    <v-container v-if="searchRoomTypes">
+
+    <v-container v-if="searchRoomTypes.length > 0">
       <v-row>
         <!-- 遍历 list 生成 v-card -->
         <v-col
@@ -187,6 +192,8 @@ function bookingRoomTypeConfirm(item) {
       </v-row>
     </v-container>
 
+    <div style="width: 100%; height: 50vh; display: flex; align-items: center; justify-content: center;" v-else><div><h1>請選擇日期並點擊查詢</h1></div></div>
+
     <div class="pa-4 text-center">
       <v-dialog v-model="roomTypeDialog" max-width="600">
         <v-card>
@@ -223,7 +230,7 @@ function bookingRoomTypeConfirm(item) {
               <v-col cols="12">
                 <label class="roomLabel">房間描述：</label>
                 <br />
-                <pre>{{ roomTypeDetail.typeDesc }}</pre>
+                <pre style="white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;">{{ roomTypeDetail.typeDesc }}</pre>
               </v-col>
 
               <v-col cols="12">
@@ -249,13 +256,6 @@ function bookingRoomTypeConfirm(item) {
               variant="plain"
               @click="roomTypeDialog = false"
             ></v-btn>
-
-            <v-btn
-              color="primary"
-              text="訂房"
-              variant="tonal"
-              @click="bookingRoomTypeConfirm"
-            ></v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -265,7 +265,7 @@ function bookingRoomTypeConfirm(item) {
 
 <style lang="css" scoped>
 .container {
-  height: 100vh;
+  height: 200vh;
 }
 
 .roomLabel {

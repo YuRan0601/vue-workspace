@@ -4,7 +4,7 @@ const useStores = useAuthStore()
 
 function logout() {
     useStores.logout()
-    window.location.href = '/front'
+    window.location.href = '/'
 }
 </script>
 

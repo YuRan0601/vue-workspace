@@ -6,6 +6,45 @@ import { onMounted, ref, watchEffect } from "vue";
 
 const search = ref("");
 
+const insertForm = ref(null);
+const isValidInsert = ref(false);
+const updateForm = ref(null);
+const isValidUpdate = ref(false);
+
+const rules = {
+  required: (value) => !!value || "此欄位為必填",
+  number: (value) => /^\d+$/.test(value) || "必須是數字",
+  positive: (value) => value > 0 || "數字必須大於 0",
+};
+
+function checkInsertRoom(value) {
+  if (!value) return "房名為必填";
+
+  for (let i = 0; i < roomTable.value.length; i++) {
+    if (value === roomTable.value[i].roomName) {
+      return "房名已存在";
+    }
+  }
+
+  return true;
+}
+
+function checkUpdateRoom(value) {
+  if (!value) return "房型名稱為必填";
+
+  for (let i = 0; i < roomTable.value.length; i++) {
+    if (updateRoom.value.roomId === roomTable.value[i].roomId) {
+      continue;
+    }
+
+    if (value === roomTable.value[i].roomName) {
+      return "房型名稱已存在";
+    }
+  }
+
+  return true;
+}
+
 function resetInsert() {
   insertRoom.value.roomType.typeId = null;
   insertRoom.value.roomId = null;
@@ -68,6 +107,17 @@ const insertRoom = ref({
 
 async function insertRoomHandler() {
   console.log(insertRoom.value);
+
+  const { valid } = await insertForm.value.validate();
+
+  if (!valid) {
+    Swal.fire({
+      title: "請確定輸入的內容符合規則!",
+      icon: "error",
+      confirmButtonText: "確定",
+    });
+    return;
+  }
 
   Swal.fire({
     title: "確定要新增此房間?",
@@ -166,7 +216,20 @@ function editItem(item) {
   updateRoom.value.status = item.status;
 }
 
-function updateRoomHandler() {
+async function updateRoomHandler() {
+  const { valid } = await updateForm.value.validate();
+
+  if (!valid) {
+    await Swal.fire({
+      title: "請確定輸入的內容符合規則!",
+      icon: "error",
+      confirmButtonText: "確定",
+    });
+
+    return;
+  }
+
+
   Swal.fire({
     title: `確定要修改 ${updateRoom.value.roomName} 房間?`,
     icon: "warning",
@@ -209,6 +272,13 @@ function updateRoomHandler() {
   });
 }
 
+function quickInsert() {
+  insertRoom.value.roomType.typeId = 7;
+  insertRoom.value.roomName = "lt202";
+  insertRoom.value.status = "available";
+  insertRoom.value.roomDescription = "2樓";
+}
+
 watchEffect(() => {
   if (!insertDialog.value) {
     resetInsert();
@@ -232,6 +302,7 @@ watchEffect(() => {
 
         <v-card prepend-icon="mdi-account" title="新增房間">
           <v-card-text>
+            <v-form ref="insertForm" v-model="isValidInsert">
             <v-row dense>
               <v-col cols="12">
                 <v-select
@@ -240,6 +311,7 @@ watchEffect(() => {
                   :items="roomTypeTable"
                   item-title="typeName"
                   item-value="typeId"
+                  :rules="[rules.required]"
                 >
                 </v-select>
               </v-col>
@@ -248,7 +320,7 @@ watchEffect(() => {
                 <v-text-field
                   label="房間名稱*"
                   v-model="insertRoom.roomName"
-                  required
+                  :rules="[rules.required, checkInsertRoom]"
                 ></v-text-field>
               </v-col>
 
@@ -259,6 +331,7 @@ watchEffect(() => {
                   :items="roomStatus"
                   item-title="name"
                   item-value="value"
+                  :rules="[rules.required]"
                 >
                 </v-select>
               </v-col>
@@ -270,6 +343,7 @@ watchEffect(() => {
                 ></v-textarea>
               </v-col>
             </v-row>
+            </v-form>
           </v-card-text>
 
           <v-divider></v-divider>
@@ -278,14 +352,20 @@ watchEffect(() => {
             <v-spacer></v-spacer>
 
             <v-btn
-              text="Close"
+              text="關閉"
               variant="plain"
               @click="insertDialog = false"
             ></v-btn>
 
             <v-btn
+              text="一鍵代入"
+              variant="plain"
+              @click="quickInsert"
+            ></v-btn>
+
+            <v-btn
               color="primary"
-              text="Save"
+              text="確定新增"
               variant="tonal"
               @click="insertRoomHandler"
             ></v-btn>
@@ -299,6 +379,7 @@ watchEffect(() => {
       <v-dialog v-model="updateDialog" max-width="600">
         <v-card prepend-icon="mdi-account" title="修改房間">
           <v-card-text>
+            <v-form ref="updateForm" v-model="isValidUpdate">
             <v-row dense>
               <v-col cols="12">
                 <v-select
@@ -307,6 +388,7 @@ watchEffect(() => {
                   :items="roomTypeTable"
                   item-title="typeName"
                   item-value="typeId"
+                  :rules="[rules.required]"
                 >
                 </v-select>
               </v-col>
@@ -315,7 +397,7 @@ watchEffect(() => {
                 <v-text-field
                   label="房間名稱*"
                   v-model="updateRoom.roomName"
-                  required
+                  :rules="[rules.required, checkUpdateRoom]"
                 ></v-text-field>
               </v-col>
 
@@ -326,6 +408,7 @@ watchEffect(() => {
                   :items="roomStatus"
                   item-title="name"
                   item-value="value"
+                  :rules="[rules.required]"
                 >
                 </v-select>
               </v-col>
@@ -337,6 +420,7 @@ watchEffect(() => {
                 ></v-textarea>
               </v-col>
             </v-row>
+            </v-form>
           </v-card-text>
 
           <v-divider></v-divider>

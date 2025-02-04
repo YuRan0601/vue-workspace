@@ -703,7 +703,7 @@ watchEffect(() => {
       :items="roomTypeTable"
       :headers="headers"
       item-value="typeName"
-      class="roomTypeTable"
+      class="roomTypeTable custom-table"
       :search="search"
       show-expand
     >
@@ -756,11 +756,32 @@ th {
   background-color: #5df5e8;
 }
 
-.v-data-table thead {
-  background-color: #ff5722 !important;
+:deep(.v-data-table__th) {
+  background-color: #1976d2 ;
+  color: white;
+  border: 1px solid black;
 }
 
-.v-data-table-header {
-  background-color: #5df5e8 !important;
+:deep(.v-data-table__tr:nth-child(odd)) {
+  background-color: white ;
+  border: 1px solid black;
 }
+
+:deep(.v-data-table__tr td) {
+  border: 1px solid black;
+}
+
+:deep(.v-data-table__tr:nth-child(even)) {
+  background-color: rgb(231, 231, 231) ;
+  border: 1px solid black;
+}
+
+:deep(.v-data-table__tr:hover) {
+  background-color: rgb(229, 252, 166) ;
+}
+
+/* .custom-table .v-data-table__th {
+  background-color: #1976d2 !important;
+  color: white !important; 
+} */
 </style>

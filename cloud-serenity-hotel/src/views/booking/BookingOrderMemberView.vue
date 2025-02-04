@@ -117,6 +117,35 @@ async function orderPay(item) {
     if (res.isConfirmed) {
       const { data } = await axiosInstance.post("/booking/pay", payment.value);
 
+      console.log(data);
+      
+
+      if(data === 1) {
+        await Swal.fire({
+          title: "此訂單已付款!",
+          icon: "error",
+          confirmButtonText: "確定",
+        });
+
+        return;
+      } else if (data === 2) {
+        await Swal.fire({
+          title: "此訂單已取消!",
+          icon: "error",
+          confirmButtonText: "確定",
+        });
+
+        return;
+      } else if (data === 3) {
+        await Swal.fire({
+          title: "此訂單已完成退房!",
+          icon: "error",
+          confirmButtonText: "確定",
+        });
+
+        return;
+      }
+
       ecpayHtml.value = data;
 
       await nextTick();
@@ -183,7 +212,7 @@ onMounted(() => {
         </template>
       </v-data-table>
     </v-container>
-    <div ref="ecpayContainer" v-html="ecpayHtml"></div>
+    <div ref="ecpayContainer" v-html="ecpayHtml" style="display: none;"></div>
   </div>
 </template>
 
