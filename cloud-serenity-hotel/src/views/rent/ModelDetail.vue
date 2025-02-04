@@ -41,7 +41,7 @@ const showBookingDialog = () => {
           `http://localhost:8080/CloudSerenityHotel/CarModel/UserDetailByOrderId/${orderId}`
         );
 
-        if (response.data.bookingId) {
+        if (response.data.status == "SUCCESS") {
           const carId = carDetails.value.carId;
           // 訂單存在，跳轉到 RentalForm 頁面並傳遞訂房編號作為查詢參數
           router.push({
