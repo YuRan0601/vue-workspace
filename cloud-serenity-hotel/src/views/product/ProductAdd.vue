@@ -15,6 +15,16 @@ const product = ref({
   categories: []
 });
 
+const shortcutKey = () => {
+  product.value = {
+    productName: "星願禮盒",
+    price: "999",
+    specialPrice: "899",
+    description: "這是一個示範商品的描述。",
+    categories: ["新品", "禮盒"]
+  };
+};
+
 const categoryOptions = ref([]); // 來自資料庫的分類
 const selectedCategories = ref([]); // 存放使用者選擇的分類
 const files = ref([]); //存放檔案
@@ -198,7 +208,7 @@ const productAdd = async () => {
     console.error("新增失敗", await response.text());
     Swal.fire({
         title:"錯誤",
-        text:"刪除失敗，請稍後再試",
+        text:"新增失敗，請稍後再試",
         icon:"error",
         confirmButtonColor: "#3085d6",
     })
@@ -428,7 +438,10 @@ const productAdd = async () => {
           <i class="bi bi-arrow-left"></i> 返回
         </v-btn>
       </RouterLink>
-      <div>
+      <div class="d-flex gap-2">
+        <v-btn color="primary"  elevation="0" @click="shortcutKey">
+          一鍵新增
+        </v-btn>
         <v-btn color="primary"  elevation="0" @click.prevent="productAdd">
           確認
         </v-btn>
