@@ -51,6 +51,16 @@ const submitEditForm = () => {
         return;
     }
 
+    if (newPassword.value != checkNewPassword.value) {
+        Swal.fire({
+            title: '修改失敗',
+            text: '密碼不一致 請再檢查一次!',
+            icon: 'error'
+        });
+        return;
+    }
+
+
     memberData.value.password = newPassword.value
     console.log(memberData.value);
 

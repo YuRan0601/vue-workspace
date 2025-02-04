@@ -73,6 +73,7 @@ import ProductCheckout from "@/views/order/ProductCheckout.vue";
 import ProductEdit from "@/views/product/ProductEdit.vue";
 import CarRentalHistory from "@/views/rent/CarRentalHistory.vue";
 import CarReservationDetail from "@/views/rent/CarReservationDetail.vue";
+import ForgotPassword from "@/views/user/ForgotPassword.vue";
 import ResetPassword from "@/views/user/ResetPassword.vue";
 import CartToOrderSuccess from "@/views/order/CartToOrderSuccess.vue";
 
@@ -217,6 +218,11 @@ const router = createRouter({
           path: "/front/register",
           name: "register",
           component: Register,
+        },
+        {
+            path: "/front/forgotPassword",
+            name: "forgotPassword",
+            component: ForgotPassword,
         },
         {
           path: "/front/resetPassword",

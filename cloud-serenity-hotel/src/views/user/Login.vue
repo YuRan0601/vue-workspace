@@ -55,12 +55,16 @@ const checkHidden = computed(() => {
 
 //一鍵登入
 function adminKeyin() {
-    loginData.value.email = "CSH_AD@mail.com"
-    loginData.value.password = "aDmin@01"
+    loginData.value.email = "liyuang04@gmail.com"
+    loginData.value.password = "cloud_admin01"
 }
 function memberKeyin() {
-    loginData.value.email = "Linsansan@mail.com"
-    loginData.value.password = "Lin33#033"
+    loginData.value.email = "linxiaomei.cloud@gmail.com"
+    loginData.value.password = "cloud_cus01"
+}
+function member2Keyin() {
+    loginData.value.email = "linxiaomei.cloud@gmail.com"
+    loginData.value.password = "lin$5#mei"
 }
 
 const loginStatus = async () => {
@@ -107,6 +111,9 @@ const loginStatus = async () => {
                     <div class="col-2"><button @click.prevent="memberKeyin()"
                             class="btn btn-outline-dark bg-white text-dark"><v-icon>mdi-account</v-icon></button>
                     </div>
+                    <div class="col-2"><button @click.prevent="member2Keyin()"
+                            class="btn btn-outline-dark bg-white text-dark"><v-icon>mdi-account</v-icon></button>
+                    </div>
                 </div>
                 <p v-show="isError" class="pt-2" id="errorMessage">
                     <v-icon>mdi-alert</v-icon>
@@ -117,7 +124,7 @@ const loginStatus = async () => {
 
                 </p>
                 <p style='text-align: center; margin: 0;' class="mt-2 fs-5">
-                    <RouterLink :to="{ name: 'resetPassword' }">忘記密碼</RouterLink>
+                    <RouterLink :to="{ name: 'forgotPassword' }">忘記密碼</RouterLink>
                 </p>
             </form>
         </div>
