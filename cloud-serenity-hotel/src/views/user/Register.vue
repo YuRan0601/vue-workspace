@@ -68,10 +68,10 @@ function autoKeyin() {
     registerData.value.password = "J$6vul3au!6";
     registerData.value.member.gender = "Male";
     registerData.value.member.birthday = "1988-01-08";
-    registerData.value.member.phone = "0911123245";
-    registerData.value.member.personalIdNo = "A123456789";
+    registerData.value.member.phone = "0970753391";
+    registerData.value.member.personalIdNo = "P180750637";
     registerData.value.member.country = "TWN";
-    registerData.value.member.address = "";
+    registerData.value.member.address = "台中市沙鹿區中航路一段168號";
     registerData.value.member.passportNo = "";
 }
 

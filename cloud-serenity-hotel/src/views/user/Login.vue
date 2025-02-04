@@ -55,12 +55,12 @@ const checkHidden = computed(() => {
 
 //一鍵登入
 function adminKeyin() {
-    loginData.value.email = "CSH_AD@mail.com"
-    loginData.value.password = "aDmin@01"
+    loginData.value.email = "liyuang04@gmail.com"
+    loginData.value.password = "cloud_admin01"
 }
 function memberKeyin() {
-    loginData.value.email = "Linsansan@mail.com"
-    loginData.value.password = "Lin33#033"
+    loginData.value.email = "linxiaomei.cloud@gmail.com"
+    loginData.value.password = "cloud_cus01"
 }
 
 const loginStatus = async () => {
