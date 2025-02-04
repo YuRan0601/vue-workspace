@@ -198,7 +198,7 @@ const productAdd = async () => {
     console.error("新增失敗", await response.text());
     Swal.fire({
         title:"錯誤",
-        text:"刪除失敗，請稍後再試",
+        text:"新增失敗，請稍後再試",
         icon:"error",
         confirmButtonColor: "#3085d6",
     })

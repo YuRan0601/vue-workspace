@@ -27,8 +27,8 @@ const CoverFile = ref(null);
 
 
 // const getOneProduct = async () => {
-//   const GETONE_URL = `${BASE_URL}Product/select/${productId}`;
-//   const GETCAT_URL = `${BASE_URL}Product/getUpdate/categories/${productId}`;
+//   const GETONE_URL = ${BASE_URL}Product/select/${productId};
+//   const GETCAT_URL = ${BASE_URL}Product/getUpdate/categories/${productId};
 
 //   try {
 //     // 獲取商品主要資訊
@@ -56,7 +56,7 @@ const CoverFile = ref(null);
 
 // 顯示此商品的資料
 const getOneProduct = async () => {
-  const GETONE_URL = `${BASE_URL}Product/select/${productId}`;
+  const GETONE_URL = `${BASE_URL}Product/select/${productId};`
 
   try {
     // 獲取商品主要資訊（包含分類、圖片）
@@ -128,10 +128,73 @@ const CoverPreviewImages = (event) => {
 };
 
 // 移除指定圖片
-const CoverRemoveImage = () => {
+// const CoverRemoveImage = async () => {
+//    // 確認是否為已上傳的封面圖片
+//    if (CoverImagePreview.value && product.value.OneToManyProductImages) {
+//     const primaryImage = product.value.OneToManyProductImages.find(img => `${BASE_URL}${img.imageUrl}` === CoverImagePreview.value);
+
+//   if (primaryImage) {
+//     const DELETE_COVER_URL = `${BASE_URL}Product/delete/image/${primaryImage.imageId}`
+//     console.log(DELETE_COVER_URL);
+    
+
+//     try {
+
+//       const response = await fetch(DELETE_COVER_URL, {
+//       method: 'DELETE',
+//     });
+
+//     if (response.ok) {
+//       Swal.fire("成功", "封面圖片已刪除", "success");
+//       CoverImagePreview.value = null;
+//       CoverFile.value = null;
+//       product.value.OneToManyProductImages = product.value.OneToManyProductImages.filter(img => img.id !== primaryImage.imageId);
+//     }else{
+//       Swal.fire("錯誤", "封面圖片刪除失敗", "error");
+//     }
+
+//     } catch (error) {
+//       console.error("封面圖片刪除失敗:", error);
+//     }
+
+//     }
+//   }
+
+//   CoverImagePreview.value = null;
+//   CoverFile.value = null;
+// };
+const CoverRemoveImage = async () => {
+  if (CoverImagePreview.value && product.value.OneToManyProductImages) {
+    const primaryImage = product.value.OneToManyProductImages.find(img => `${BASE_URL}${img.imageUrl}` === CoverImagePreview.value);
+
+    if (primaryImage) {
+      const DELETE_COVER_URL = `${BASE_URL}Product/delete/image/${primaryImage.imageId}`;
+
+      try {
+        const response = await fetch(DELETE_COVER_URL, {
+          method: 'DELETE',
+        });
+
+        if (response.ok) {
+          Swal.fire("成功", "封面圖片已刪除", "success");
+          CoverImagePreview.value = null;
+          CoverFile.value = null;
+
+          // **確保從 `OneToManyProductImages` 移除這張圖片**
+          product.value.OneToManyProductImages = product.value.OneToManyProductImages.filter(img => img.imageId !== primaryImage.imageId);
+        } else {
+          Swal.fire("錯誤", "封面圖片刪除失敗", "error");
+        }
+      } catch (error) {
+        console.error("封面圖片刪除失敗:", error);
+      }
+    }
+  }
+
   CoverImagePreview.value = null;
   CoverFile.value = null;
-}
+};
+
 
 
 // 多張圖片
@@ -152,10 +215,66 @@ const previewImages = (event) => {
 };
 
 // 移除指定圖片
-const removeImage = (index) => {
-  imagePreview.value.splice(index,1);
-  files.value.splice(index,1);
-}
+// const removeImage = async (index, imageUrl) => {
+//   const otherImage = product.value.OneToManyProductImages.find(img => `${BASE_URL}${img.imageUrl}` === imageUrl);
+
+//   if (otherImage) {
+//     const DELETE_IMAGE_URL = `${BASE_URL}Product/delete/image/${otherImage.imageId}`
+
+//     try {
+
+//       const response = await fetch(DELETE_IMAGE_URL, {
+//        method: 'DELETE',
+//     });
+
+//     if (response.ok) {
+//       Swal.fire("成功", "圖片已刪除", "success");
+//       product.value.OneToManyProductImages = product.value.OneToManyProductImages.filter(img => img.id !== otherImage.imageId);
+//       imagePreview.value.splice(index,1);
+//       files.value.splice(index,1);
+//     } else {
+//       Swal.fire("錯誤", "圖片刪除失敗", "error");
+//     }
+
+//     } catch (error) {
+//       console.error("圖片刪除失敗:", error);
+//     }
+//   }else{
+//     imagePreview.value.splice(index,1);
+//     files.value.splice(index,1);
+//   }
+
+
+// }
+const removeImage = async (index, imageUrl) => {
+  const otherImage = product.value.OneToManyProductImages.find(img => `${BASE_URL}${img.imageUrl}` === imageUrl);
+
+  if (otherImage) {
+    const DELETE_IMAGE_URL = `${BASE_URL}Product/delete/image/${otherImage.imageId}`;
+
+    try {
+      const response = await fetch(DELETE_IMAGE_URL, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        Swal.fire("成功", "圖片已刪除", "success");
+
+        // **從 `OneToManyProductImages` 中移除該圖片**
+        product.value.OneToManyProductImages = product.value.OneToManyProductImages.filter(img => img.imageId !== otherImage.imageId);
+        imagePreview.value.splice(index, 1);
+        files.value.splice(index, 1);
+      } else {
+        Swal.fire("錯誤", "圖片刪除失敗", "error");
+      }
+    } catch (error) {
+      console.error("圖片刪除失敗:", error);
+    }
+  } else {
+    imagePreview.value.splice(index, 1);
+    files.value.splice(index, 1);
+  }
+};
 
 
 const insertCategory = async () => {
@@ -196,7 +315,7 @@ const validateForm = () => {
   let isValid = true; // 預設表單是有效的
 
   // 商品名稱
-  if (!product.value.productName.trim()) {
+  if (!String(product.value.productName).trim()) {
     errorMessages.value.productName = "請輸入商品名稱 !";
     isValid = false; // 如果商品名稱沒填寫，則設為 false
   } else {
@@ -222,30 +341,93 @@ const validateForm = () => {
   return isValid;
 };
 
+const formatDateForBackend = () => {
+  return new Date().toISOString();
+};
 
+// 商品修改
+// const productUpdate = async () => {
+//   if (!validateForm()) {
+//     return; // 如果驗證沒通過，就不繼續執行
+//   }
 
-// 商品新增
+//   product.value.updatedAt = formatDateForBackend();
+//   product.value.createdAt = formatDateForBackend();
+
+//   const UPDATE_URL = `${BASE_URL}Product/update/productWithImagesAndCategories/` + productId;
+//   console.log(UPDATE_URL);
+//   const formData = new FormData();
+
+//   // 構造完整的 categories 結構
+//   // const categories = product.value.categories.map((categoryName) => ({
+//   //   categoriesName: categoryName,
+//   // }));
+
+//   const categories = [
+//     ...selectedCategories.value.map(name => ({ categoriesName: name })), // 來自選擇的分類
+//     ...product.value.categories.filter(name => name.trim() !== "").map(name => ({ categoriesName: name })) // 來自手動輸入的分類
+//   ];
+
+//   const productData = {
+//     ...product.value,
+//     categories, // 使用結構化的分類
+//   };
+
+//   formData.append("product", new Blob([JSON.stringify(productData)], { type: "application/json" }));
+//   formData.append("imageCover", CoverFile.value);
+//   if (files.value.length > 0) {
+//     files.value.forEach((file) => formData.append("images", file));
+//   }
+  
+//   const response = await fetch(UPDATE_URL, {
+//     method: "PUT",
+//     body: formData,
+//   });
+
+//   if (response.ok) {
+//     Swal.fire({
+//         title: "修改成功",
+//         text:`${product.value.productName} 已修改 !`,
+//         icon: "success",
+//         confirmButtonColor: "#3085d6",
+//     })
+//     router.push({ name:'productAll' })
+//   } else {
+//     console.error("修改失敗", await response.text());
+//     Swal.fire({
+//         title:"錯誤",
+//         text:"修改失敗，請稍後再試",
+//         icon:"error",
+//         confirmButtonColor: "#3085d6",
+//     })
+//   }
+  
+  
+
+// };
 const productUpdate = async () => {
   if (!validateForm()) {
-    return; // 如果驗證沒通過，就不繼續執行
+    return;
   }
 
-  const ADD_URL = `${BASE_URL}Product/update/productWithImagesAndCategories`;
+  product.value.updatedAt = formatDateForBackend();
+  product.value.createdAt = formatDateForBackend();
+
+  // 過濾掉已刪除的圖片
+  product.value.OneToManyProductImages = product.value.OneToManyProductImages.filter(img => img.imageUrl);
+
+  const UPDATE_URL = `${BASE_URL}Product/update/productWithImagesAndCategories/` + productId;
+  console.log(UPDATE_URL);
   const formData = new FormData();
 
-  // 構造完整的 categories 結構
-  // const categories = product.value.categories.map((categoryName) => ({
-  //   categoriesName: categoryName,
-  // }));
-
   const categories = [
-    ...selectedCategories.value.map(name => ({ categoriesName: name })), // 來自選擇的分類
-    ...product.value.categories.filter(name => name.trim() !== "").map(name => ({ categoriesName: name })) // 來自手動輸入的分類
+    ...selectedCategories.value.map(name => ({ categoriesName: name })), 
+    ...product.value.categories.filter(name => name.trim() !== "").map(name => ({ categoriesName: name })) 
   ];
 
   const productData = {
     ...product.value,
-    categories, // 使用結構化的分類
+    categories, 
   };
 
   formData.append("product", new Blob([JSON.stringify(productData)], { type: "application/json" }));
@@ -253,33 +435,31 @@ const productUpdate = async () => {
   if (files.value.length > 0) {
     files.value.forEach((file) => formData.append("images", file));
   }
-  
-  const response = await fetch(ADD_URL, {
+
+  const response = await fetch(UPDATE_URL, {
     method: "PUT",
     body: formData,
   });
 
   if (response.ok) {
     Swal.fire({
-        title: "新增成功",
-        text:`${product.value.productName} 已新增 !`,
+        title: "修改成功",
+        text: `${product.value.productName} 已修改 !`,
         icon: "success",
         confirmButtonColor: "#3085d6",
-    })
-    router.push({ name:'productAll' })
+    });
+    router.push({ name:'productAll' });
   } else {
-    console.error("新增失敗", await response.text());
+    console.error("修改失敗", await response.text());
     Swal.fire({
         title:"錯誤",
-        text:"刪除失敗，請稍後再試",
+        text:"修改失敗，請稍後再試",
         icon:"error",
         confirmButtonColor: "#3085d6",
-    })
+    });
   }
-  
-  
-
 };
+
 
 </script>
 
@@ -287,7 +467,7 @@ const productUpdate = async () => {
   <!-- <h2 class="text-center mb-4 ">商品新增</h2> -->
 
   <div class="d-flex justify-content-center">
-  <h3 class="title-box">商品新增</h3>
+  <h3 class="title-box">商品修改</h3>
 </div>
 
   <div class="container mt-5">
@@ -470,7 +650,7 @@ const productUpdate = async () => {
             />
             <button 
             class="btn btn-danger btn-sm position-absolute top-0 end-0" 
-            @click="removeImage(index)"
+            @click="removeImage(index, src)"
             style="transform: translate(50%, -50%);"
           >
             ×
