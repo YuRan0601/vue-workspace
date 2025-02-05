@@ -58,12 +58,23 @@ import ShilinResidence from "@/components/Attraction/ShilinResidence.vue";
 import IndigenousCulturePark from "@/components/Attraction/IndigenousCulturePark.vue";
 import MiramarFerrisWheel from "@/components/Attraction/MiramarFerrisWheel.vue";
 import BihuPark from "@/components/Attraction/BihuPark.vue";
+import TravelerComponent from "@/components/Attraction/TravelerComponent.vue";
+import about from "@/components/Attraction/about.vue";
 import BookingOrderPaySuccessVue from "@/views/booking/BookingOrderPaySuccess.vue";
 import BookingOrderPayFailVue from "@/views/booking/BookingOrderPayFail.vue";
 import Headerbar from "@/layouts/product/Headerbar.vue";
 import indexVue from "@/views/common/index.vue";
 import BookingRoomTypeViewVue from "@/views/booking/BookingRoomTypeView.vue";
 import OneRoomTypeVue from "@/views/booking/OneRoomType.vue";
+import ProductCart from "@/views/order/ProductCart.vue";
+import ChartVue from "@/views/common/Chart.vue";
+import ProductRecipient from "@/views/order/ProductRecipient.vue";
+import ProductCheckout from "@/views/order/ProductCheckout.vue";
+import ProductEdit from "@/views/product/ProductEdit.vue";
+import CarRentalHistory from "@/views/rent/CarRentalHistory.vue";
+import CarReservationDetail from "@/views/rent/CarReservationDetail.vue";
+import ResetPassword from "@/views/user/ResetPassword.vue";
+
 
 const router = createRouter({
   history: createWebHistory(),
@@ -165,7 +176,7 @@ const router = createRouter({
               } else {
                 alert("管理員不能去會員中心!");
                 // useStores.logout();
-                next("/back");
+                next("/back/chart");
               }
             }
           },
@@ -207,6 +218,11 @@ const router = createRouter({
           name: "register",
           component: Register,
         },
+        {
+          path: "/front/resetPassword",
+          name: "resetPassword",
+          component: ResetPassword,
+        },
         //-------------
 
         //---景點前台---
@@ -229,6 +245,9 @@ const router = createRouter({
         },
         { path: "/attraction/美麗華摩天輪", component: MiramarFerrisWheel },
         { path: "/attraction/內湖碧湖公園", component: BihuPark },
+        { path: "/attraction/TravelerComponent", component: TravelerComponent },
+        { path: "/attraction/about", component: about },
+
 
         //-------------
 
@@ -248,6 +267,21 @@ const router = createRouter({
               name: "productDetail",
               component: ProductDetail,
             },
+            {
+              path: "/front/product/cart",
+              name: "productCart",
+              component: ProductCart,
+            },
+            {
+              path: "/front/product/recipient",
+              name: "productRecipient",
+              component: ProductRecipient,
+            },
+            {
+              path: "/front/product/checkout",
+              name: "productCheckout",
+              component: ProductCheckout,
+            }
           ],
         },
 
@@ -351,6 +385,13 @@ const router = createRouter({
         }
       },
       children: [
+        //---數據---
+        {
+          path: "/back/chart",
+          component: ChartVue,
+          name: "chart",
+        },
+        //----------
         //---訂房後台---
         {
           path: "/back/bookingBack",
@@ -393,6 +434,11 @@ const router = createRouter({
           path: "/productAdd",
           component: ProductAdd,
           name: "productAdd",
+        },
+        {
+          path: "/productEdit/:id",
+          component: ProductEdit,
+          name: "productEdit",
         },
         //-------------
 
@@ -469,6 +515,17 @@ const router = createRouter({
               props: true,
             },
           ],
+        },
+        {
+          path: "/rent/CarRentalHistory",
+          name: "CarRentalHistory",
+          component: CarRentalHistory,
+        },
+        {
+          path: "/rent/CarReservationDetail/:id",
+          name: "CarReservationDetail",
+          component: CarReservationDetail,
+          props: true,
         },
         //-------------
 
