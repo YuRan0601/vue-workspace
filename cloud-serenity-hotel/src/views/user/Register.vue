@@ -63,15 +63,15 @@ const submitRegister = () => {
 
 //一鍵帶入
 function autoKeyin() {
-    registerData.value.userName = "王小明";
-    registerData.value.email = "WangXiaoMing@mail.com";
-    registerData.value.password = "J$6vul3au!6";
-    registerData.value.member.gender = "Male";
-    registerData.value.member.birthday = "1988-01-08";
-    registerData.value.member.phone = "0970753391";
-    registerData.value.member.personalIdNo = "P180750637";
+    registerData.value.userName = "linxiaomei";
+    registerData.value.email = "linxiaomei.cloud@gmail.com";
+    registerData.value.password = "cloud#cus01";
+    registerData.value.member.gender = "Female";
+    registerData.value.member.birthday = "2000-01-01";
+    registerData.value.member.phone = "0917871233";
+    registerData.value.member.personalIdNo = "C278126936";
     registerData.value.member.country = "TWN";
-    registerData.value.member.address = "台中市沙鹿區中航路一段168號";
+    registerData.value.member.address = "台北市松山區敦化北路340-9號";
     registerData.value.member.passportNo = "";
 }
 
