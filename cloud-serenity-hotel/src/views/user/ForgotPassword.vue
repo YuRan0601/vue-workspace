@@ -5,10 +5,30 @@ import Swal from 'sweetalert2';
 
 const email = ref('');
 
-function submitForgotForm() {
-    //檢查Email
-    //如果有註冊則寄送信件 否則不寄信
-    //無論是否寄信都會顯示已寄出視窗 並跳轉到首頁
+async function submitForgotForm() {
+    if (!email.value) {
+        Swal.fire({
+            title: '發送失敗',
+            text: '請輸入 Email',
+            icon: 'error'
+        });
+        return;
+    }
+    await axios.post('/api/user/forgotPassword', { email: email.value })
+        .then(function (response) {
+            Swal.fire({
+                title: '發送成功',
+                text: '如果此信箱已註冊，我們將發送密碼重設郵件，請檢查您的收件匣。',
+                icon: 'success'
+            });
+        })
+        .catch(function (error) {
+            Swal.fire({
+                title: '發送失敗',
+                text: '請稍後再試！',
+                icon: 'error'
+            });
+        })
 }
 </script>
 

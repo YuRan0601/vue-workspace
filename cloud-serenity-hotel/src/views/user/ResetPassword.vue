@@ -27,7 +27,30 @@ async function submitRestForm() {
         return;
     }
 
-    // 如果此信箱已註冊，我們將發送密碼重設郵件，請檢查您的收件匣。
+    await axios.post('/api/user/resetPassword', {
+        token: token.value,
+        newPassword: newPassword.value
+    })
+        .then(function (response) {
+            Swal.fire({
+                title: '修改成功',
+                text: '密碼已修改！',
+                icon: 'success',
+                allowOutsideClick: false,
+                didClose: () => {
+                    // 跳轉到登入頁面
+                    window.location.href = '/login';
+                }
+            });
+        })
+        .catch(function (error) {
+            Swal.fire({
+                title: '修改失敗',
+                text: '無法重設密碼，請確認您的連結是否正確',
+                icon: 'error'
+            });
+        })
+
 }
 
 function passwordCheck() {
