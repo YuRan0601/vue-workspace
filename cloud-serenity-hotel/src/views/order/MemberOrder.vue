@@ -87,7 +87,7 @@ onMounted(() => {
                 <template #item.actions="{ item }">
                     <RouterLink :to="{ name: 'memberOrderDetail', params: { orderId: item.orderId } }"
                         class="btn btn-primary btn-sm">
-                        <i class="bi bi-eye"></i> 檢視詳情
+                        <i class="bi bi-eye"></i> 查看詳情
                     </RouterLink>
                 </template>
             </v-data-table>

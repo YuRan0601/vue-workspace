@@ -1,232 +1,178 @@
 <script setup>
-import { ref, computed } from 'vue';
-import axios from "axios"; // 引入 axios 用於 API 請求
-import { useAuthStore } from "@/stores/authStore"; // 引入 Pinia store
-import { useRouter } from 'vue-router'; // 引入 Vue Router
+import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
+import { useAuthStore } from "@/stores/authStore";
+import axios from "axios";
 
-const authStore = useAuthStore(); // 使用 Pinia Store
-const router = useRouter(); // 使用 Vue Router
-const useMemberInfo = ref(false);
-
-// 直接使用 Pinia store 中的 userId
+const authStore = useAuthStore();
 const userId = authStore.user?.userId;
-console.log("authStore.userId:", userId);  // 確認 userId 是否有正確傳遞
 
-// 初始化 errorMessages 和 recipient 物件，確保它們是空的預設值
-const errorMessages = ref({
-    name: '',
-    phone: '',
-    email: '',
-    address: '',
-    paymentMethod: ''
+if (!userId) {
+    console.error("用戶未登入，無法獲取訂單資訊！");
+}
+
+const orderDetail = ref(null);
+const route = useRoute();
+const orderId = route.params.orderId;
+
+async function loadOrderDetail() {
+    try {
+        if (!userId) return;
+
+        const response = await axios.get(`/api/Order/user/${userId}/order/${orderId}`);
+        orderDetail.value = response.data.data;
+    } catch (error) {
+        console.error("無法載入訂單詳情：", error);
+    }
+}
+
+onMounted(() => {
+    loadOrderDetail();
 });
-
-const recipient = ref({
-    name: '',
-    address: '',
-    phone: '',
-    email: '',
-    paymentMethod: ''
-});
-
-const fillMemberData = () => {
-    if (useMemberInfo.value && userId) {
-        console.log(userId); // 確認 userId 是否有正確傳遞
-
-        // 呼叫 API 獲取會員資料
-        axios.get(`/api/Cart/memberInfo`, { params: { userId } })
-            .then(response => {
-                console.log('會員資料:', response.data);  // 檢查返回的資料
-                recipient.value = {
-                    name: response.data.userName || '',
-                    phone: response.data.phone || '',
-                    email: response.data.email || '',
-                    address: response.data.address || '',
-                    paymentMethod: recipient.value.paymentMethod || '' // 保留付款方式
-                };
-
-                // 確認填充後的 recipient
-                console.log('填充後的 recipient:', recipient.value);
-            })
-            .catch(error => {
-                console.error('會員資料載入錯誤', error);
-            });
-    } else {
-        // 如果取消選擇「與會員資料相同」，清空 recipient 資料
-        recipient.value = {
-            name: '',
-            phone: '',
-            email: '',
-            address: '',
-            paymentMethod: ''
-        };
-    }
-
-    // 同時清除錯誤訊息
-    errorMessages.value = {
-        name: '',
-        phone: '',
-        email: '',
-        address: '',
-        paymentMethod: ''
-    };
-};
-
-// 假設的購物車資料
-const cartItems = ref([{ name: '雲新禮盒', price: 800, quantity: 5 }]);
-
-const totalAmount = computed(() => {
-    return cartItems.value.reduce((sum, item) => sum + item.price * item.quantity, 0);
-});
-
-// 提交表單
-const handleSubmit = () => {
-    console.log('提交前的 recipient:', recipient.value);  // 檢查 recipient
-
-    let isValid = true;
-
-    // 檢查所有欄位是否已填寫
-    if (!recipient.value.name) {
-        errorMessages.value.name = '姓名為必填';
-        isValid = false;
-    } else {
-        errorMessages.value.name = '';
-    }
-
-    if (!recipient.value.phone) {
-        errorMessages.value.phone = '電話為必填';
-        isValid = false;
-    } else {
-        errorMessages.value.phone = '';
-    }
-
-    if (!recipient.value.email) {
-        errorMessages.value.email = 'Email為必填';
-        isValid = false;
-    } else {
-        errorMessages.value.email = '';
-    }
-
-    if (!recipient.value.address) {
-        errorMessages.value.address = '地址為必填';
-        isValid = false;
-    } else {
-        errorMessages.value.address = '';
-    }
-
-    if (!recipient.value.paymentMethod) {
-        errorMessages.value.paymentMethod = '付款方式為必填';
-        isValid = false;
-    } else {
-        errorMessages.value.paymentMethod = '';
-    }
-
-    if (!isValid) {
-        console.log('有欄位未填寫');
-        return;
-    }
-
-    const orderData = {
-        recipient: recipient.value,
-        orderItems: cartItems.value, // 傳遞已勾選的商品
-    };
-    console.log('提交的訂單資料：', orderData);
-
-    // 這裡進行頁面跳轉到結帳頁面
-    router.push({ name: 'productCheckout', params: { orderData } });
-};
 </script>
 
 <template>
-    <v-container class="mt-5">
-        <v-row justify="center">
-            <v-col cols="12" md="8">
-                <v-card>
-                    <v-card-title class="headline" style="font-size: 32px; font-weight: bold;">
-                        填寫收件人資料與付款方式
-                    </v-card-title>
-                    <!-- 加入 "與會員資料相同" 的勾選框 -->
-                    <v-checkbox v-model="useMemberInfo" label="與會員資料相同" @change="fillMemberData"></v-checkbox>
-                    <v-form @submit.prevent="handleSubmit">
-                        <!-- 姓名 -->
-                        <v-text-field v-model="recipient.name" label="姓名" outlined class="mb-4" style="font-size: 18px;"
-                            :error-messages="errorMessages.name ? [errorMessages.name] : []"></v-text-field>
+    <div>
+        <div v-if="!userId" class="alert alert-warning">
+            您尚未登入，請先登入後再查看訂單。
+        </div>
 
-                        <!-- 電話 -->
-                        <v-text-field v-model="recipient.phone" label="電話" outlined class="mb-4"
-                            style="font-size: 18px;"
-                            :error-messages="errorMessages.phone ? [errorMessages.phone] : []"></v-text-field>
+        <h2 class="mb-4">訂單明細</h2>
 
-                        <!-- Email -->
-                        <v-text-field v-model="recipient.email" label="Email" outlined class="mb-4"
-                            style="font-size: 18px;"
-                            :error-messages="errorMessages.email ? [errorMessages.email] : []"></v-text-field>
+        <div v-if="orderDetail" class="order-summary card shadow-lg">
+            <div class="order-info">
+                <div class="info-item">
+                    <strong>訂單編號：</strong> {{ orderDetail.orderId }}
+                </div>
+                <div class="info-item">
+                    <strong>狀態：</strong> {{ orderDetail.orderStatus }}
+                </div>
+                <div class="info-item">
+                    <strong>付款方式：</strong> {{ orderDetail.paymentMethod }}
+                </div>
+                <div class="info-item">
+                    <strong>收件人Email：</strong> {{ orderDetail.email }}
+                </div>
+            </div>
 
-                        <!-- 地址 -->
-                        <v-text-field v-model="recipient.address" label="地址" outlined class="mb-4"
-                            style="font-size: 18px;"
-                            :error-messages="errorMessages.address ? [errorMessages.address] : []"></v-text-field>
+            <div class="order-items">
+                <h4 class="text-primary">商品清單：</h4>
+                <ul>
+                    <li v-for="item in orderDetail.orderItemsDtos" :key="item.orderitemId" class="order-item">
+                        <span>{{ item.productName }} ({{ item.quantity }} 件)</span>
+                        <span>原價：<s>${{ item.unitPrice }}</s>，特價：${{ item.specialPrice }}</span>
+                    </li>
+                </ul>
+            </div>
 
-                        <!-- 付款方式 -->
-                        <v-select v-model="recipient.paymentMethod" :items="['信用卡', '貨到付款', '銀行轉帳']" label="付款方式"
-                            outlined class="mb-4" style="font-size: 18px;"
-                            :error-messages="errorMessages.paymentMethod ? [errorMessages.paymentMethod] : []"></v-select>
+            <div class="price-summary">
+                <div class="info-item">
+                    <strong>小計：</strong> ${{ orderDetail.totalAmount }}
+                </div>
+                <div class="info-item">
+                    <strong>折扣金額：</strong> -{{ orderDetail.discountAmount }}
+                </div>
+                <div class="info-item">
+                    <strong>總金額：</strong> ${{ orderDetail.finalAmount }}
+                </div>
+            </div>
 
-                        <v-row justify="space-between" align="center">
-                            <v-col cols="6">
-                                <h3 style="font-size: 32px;">總金額：${{ totalAmount }}</h3>
-                            </v-col>
-                            <v-col cols="6" class="text-right">
-                                <!-- 使用HTML button 來取代 v-btn -->
-                                <button type="submit" class="next-button">
-                                    下一步
-                                </button>
-                            </v-col>
-                        </v-row>
-                    </v-form>
-                </v-card>
-            </v-col>
-        </v-row>
-    </v-container>
+            <div class="recipient-info">
+                <h4 class="text-success">收件人資訊：</h4>
+                <p><strong>收件人：</strong> {{ orderDetail.receiveName }}</p>
+                <p><strong>電話：</strong> {{ orderDetail.phoneNumber }}</p>
+                <p><strong>地址：</strong> {{ orderDetail.address }}</p>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-center mt-4">
+            <RouterLink :to="{ name: 'memberOrder' }" class="btn btn-outline-primary">
+                <i class="bi bi-arrow-left"></i> 返回
+            </RouterLink>
+        </div>
+    </div>
 </template>
 
-<style scoped>
-.v-card {
+<style lang="css" scoped>
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f7f7f7;
+    margin: 0;
     padding: 20px;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-.next-button {
-    background-color: #007bff;
+.card {
+    background-color: #ffffff;
+    border-radius: 15px;
+    padding: 25px;
+    margin: 20px auto;
+    max-width: 950px;
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+h2 {
+    color: #333;
+}
+
+.order-info,
+.price-summary,
+.recipient-info {
+    margin-bottom: 20px;
+}
+
+.info-item {
+    margin-bottom: 15px;
+    font-size: 1.1em;
+    color: #555;
+}
+
+.order-items ul {
+    list-style: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.order-items li {
+    padding: 12px 0;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 1.1em;
+}
+
+.price-summary p,
+.recipient-info p {
+    margin: 5px 0;
+    font-size: 1.1em;
+}
+
+strong {
+    color: #333;
+}
+
+.btn-outline-primary {
+    padding: 10px 20px;
+    border-radius: 6px;
+    border: 1px solid #4c8bf5;
+    color: #4c8bf5;
+    font-weight: bold;
+    text-align: center;
+}
+
+.text-primary {
+    color: #4c8bf5;
+}
+
+.text-success {
+    color: #28a745;
+}
+
+.alert-warning {
+    padding: 10px;
+    background-color: #ffcc00;
     color: white;
-    font-size: 20px;
-    padding: 15px 25px;
-    width: auto;
-    /* 確保按鈕大小符合文字 */
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-align: center;
-}
-
-.next-button:hover {
-    background-color: #0056b3;
-}
-
-.v-select .v-select__selections {
-    font-size: 18px;
-    /* 設置v-select選項的字體大小 */
-}
-
-.v-text-field,
-.v-select {
-    width: 100%;
-    font-size: 18px;
-    /* 統一調整文字大小 */
-}
-
-.v-card-title {
-    text-align: center;
     margin-bottom: 20px;
 }
 </style>
