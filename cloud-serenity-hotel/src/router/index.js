@@ -204,7 +204,7 @@ const router = createRouter({
               component: bookingOrderMemberViewVue,
             },
             {
-              path: "/front/member/carOrderMember",
+              path: "/front/member/CarOrderMember",
               name: "CarOrderMember",
               component: CarOrderMember,
             },
