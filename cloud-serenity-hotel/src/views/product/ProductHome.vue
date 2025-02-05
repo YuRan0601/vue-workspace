@@ -46,7 +46,7 @@ const getOneProduct = async () => {
     
 }
 
-// 查詢單筆(名稱查詢)
+// 模糊查詢
 const searchQuery = ref("")
 const searchProducts = async () => {
     console.log("🔍 searchProducts() 被觸發！");
@@ -67,7 +67,7 @@ console.log("搜尋結果：", JSON.stringify(product.value, null, 2));
 
 // 處理圖片 URL
 function getImageUrl(item ) {
-    const imgurl = item.OneToManyProductImages.find(img => img.isPrimary).imageUrl
+    const imgurl = item.OneToManyProductImages.find(img => img.isPrimary)?.imageUrl
     const Url = `${BASE_URL}${imgurl}`;
     return Url;
     

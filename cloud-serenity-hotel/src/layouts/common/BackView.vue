@@ -98,9 +98,6 @@ function logout() {
               <li>
                 <RouterLink :to="{ name: 'productBack' }">商品上架</RouterLink>
               </li>
-              <li><a href="#" class="link-dark rounded">Processed</a></li>
-              <li><a href="#" class="link-dark rounded">Shipped</a></li>
-              <li><a href="#" class="link-dark rounded">Returned</a></li>
             </ul>
           </div>
         </li>

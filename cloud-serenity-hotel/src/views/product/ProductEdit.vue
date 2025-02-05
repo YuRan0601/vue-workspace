@@ -15,7 +15,6 @@ const product = ref({
   specialPrice: "",
   description: "",
   categories: [],
-  productImages: []
 });
 
 const shortcutKey = () => {
@@ -38,7 +37,6 @@ const shortcutKey = () => {
 🎁 精美禮盒設計，送禮體面，年節最應景！
 🛒 快來選購，品味手工烘焙的細緻口感！`,
 categories: [],
-productImages: [],
 OneToManyProductImages: product.value.OneToManyProductImages // 保留原始的圖片
   };
 };
@@ -340,6 +338,7 @@ const validateForm = () => {
   let isValid = true; // 預設表單是有效的
 
   // 商品名稱
+  // 修改時如果不動這個值，會出現 請輸入商品名稱 這個BUG，用!String 判斷如果是空字串或只包含空格，條件為 true，進入 if 區塊
   if (!String(product.value.productName).trim()) {
     errorMessages.value.productName = "請輸入商品名稱 !";
     isValid = false; // 如果商品名稱沒填寫，則設為 false
@@ -347,8 +346,11 @@ const validateForm = () => {
     errorMessages.value.productName = ""; //當使用者已經輸入正確資料時，清除錯誤訊息不會顯示。
   }
 
+  console.log(product.value.price);
+  
   // 售價
-  if (!product.value.price.trim()) {
+  // 修改時如果不動這個值，會被當作是字串送出，用!String 判斷如果是空字串或只包含空格，條件為 true，進入 if 區塊
+  if (!String(product.value.price).trim()) {
     errorMessages.value.price = "請輸入售價 !";
     isValid = false;
   } else {
@@ -356,12 +358,12 @@ const validateForm = () => {
   }
 
   // 商品封面
-  if (!CoverFile.value) {
-    errorMessages.value.coverImage = "請上傳至少一張商品封面 !";
-    isValid = false;
-  } else {
-    errorMessages.value.coverImage = "";
-  }
+  // if (!CoverFile.value) {
+  //   errorMessages.value.coverImage = "請上傳至少一張商品封面 !";
+  //   isValid = false;
+  // } else {
+  //   errorMessages.value.coverImage = "";
+  // }
 
   return isValid;
 };
@@ -623,7 +625,7 @@ const productUpdate = async () => {
       <div class="row mb-3 justify-content-center">
         <div class="col-lg-8">
           <div class="d-flex align-items-center">
-            <label for="imageUpload" class="form-label">商品封面<span class="Required">*</span></label>
+            <label for="imageUpload" class="form-label">商品封面</label>
             <p v-if="errorMessages.coverImage" class="error-message ms-2">{{ errorMessages.coverImage }}</p>
           </div> 
           

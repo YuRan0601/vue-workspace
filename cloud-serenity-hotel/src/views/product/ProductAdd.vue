@@ -164,12 +164,12 @@ const validateForm = () => {
   }
 
   // 商品封面
-  if (!CoverFile.value) {
-    errorMessages.value.coverImage = "請上傳至少一張商品封面 !";
-    isValid = false;
-  } else {
-    errorMessages.value.coverImage = "";
-  }
+  // if (!CoverFile.value) {
+  //   errorMessages.value.coverImage = "請上傳至少一張商品封面 !";
+  //   isValid = false;
+  // } else {
+  //   errorMessages.value.coverImage = "";
+  // }
 
   return isValid;
 };
@@ -364,7 +364,7 @@ const productAdd = async () => {
       <div class="row mb-3 justify-content-center">
         <div class="col-lg-8">
           <div class="d-flex align-items-center">
-            <label for="imageUpload" class="form-label">商品封面<span class="Required">*</span></label>
+            <label for="imageUpload" class="form-label">商品封面</label>
             <p v-if="errorMessages.coverImage" class="error-message ms-2">{{ errorMessages.coverImage }}</p>
           </div> 
           
