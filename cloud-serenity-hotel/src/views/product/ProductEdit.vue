@@ -15,16 +15,29 @@ const product = ref({
   specialPrice: "",
   description: "",
   categories: [],
-  productImages: []
 });
 
 const shortcutKey = () => {
   product.value = {
-    productName: "星願禮盒 ( 藍色款 )",
+    productName: "星願禮盒 ( 12入 )",
     price: "1500",
     specialPrice: "1499",
-    description: "這是一個示範商品的描述。",
-    categories: ["新品", "禮盒"]
+    description: `商品介紹
+採用天然酒釀發酵，蛋香濃郁 🍶
+夾入美國蔓越莓果乾，酸甜平衡 🍒
+手工慢火烘焙，口感酥脆，層次豐富 🍪
+典雅禮盒設計，送禮體面，年節首選 🎁
+食品資訊
+成分：雞蛋、奶油、砂糖、酒釀、蔓越莓果乾
+淨重：12入 / 24入
+保存期限：常溫 20 天
+保存方式：避免潮濕與陽光直射，開封後請密封保存
+銷售描述
+🍶 酒釀獨特香氣，搭配蔓越莓果乾，酸甜不膩！
+🎁 精美禮盒設計，送禮體面，年節最應景！
+🛒 快來選購，品味手工烘焙的細緻口感！`,
+categories: [],
+OneToManyProductImages: product.value.OneToManyProductImages // 保留原始的圖片
   };
 };
 
@@ -325,6 +338,7 @@ const validateForm = () => {
   let isValid = true; // 預設表單是有效的
 
   // 商品名稱
+  // 修改時如果不動這個值，會出現 請輸入商品名稱 這個BUG，用!String 判斷如果是空字串或只包含空格，條件為 true，進入 if 區塊
   if (!String(product.value.productName).trim()) {
     errorMessages.value.productName = "請輸入商品名稱 !";
     isValid = false; // 如果商品名稱沒填寫，則設為 false
@@ -332,8 +346,11 @@ const validateForm = () => {
     errorMessages.value.productName = ""; //當使用者已經輸入正確資料時，清除錯誤訊息不會顯示。
   }
 
+  console.log(product.value.price);
+  
   // 售價
-  if (!product.value.price.trim()) {
+  // 修改時如果不動這個值，會被當作是字串送出，用!String 判斷如果是空字串或只包含空格，條件為 true，進入 if 區塊
+  if (!String(product.value.price).trim()) {
     errorMessages.value.price = "請輸入售價 !";
     isValid = false;
   } else {
@@ -341,12 +358,12 @@ const validateForm = () => {
   }
 
   // 商品封面
-  if (!CoverFile.value) {
-    errorMessages.value.coverImage = "請上傳至少一張商品封面 !";
-    isValid = false;
-  } else {
-    errorMessages.value.coverImage = "";
-  }
+  // if (!CoverFile.value) {
+  //   errorMessages.value.coverImage = "請上傳至少一張商品封面 !";
+  //   isValid = false;
+  // } else {
+  //   errorMessages.value.coverImage = "";
+  // }
 
   return isValid;
 };
@@ -576,6 +593,7 @@ const productUpdate = async () => {
       </div>
     </div>
 
+
     <!-- 手動新增分類 -->
     <div class="mb-4">
       <div class="row mb-3 justify-content-center">
@@ -608,7 +626,7 @@ const productUpdate = async () => {
       <div class="row mb-3 justify-content-center">
         <div class="col-lg-8">
           <div class="d-flex align-items-center">
-            <label for="imageUpload" class="form-label">商品封面<span class="Required">*</span></label>
+            <label for="imageUpload" class="form-label">商品封面</label>
             <p v-if="errorMessages.coverImage" class="error-message ms-2">{{ errorMessages.coverImage }}</p>
           </div> 
           

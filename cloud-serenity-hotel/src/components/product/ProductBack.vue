@@ -1,5 +1,4 @@
 <script setup>
-import ProductHome from '../../views/product/ProductHome.vue';
 </script>
 
 <template>
@@ -15,14 +14,14 @@ import ProductHome from '../../views/product/ProductHome.vue';
                 <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
                     <div class="navbar-nav">
                         <RouterLink class="nav-link" :to="{ name: 'productAll' }">全部</RouterLink>
-                        <RouterLink class="nav-link" :to="{ name: '' }">上架</RouterLink>
-                        <RouterLink class="nav-link" :to="{ name: '' }">下架</RouterLink>
+                        <RouterLink class="nav-link" :to="{ name: 'publicProductHome' }">上架</RouterLink>
+                        <RouterLink class="nav-link" :to="{ name: 'hideProductHome' }">下架</RouterLink>
                     </div>
                 </div>
             </div>
         </nav>
         <div class="container" >
-            <ProductHome></ProductHome>
+            <RouterView></RouterView>
         </div>
     </div>
 </template>

@@ -27,7 +27,7 @@ function goToProduct(id) {
 <template>
 
   <div class="product-list-wrapper">
-    <div class="products-container">
+    <div v-if="store.products.length > 0" class="products-container">
       <div
         v-for="product in store.products"
         :key="product.productId"
@@ -67,6 +67,9 @@ function goToProduct(id) {
           加入購物車
         </button> -->
       </div>
+    </div>
+    <div v-else class="text">
+      無商品資料
     </div>
   </div>
 </template>
@@ -242,6 +245,11 @@ function goToProduct(id) {
 
 .cart-icon-container i:hover {
   color: #555;
+}
+
+/* 無商品資料文字 */
+.text {
+  text-align: center;     /* 文字置中(選擇性) */
 }
 
 

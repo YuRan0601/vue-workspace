@@ -20,9 +20,9 @@ const headers = [
 
 const product = ref([]);
 
-// 顯示全部商品
+// 顯示全部商品(上架)
 const loadProduct = async () => {
-    const GETALL_URL = `${BASE_URL}Product/selectAll`
+    const GETALL_URL = `${BASE_URL}Product/select/productStatus/1`
     const response = await fetch(GETALL_URL)
     product.value = await response.json()
 
@@ -169,7 +169,7 @@ const result = await Swal.fire({
             <div class="search-container mb-4">
                 <v-text-field 
         v-model="searchQuery"
-        label="請輸入商品名稱"
+        label="請輸入商品名稱123"
         variant="outlined"
         density="compact"
         color="grey-darken-1" 

@@ -20,9 +20,9 @@ const headers = [
 
 const product = ref([]);
 
-// 顯示全部商品
+// 顯示全部商品(上架)
 const loadProduct = async () => {
-    const GETALL_URL = `${BASE_URL}Product/selectAll`
+    const GETALL_URL = `${BASE_URL}Product/select/productStatus/0`
     const response = await fetch(GETALL_URL)
     product.value = await response.json()
 

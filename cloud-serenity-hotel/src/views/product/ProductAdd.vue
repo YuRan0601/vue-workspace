@@ -20,7 +20,22 @@ const shortcutKey = () => {
     productName: "星願禮盒",
     price: "999",
     specialPrice: "899",
-    description: "這是一個示範商品的描述。",
+    description: `商品介紹
+精選堅果與台灣蜂蜜，口感香脆甜潤
+低溫烘焙，保留堅果原始香氣與營養
+桂花香氣淡雅，搭配酥脆塔皮，層次豐富
+每顆獨立包裝，方便攜帶與分享
+
+食品資訊
+成分：核桃、杏仁、腰果、蜂蜜、桂花、麵粉、奶油
+淨重：8入 / 12入
+保存期限：常溫 14 天 / 冷藏 30 天
+保存方式：請存放於陰涼處，避免陽光直射
+
+銷售描述
+甜而不膩，蜂蜜與堅果的黃金搭配！
+獨立包裝，送禮大方，輕鬆分享美味！
+快速下單，品味香酥濃郁的手工堅果塔！`,
     categories: ["新品", "禮盒"]
   };
 };
@@ -149,12 +164,12 @@ const validateForm = () => {
   }
 
   // 商品封面
-  if (!CoverFile.value) {
-    errorMessages.value.coverImage = "請上傳至少一張商品封面 !";
-    isValid = false;
-  } else {
-    errorMessages.value.coverImage = "";
-  }
+  // if (!CoverFile.value) {
+  //   errorMessages.value.coverImage = "請上傳至少一張商品封面 !";
+  //   isValid = false;
+  // } else {
+  //   errorMessages.value.coverImage = "";
+  // }
 
   return isValid;
 };
@@ -349,7 +364,7 @@ const productAdd = async () => {
       <div class="row mb-3 justify-content-center">
         <div class="col-lg-8">
           <div class="d-flex align-items-center">
-            <label for="imageUpload" class="form-label">商品封面<span class="Required">*</span></label>
+            <label for="imageUpload" class="form-label">商品封面</label>
             <p v-if="errorMessages.coverImage" class="error-message ms-2">{{ errorMessages.coverImage }}</p>
           </div> 
           

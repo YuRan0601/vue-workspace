@@ -77,6 +77,9 @@ import ForgotPassword from "@/views/user/ForgotPassword.vue";
 import ResetPassword from "@/views/user/ResetPassword.vue";
 import CartToOrderSuccess from "@/views/order/CartToOrderSuccess.vue";
 import CarOrderMember from "@/views/rent/CarOrderMember.vue";
+import HideProductHome from "@/views/product/HideProductHome.vue";
+import PublicProductHome from "@/views/product/PublicProductHome.vue";
+
 
 const router = createRouter({
   history: createWebHistory(),
@@ -440,11 +443,22 @@ const router = createRouter({
           path: "/productBack",
           name: "productBack",
           component: ProductBack,
+          redirect: "/productAll",
           children: [
             {
               path: "/productAll",
               name: "productAll",
               component: ProductHome,
+            },
+            {
+              path: "/publicProductHome",
+              name: "publicProductHome",
+              component: PublicProductHome,
+            },
+            {
+              path: "/hideProductHome",
+              name: "hideProductHome",
+              component: HideProductHome,
             },
           ],
         },
@@ -458,6 +472,7 @@ const router = createRouter({
           component: ProductEdit,
           name: "productEdit",
         },
+
         //-------------
 
         //---會員後台---
