@@ -30,7 +30,7 @@ const loadProduct = async () => {
 }
 loadProduct()
 
-// 查詢單筆
+// 查詢單筆(ID查詢)
 const getOne = ref('');
 const getOneProduct = async () => {
     const GETONE_URL = `${BASE_URL}Product/select/${getOne.value}`
@@ -45,6 +45,25 @@ const getOneProduct = async () => {
     product.value = data
     
 }
+
+// 查詢單筆(名稱查詢)
+const searchQuery = ref("")
+const searchProducts = async () => {
+    console.log("🔍 searchProducts() 被觸發！");
+if (!searchQuery.value.trim()) {
+    loadProduct(); // 如果搜尋框是空的，載入全部商品
+    return;
+}
+const response = await fetch(`${BASE_URL}Product/search?name=${encodeURIComponent(searchQuery.value)}`);
+const data = await response.json()
+console.log(data);
+product.value = data
+if (response.ok) {
+    searchQuery.value = "";
+}
+console.log("搜尋中:", searchQuery.value);
+console.log("搜尋結果：", JSON.stringify(product.value, null, 2));
+};
 
 // 處理圖片 URL
 function getImageUrl(item ) {
@@ -149,8 +168,8 @@ const result = await Swal.fire({
         <div>
             <div class="search-container mb-4">
                 <v-text-field 
-        v-model="getOne"
-        label="請輸入商品編號"
+        v-model="searchQuery"
+        label="請輸入商品名稱"
         variant="outlined"
         density="compact"
         color="grey-darken-1" 
@@ -159,7 +178,7 @@ const result = await Swal.fire({
     ></v-text-field>
                 <!-- <input type="text" class="form-control" placeholder="請輸入商品編號" v-model="getOne" /> -->
                  <!-- variant="outlined" 變線框 -->
-                <v-btn variant="outlined" class="custom-outline"   color="grey-darken-1" @click="getOneProduct">
+                <v-btn variant="outlined" class="custom-outline"   color="grey-darken-1" @click="searchProducts">
                     查詢
                 </v-btn>
                 <RouterLink :to="{ name: 'productAdd' }">

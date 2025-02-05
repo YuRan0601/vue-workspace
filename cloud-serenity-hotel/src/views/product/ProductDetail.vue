@@ -140,6 +140,11 @@ async function addToCart(product) {
 </template>
 
 <style scoped>
+/* 如果後台有換行，這邊也要同步 */
+.product-description {
+  white-space: pre-line;
+}
+
 .product-detail-wrapper {
   max-width: 1200px;
   margin: 20px auto;

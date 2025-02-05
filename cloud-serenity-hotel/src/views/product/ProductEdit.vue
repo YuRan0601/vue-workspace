@@ -20,11 +20,26 @@ const product = ref({
 
 const shortcutKey = () => {
   product.value = {
-    productName: "星願禮盒 ( 藍色款 )",
+    productName: "星願禮盒 ( 12入 )",
     price: "1500",
     specialPrice: "1499",
-    description: "這是一個示範商品的描述。",
-    categories: ["新品", "禮盒"]
+    description: `商品介紹
+採用天然酒釀發酵，蛋香濃郁 🍶
+夾入美國蔓越莓果乾，酸甜平衡 🍒
+手工慢火烘焙，口感酥脆，層次豐富 🍪
+典雅禮盒設計，送禮體面，年節首選 🎁
+食品資訊
+成分：雞蛋、奶油、砂糖、酒釀、蔓越莓果乾
+淨重：12入 / 24入
+保存期限：常溫 20 天
+保存方式：避免潮濕與陽光直射，開封後請密封保存
+銷售描述
+🍶 酒釀獨特香氣，搭配蔓越莓果乾，酸甜不膩！
+🎁 精美禮盒設計，送禮體面，年節最應景！
+🛒 快來選購，品味手工烘焙的細緻口感！`,
+categories: [],
+productImages: [],
+OneToManyProductImages: product.value.OneToManyProductImages // 保留原始的圖片
   };
 };
 

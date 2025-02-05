@@ -35,6 +35,15 @@ function selectCategory(categoryId) {
   }
 }
 
+//處理非首頁，點商品搜尋無反應
+function selectSearchProducts() {
+  store.searchProducts()
+
+  if (route.name !== 'productShopping') {
+    router.push({ name: 'productShopping' })
+  }
+}
+
 function goToCart() {
   // 前往購物車頁面
   router.push({ name: 'productCart' });
@@ -81,10 +90,10 @@ function goToCart() {
     <input
       type="text"
       v-model="store.searchQuery"
-      placeholder="輸入商品名稱..."
+      placeholder="輸入商品名稱"
       class="search-input"
     />
-    <button class="search-button" @click="store.searchProducts">搜尋</button>
+    <v-btn color="grey-lighten-3" class="mr-2" elevation="0"  @click="selectSearchProducts">搜尋</v-btn>
   </div>
         <!-- <i class="fas fa-shopping-cart" @click="goToCart"></i> -->
         <!-- <i class="bi bi-bag" @click="goToCart"></i> -->
@@ -316,6 +325,7 @@ function goToCart() {
 .search-bar {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 .search-input {
   width: 250px; /* 設定搜尋框寬度 */
