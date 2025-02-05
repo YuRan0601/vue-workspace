@@ -6,6 +6,7 @@ import { nextTick, onMounted, ref } from "vue";
 
 const userStore = useAuthStore();
 const orderTable = ref([]);
+const keyword = ref("");
 
 const search = ref("");
 
@@ -121,9 +122,8 @@ async function orderPay(item) {
       const { data } = await axiosInstance.post("/booking/pay", payment.value);
 
       console.log(data);
-      
 
-      if(data === 1) {
+      if (data === 1) {
         await Swal.fire({
           title: "此訂單已付款!",
           icon: "error",
@@ -161,7 +161,15 @@ async function orderPay(item) {
   });
 }
 
+async function searchByOrderId() {
+  const { data } = await axiosInstance.get(
+    `/booking/order/like/${userStore.user.userId}/${keyword.value}`
+  );
 
+  console.log(data);
+
+  orderTable.value = data;
+}
 
 onMounted(() => {
   loadOrderTable();
@@ -170,6 +178,8 @@ onMounted(() => {
 
 <template>
   <div>
+    <h1>會員訂房訂單</h1>
+    <br />
     <v-container class="typeBtnContainer">
       <v-row>
         <v-btn class="typeBtn" color="black" @click="loadOrderTable"
@@ -182,6 +192,26 @@ onMounted(() => {
           color="black"
           @click="switchStatusSearch(item.value)"
           >{{ item.name }}</v-btn
+        >
+      </v-row>
+    </v-container>
+
+    <v-container
+      style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 500px;
+      "
+    >
+      <v-row>
+        <v-text-field v-model="keyword" label="訂單編號"></v-text-field>
+        <v-btn
+          :key="index"
+          color="green"
+          @click="searchByOrderId"
+          style="height: 50px; width: 80px"
+          >查詢</v-btn
         >
       </v-row>
     </v-container>
@@ -215,7 +245,7 @@ onMounted(() => {
         </template>
       </v-data-table>
     </v-container>
-    <div ref="ecpayContainer" v-html="ecpayHtml" style="display: none;"></div>
+    <div ref="ecpayContainer" v-html="ecpayHtml" style="display: none"></div>
   </div>
 </template>
 

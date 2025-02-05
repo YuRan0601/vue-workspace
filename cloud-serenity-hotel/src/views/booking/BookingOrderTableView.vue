@@ -2,13 +2,14 @@
 import axiosInstance from "@/axios";
 import axios from "@/axios";
 import Swal from "sweetalert2";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watchEffect } from "vue";
 
 const orderTable = ref([]);
 const roomTypeTable = ref([]);
+const keyword = ref("");
 
 const headers = [
-  { title: "訂單ID", key: "roomId" },
+  { title: "訂單ID", key: "orderId" },
   { title: "會員", key: "userName" },
   { title: "會員ID", key: "userId" },
   { title: "預定房型", key: "roomTypeName" },
@@ -148,6 +149,15 @@ async function switchStatusSearch(status) {
   orderTable.value = data;
 }
 
+async function searchByKeyword() {
+  const { data } = await axiosInstance.get(
+    `/booking/order/like/${keyword.value}`
+  );
+  console.log(data);
+
+  orderTable.value = data;
+}
+
 onMounted(() => {
   loadOrderTable();
   loadRoomTypeTable();
@@ -169,6 +179,25 @@ onMounted(() => {
           color="black"
           @click="switchStatusSearch(item.value)"
           >{{ item.name }}</v-btn
+        >
+      </v-row>
+    </v-container>
+    <v-container
+      style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 500px;
+      "
+    >
+      <v-row>
+        <v-text-field v-model="keyword" label="訂單編號或會員名"></v-text-field>
+        <v-btn
+          :key="index"
+          color="green"
+          @click="searchByKeyword"
+          style="height: 50px; width: 80px"
+          >查詢</v-btn
         >
       </v-row>
     </v-container>
