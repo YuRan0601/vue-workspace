@@ -44,9 +44,6 @@ function goToAllProducts() {
   padding-left: 50px;
 }
 
-
-
-
 .text-container {
   position: relative; /* 讓文字不被 .bg 遮住 */
   z-index: 2; /* 讓文字顯示在藍色區塊之上 */
