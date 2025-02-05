@@ -41,6 +41,7 @@ const updateBookingOrder = ref({
     roomId: null,
     roomName: null,
   },
+  roomTypeName: null,
   checkInDate: null,
   checkOutDate: null,
   totalPrice: null,
@@ -72,6 +73,7 @@ function seeUpdateOrder(item) {
   bo.user.userId = item.userId;
   bo.room.roomId = item.roomId;
   bo.room.roomName = item.roomName;
+  bo.roomTypeName = item.roomTypeName;
   bo.checkInDate = item.checkInDate;
   bo.checkOutDate = item.checkOutDate;
   bo.totalPrice = item.totalPrice;

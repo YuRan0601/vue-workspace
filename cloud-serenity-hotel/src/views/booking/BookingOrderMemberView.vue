@@ -6,7 +6,7 @@ import { nextTick, onMounted, ref } from "vue";
 
 const userStore = useAuthStore();
 const orderTable = ref([]);
-const ecpayHtml = ref("");
+
 const search = ref("");
 
 const orderStatus = [
@@ -92,6 +92,9 @@ const payment = ref({
   price: null,
 });
 
+const ecpayHtml = ref("");
+const ecpayContainer = ref(null);
+
 async function orderPay(item) {
   console.log(item.orderId);
   console.log(item.roomTypeName);
@@ -158,7 +161,7 @@ async function orderPay(item) {
   });
 }
 
-const ecpayContainer = ref(null);
+
 
 onMounted(() => {
   loadOrderTable();
