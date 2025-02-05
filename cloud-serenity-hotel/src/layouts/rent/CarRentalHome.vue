@@ -6,7 +6,6 @@ import ModelSelector from "@/views/rent/ModelSelector.vue";
 <template>
   <div>
     <HeroSection></HeroSection>
-    <ReserveCarButton></ReserveCarButton>
     <ModelSelector></ModelSelector>
   </div>
 </template>

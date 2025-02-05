@@ -1,8 +1,9 @@
 <script setup>
-import { ref, onMounted } from "vue"; // 確保導入 ref 和 onMounted
+import { ref, onMounted, nextTick } from "vue"; // 確保導入 ref 和 onMounted
 import axios from "axios";
 
 const reser = ref([]); // 訂單資料
+const searchQuery = ref("");
 
 onMounted(async () => {
   try {
@@ -74,12 +75,12 @@ const handleClick = async (route) => {
       response = await axios.get(
         "http://localhost:8080/CloudSerenityHotel/car-reservation/query-all/reserved"
       );
-      reservedReservations.value = response.data.data;
+      reser.value = response.data.data; // 預約中的資料
     } else if (route === "CarRentalHistoryRenthd") {
       response = await axios.get(
         "http://localhost:8080/CloudSerenityHotel/car-reservation/query-all/rented"
       );
-      rentedReservations.value = response.data.data;
+      reser.value = response.data.data; // 租借中的資料
     }
 
     if (response && response.data.status === "SUCCESS") {
@@ -91,6 +92,36 @@ const handleClick = async (route) => {
     console.error("請求錯誤", error);
   }
 };
+const reservation = ref({});
+
+const handleSearch = async (event) => {
+  event.preventDefault(); // 阻止表單提交的默認行為
+
+  if (!searchQuery.value) {
+    console.log("請輸入查詢內容");
+    return; // 若沒有輸入查詢內容，直接返回
+  }
+
+  try {
+    // 發送請求
+    const response = await axios.get(
+      `http://localhost:8080/CloudSerenityHotel/car-reservation/query/list/${searchQuery.value}`
+    );
+    console.log(response);
+
+    // 更新 reservedReservations 的資料
+    reser.value = response.data.data;
+    // reservation.value = response.data.data;
+    // console.log(reservation.value.carRentalRecord);
+
+    // reser.value = reservation.value.carRentalRecord;
+    // console.log(reser.value);
+
+    console.log("搜尋結果:", reser.value);
+  } catch (error) {
+    console.error("搜尋請求失敗:", error);
+  }
+};
 </script>
 
 <template>
@@ -99,17 +130,27 @@ const handleClick = async (route) => {
       <nav class="navbar navbar-expand-lg bg-body-tertiary">
         <div class="container-fluid">
           <a class="navbar-brand" href="#">租車預約管理</a>
-          <button
-            class="navbar-toggler"
-            type="button"
-            data-bs-toggle="collapse"
-            data-bs-target="#navbarNavAltMarkup"
-            aria-controls="navbarNavAltMarkup"
-            aria-expanded="false"
-            aria-label="Toggle navigation"
-          >
-            <span class="navbar-toggler-icon"></span>
-          </button>
+
+          <div>
+            <form class="d-flex ms-auto align-items-center">
+              <!-- 調整長寬的輸入框 -->
+              <input
+                class="form-control me-2 search-input"
+                type="search"
+                placeholder="搜尋..."
+                aria-label="Search"
+                v-model="searchQuery"
+              />
+              <!-- 查詢按鈕 -->
+              <button
+                class="btn btn-outline-success search-button"
+                type="submit"
+                @click="handleSearch"
+              >
+                查詢
+              </button>
+            </form>
+          </div>
           <div class="btn-group mb-4" role="group" aria-label="Rental Status">
             <button
               class="btn btn-primary"
@@ -118,7 +159,7 @@ const handleClick = async (route) => {
               預約中
             </button>
             <button
-              class="btn btn-secondary"
+              class="btn btn-danger"
               @click="handleClick('CarRentalHistoryRenthd')"
             >
               租借中
@@ -130,88 +171,71 @@ const handleClick = async (route) => {
     <!-- 按鈕選擇區 -->
 
     <!-- 預約中訂單的表格 -->
-    <div v-if="routeName === 'CarRentalHistory'">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th scope="col">訂單編號</th>
-            <th scope="col">車輛編號</th>
-            <th scope="col">車輛狀態</th>
-            <th scope="col">開始時間</th>
-            <th scope="col">結束時間</th>
-            <th scope="col">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(reservation, index) in reservedReservations" :key="index">
-            <td>{{ reservation.id }}</td>
-            <td>{{ reservation.carId }}</td>
-            <td
-              class="text-center align-middle"
-              :class="getStatusClass(reservation.rentalStatus).statusClass"
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">訂單編號</th>
+          <th scope="col">車輛編號</th>
+          <th scope="col">車輛狀態</th>
+          <th scope="col">開始時間</th>
+          <th scope="col">結束時間</th>
+          <th scope="col">操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="(reservation, index) in reser" :key="index">
+          <td>{{ reservation.id }}</td>
+          <td>{{ reservation.carId }}</td>
+          <td
+            class="text-center align-middle"
+            :class="getStatusClass(reservation.rentalStatus).statusClass"
+          >
+            {{ getStatusClass(reservation.rentalStatus).statusText }}
+          </td>
+          <td>{{ formatDate(reservation.rentalStart) }}</td>
+          <td>{{ formatDate(reservation.rentalEnd) }}</td>
+          <td class="text-center align-middle">
+            <RouterLink
+              :to="{
+                name: 'CarReservationDetail',
+                params: { id: reservation.id },
+              }"
             >
-              {{ getStatusClass(reservation.rentalStatus).statusText }}
-            </td>
-            <td>{{ formatDate(reservation.rentalStart) }}</td>
-            <td>{{ formatDate(reservation.rentalEnd) }}</td>
-            <td class="text-center align-middle">
-              <RouterLink
-                :to="{
-                  name: 'CarReservationDetail',
-                  params: { id: reservation.id },
-                }"
-              >
-                <label class="btn btn-outline-secondary">查看</label>
-              </RouterLink>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <!-- 租借中訂單的表格 -->
-    <div v-if="routeName === 'CarRentalHistoryRenthd'">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th scope="col">訂單編號</th>
-            <th scope="col">車輛編號</th>
-            <th scope="col">車輛狀態</th>
-            <th scope="col">開始時間</th>
-            <th scope="col">結束時間</th>
-            <th scope="col">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(reservation, index) in rentedReservations" :key="index">
-            <td>{{ reservation.id }}</td>
-            <td>{{ reservation.carId }}</td>
-            <td
-              class="text-center align-middle"
-              :class="getStatusClass(reservation.rentalStatus).statusClass"
-            >
-              {{ getStatusClass(reservation.rentalStatus).statusText }}
-            </td>
-            <td>{{ formatDate(reservation.rentalStart) }}</td>
-            <td>{{ formatDate(reservation.rentalEnd) }}</td>
-            <td class="text-center align-middle">
-              <RouterLink
-                :to="{
-                  name: 'CarReservationDetail',
-                  params: { id: reservation.id },
-                }"
-              >
-                <label class="btn btn-outline-secondary">查看</label>
-              </RouterLink>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+              <label class="btn btn-outline-secondary">查看</label>
+            </RouterLink>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </template>
 
 <style scoped>
+/* 使表單元素靠右對齊 */
+.d-flex {
+  justify-content: flex-end;
+  width: 100%; /* 讓表單佔滿整個區域 */
+}
+
+/* 自定義輸入框長寬 */
+.search-input {
+  width: 300px; /* 調整寬度為 300px */
+  height: 38px; /* 調整高度 */
+}
+
+/* 自定義按鈕長寬 */
+.search-button {
+  height: 38px; /* 讓按鈕與輸入框同高 */
+  padding-left: 18px;
+  padding-right: 18px;
+}
+
+/* 如果需要更高級的樣式，可以加些細節 */
+.search-input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
 .status-available {
   color: black;
 }
