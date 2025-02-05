@@ -24,6 +24,7 @@ const bookingOrder = ref({
   user: {
     userId: null,
   },
+  roomTypeName: null,
   checkInDate: null,
   checkOutDate: null,
   totalPrice: null,
@@ -38,6 +39,7 @@ onMounted(() => {
   const order = bookingOrder.value;
 
   order.user.userId = userStore.user.userId;
+  order.roomTypeName = bookingOrderStore.roomTypeName;
   order.checkInDate = bookingOrderStore.checkInDate.toLocaleDateString("en-CA");
   order.checkOutDate =
     bookingOrderStore.checkOutDate.toLocaleDateString("en-CA");
@@ -132,6 +134,22 @@ async function insertOrder() {
     }
   });
 }
+
+function cancelOrder() {
+  Swal.fire({
+    title: "確定取消訂單?",
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#3085d6",
+    cancelButtonColor: "#d33",
+    confirmButtonText: "確定",
+    cancelButtonText: "取消",
+  }).then(async (res) => {
+    if (res.isConfirmed) { 
+      router.push({name : 'bookingSearch'})
+    }
+  })
+}
 </script>
 
 <template>
@@ -180,7 +198,7 @@ async function insertOrder() {
 
         <v-btn color="blue" class="mr-4" @click="insertOrder"> 確認訂房 </v-btn>
 
-        <v-btn color="error" @click="resetValidation"> 取消訂房 </v-btn>
+        <v-btn color="error" @click="cancelOrder"> 取消訂房 </v-btn>
       </v-form>
     </div>
   </div>

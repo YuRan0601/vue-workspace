@@ -165,7 +165,7 @@ function bookingRoomTypeConfirm(item) {
               alt="Card Image"
               class="white--text align-end"
               height="200px"
-              v-if="item.prImg.imgUrl"
+              v-if="item.prImg"
             >
             </v-img>
             <div v-else>沒有圖片</div>
