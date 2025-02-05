@@ -13,7 +13,6 @@ const formData = ref({
   status: "",
   createdAt: "",
   updatedAt: "",
-  status: "",
 });
 
 // 對話框顯示狀態
@@ -119,6 +118,14 @@ const submitForm = async () => {
     console.error("提交表單失敗:", error);
   }
 };
+
+function quickInsert() {
+  formData.value.carModelId = 1;
+  formData.value.carId = "PulseUltra50";
+  formData.value.colorOptions = "紅色";
+  formData.value.licensePlate = "GYL-2167";
+  formData.value.year = "2022";
+}
 </script>
 
 <template>
@@ -222,6 +229,7 @@ const submitForm = async () => {
           </v-card-text>
           <v-card-actions>
             <v-btn text @click="closeDialog">取消</v-btn>
+            <v-btn text @click="quickInsert">一鍵代入</v-btn>
             <v-btn color="primary" type="submit" @click="submitForm"
               >送出</v-btn
             >
