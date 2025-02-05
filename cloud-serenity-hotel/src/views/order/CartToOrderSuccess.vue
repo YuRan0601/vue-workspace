@@ -1,24 +1,11 @@
 <script setup>
-import { useRouter } from 'vue-router';
-import { ref } from 'vue';
-import axios from 'axios';
+import { useRouter, useRoute } from 'vue-router';
 
 const router = useRouter();
+const route = useRoute();
 
-// 記錄最終金額
-const finalAmount = ref(0);
-
-// 發送訂單創建請求並獲取最終金額
-const createOrder = async () => {
-    try {
-        const response = await axios.post('/api/CartToOrder', { /* 這裡是需要傳送的訂單資料 */ });
-
-        // 設置最終金額
-        finalAmount.value = response.data.finalAmount; // 從後端返回的最終金額
-    } catch (error) {
-        console.error('訂單創建失敗:', error);
-    }
-};
+// 從路由的 query 中獲取最終金額
+const finalAmount = route.query.finalAmount || 0;  // 如果沒有就顯示 0
 
 // 轉跳到會員中心訂單頁面
 const goToOrders = () => {
@@ -29,9 +16,6 @@ const goToOrders = () => {
 const goBackToCart = () => {
     router.push({ name: 'productCart' });  // 假設你的購物車頁路由是 'productCart'
 };
-
-// 當頁面加載時呼叫 createOrder
-createOrder();
 </script>
 
 <template>

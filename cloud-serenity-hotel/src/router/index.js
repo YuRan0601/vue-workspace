@@ -214,7 +214,7 @@ const router = createRouter({
               component: MemberOrder,
             },
             {
-              path: "/front/member/OrderDetail",
+              path: "/front/member/OrderDetail/:orderId",  // 動態參數 :orderId
               name: "memberOrderDetail",
               component: MemberOrderDetail,
             },
@@ -226,9 +226,9 @@ const router = createRouter({
           component: Register,
         },
         {
-            path: "/front/forgotPassword",
-            name: "forgotPassword",
-            component: ForgotPassword,
+          path: "/front/forgotPassword",
+          name: "forgotPassword",
+          component: ForgotPassword,
         },
         {
           path: "/front/resetPassword",

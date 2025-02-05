@@ -126,7 +126,7 @@ async function addToCart(product) {
           <input id="quantity" type="number" v-model="quantity" min="1" />
         </div>
         <div class="button-container">
-          <button class="buy-btn" @click="shopping(product)">直接購買</button>
+          <!-- <button class="buy-btn" @click="shopping(product)">直接購買</button> -->
           <button class="cart-btn" @click="addToCart(product)">加入購物車</button>
         </div>
       </div>
@@ -254,7 +254,8 @@ button {
 }
 
 .cart-btn {
-  background-color: #004080;
+  /* background-color: #004080; */
+  background-color: #e74c3c;
   color: white;
 }
 

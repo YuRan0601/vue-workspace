@@ -148,8 +148,8 @@ const handleSubmit = () => {
                             @input="clearAddressError"></v-text-field>
 
                         <!-- 付款方式 -->
-                        <v-select v-model="recipient.paymentMethod" :items="['信用卡', '貨到付款', '銀行轉帳']" label="付款方式"
-                            outlined class="mb-4" style="font-size: 18px;"
+                        <v-select v-model="recipient.paymentMethod" :items="['信用卡', '貨到付款']" label="付款方式" outlined
+                            class="mb-4" style="font-size: 18px;"
                             :error-messages="errorMessages.paymentMethod ? [errorMessages.paymentMethod] : []"
                             @blur="clearPaymentMethodError"></v-select>
 
