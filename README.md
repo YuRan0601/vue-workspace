@@ -1,9 +1,6 @@
 
-
-「考試的時候哪一種題目最時尚？」
-
- 
-
- 
-
-「非選題」（fashion 題）
+server啟動方式
+console輸入
+cd cloud-serenity-hotel
+npm i
+npm run dev
