@@ -85,8 +85,8 @@ function logout() {
                 >
               </li>
               <li class="nav-item">
-                <RouterLink class="nav-link" :to="{ name: 'attractionFront' }"
-                  >周邊介紹</RouterLink
+                <a class="nav-link" href="http://localhost:8080/CloudSerenityHotel/static/attraction/FrontAttraction.html"
+                  >景點介紹</a
                 >
               </li>
               <li class="nav-item">
