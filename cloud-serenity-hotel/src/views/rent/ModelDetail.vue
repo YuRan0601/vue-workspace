@@ -166,7 +166,7 @@ onMounted(async () => {
 }
 
 .data-container h2 {
-  font-size: 4rem; /* 設定 h2 標題字體大小 */
+  font-size: 3rem; /* 設定 h2 標題字體大小 */
   font-weight: bold; /* 設定標題字體為粗體 */
   color: #2c3e50; /* 設定標題顏色 */
   margin-bottom: 10px; /* 設定標題和下一行間距 */
@@ -186,7 +186,7 @@ onMounted(async () => {
 }
 
 h2 i {
-  margin-right: 130px; /* 在圖示右側添加 10px 的間距 */
+  margin-right: 20px; /* 在圖示右側添加 10px 的間距 */
 }
 
 .button-container {
