@@ -39,7 +39,6 @@ import BookingSuccessVue from "@/views/booking/BookingSuccess.vue";
 import BookingOrderTableViewVue from "@/views/booking/BookingOrderTableView.vue";
 import CarRentalHome from "@/layouts/rent/CarRentalHome.vue";
 import HeroSection from "@/components/rent/HeroSection.vue";
-import ReserveCarButton from "@/components/rent/ReserveCarButton.vue";
 import ModelSelector from "@/views/rent/ModelSelector.vue";
 import ProductShopping from "@/views/product/ProductShopping.vue";
 import ProductDetail from "@/views/product/ProductDetail.vue";
@@ -322,11 +321,6 @@ const router = createRouter({
               path: "/HeroSection",
               name: "HeroSection",
               component: HeroSection,
-            },
-            {
-              path: "/ReserveCarButton",
-              name: "ReserveCarButton",
-              component: ReserveCarButton,
             },
             {
               path: "/ModelSelector",

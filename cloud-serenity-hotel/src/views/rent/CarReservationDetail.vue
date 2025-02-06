@@ -8,6 +8,7 @@ import { useRoute } from "vue-router"; // 引入 useRoute 來取得路由參數
 const reservation = ref({});
 const carRentalRecord = ref([]); // 儲存車輛租賃記錄
 const carUserInfo = ref([]); // 儲存使用者資訊
+const showImage = ref(false); // 用來控制圖片是否放大顯示
 
 // 使用 useRoute 獲取 URL 中的 id 參數
 const route = useRoute();
@@ -21,12 +22,21 @@ onMounted(async () => {
       `http://localhost:8080/CloudSerenityHotel/car-reservation/query/${reservationId}`
     );
     console.log(response.data);
+
     reservation.value = response.data.data;
     carRentalRecord.value = reservation.value.carRentalRecord;
     carUserInfo.value = reservation.value.carUserInfo;
 
     console.log("carRentalRecord = ", carRentalRecord.value);
-    console.log("carUserInfo = ", carUserInfo.value);
+
+    // 使用 rentalStatus 而非 status
+    const status = carRentalRecord.value.rentalStatus; // 修改這一行
+    console.log("Car Rental Status: ", status); // 打印狀態以確保正確
+
+    // 使用 getStatusClass 來設置中文顯示和類別
+    const { statusText, statusClass } = getStatusClass(status);
+    carRentalRecord.value.statusText = statusText;
+    carRentalRecord.value.statusClass = statusClass;
   } catch (error) {
     console.error("無法取得預約資料", error);
   }
@@ -43,11 +53,11 @@ const getStatusClass = (status) => {
   const statusText = statusMap[status] || status; // 如果沒有對應的英文狀態，則顯示原始狀態
 
   let statusClass = "";
-  if (status === "可租用") {
+  if (status === "AVAILABLE") {
     statusClass = "status-available";
-  } else if (status === "已預約") {
+  } else if (status === "RESERVED") {
     statusClass = "status-booked";
-  } else if (status === "租借中") {
+  } else if (status === "RENTED") {
     statusClass = "status-rented";
   }
 
@@ -109,6 +119,22 @@ const confirmReservation = async () => {
     });
   }
 };
+onMounted(async () => {
+  try {
+    const response = await axios.get(
+      `http://localhost:8080/CloudSerenityHotel/car-reservation/query/${reservationId}`
+    );
+    console.log(response.data);
+    reservation.value = response.data.data;
+    carRentalRecord.value = reservation.value.carRentalRecord;
+    carUserInfo.value = reservation.value.carUserInfo;
+
+    console.log("carRentalRecord = ", carRentalRecord.value);
+    console.log("carUserInfo = ", carUserInfo.value);
+  } catch (error) {
+    console.error("無法取得預約資料", error);
+  }
+});
 const cancelReservation = async () => {
   try {
     const response = await axios.post(
@@ -124,7 +150,7 @@ const cancelReservation = async () => {
         confirmButtonText: "確定",
       }).then(() => {
         // 可以在這裡跳轉頁面，或者進一步處理
-        location.reload(); // 這行會刷新頁面
+        window.location.href = "http://localhost:5173/rent/CarRentalHistory";
       });
     } else {
       // 使用 SweetAlert2 顯示錯誤訊息
@@ -194,7 +220,7 @@ const cancelReservation = async () => {
         </tr>
 
         <tr>
-          <td><strong>租借狀態</strong></td>
+          <td><strong>車輛租借狀態</strong></td>
           <td :class="getStatusClass(carRentalRecord.rentalStatus).statusClass">
             {{ getStatusClass(carRentalRecord.rentalStatus).statusText }}
           </td>
@@ -208,18 +234,78 @@ const cancelReservation = async () => {
           <td><strong>訂單結束時間</strong></td>
           <td>{{ formatDate(carRentalRecord.updatedAt) }}</td>
         </tr>
+        <tr>
+          <td><strong>駕照圖片</strong></td>
+          <td>
+            <img
+              :src="'data:image/jpeg;base64,' + carUserInfo.licenseImage"
+              alt="駕照圖片"
+              style="max-width: 200px; cursor: pointer"
+              @click="showImage = true"
+            />
+          </td>
+        </tr>
+        <div v-if="showImage" class="image-modal" @click="showImage = false">
+          <img
+            :src="'data:image/jpeg;base64,' + carUserInfo.licenseImage"
+            alt="放大圖片"
+            class="modal-image"
+          />
+        </div>
       </tbody>
     </table>
     <div class="mt-4">
-      <button class="btn btn-success me-3" @click="confirmReservation">
+      <!-- 當車輛狀態是 RESERVED 時，顯示 取車 按鈕 -->
+      <button
+        v-if="carRentalRecord.rentalStatus === 'RESERVED'"
+        class="btn btn-success me-3"
+        @click="confirmReservation"
+      >
         取車
       </button>
-      <button class="btn btn-danger" @click="cancelReservation">還車</button>
+
+      <!-- 當車輛狀態是 RENTED 時，顯示 還車 按鈕 -->
+      <button
+        v-if="carRentalRecord.rentalStatus === 'RENTED'"
+        class="btn btn-danger"
+        @click="cancelReservation"
+      >
+        還車
+      </button>
+
+      <!-- 顯示狀態文本 -->
+      <div>
+        <span>{{ carRentalRecord.statusText }}</span>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+/* Modal 視窗樣式 */
+.image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7); /* 半透明黑色背景 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-image {
+  max-width: 90%; /* 限制放大圖片的最大寬度 */
+  max-height: 90%; /* 限制放大圖片的最大高度 */
+  border-radius: 10px;
+}
+
+img {
+  cursor: pointer;
+}
+
 /* 整體容器樣式 */
 .container {
   max-width: 1200px;
@@ -306,7 +392,7 @@ button:hover {
 }
 
 .status-booked {
-  color: orange;
+  color: blue;
 }
 
 .status-rented {
