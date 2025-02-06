@@ -265,7 +265,7 @@ function bookingRoomTypeConfirm(item) {
 
 <style lang="css" scoped>
 .container {
-  height: 200vh;
+  min-height: 150vh;
 }
 
 .roomLabel {

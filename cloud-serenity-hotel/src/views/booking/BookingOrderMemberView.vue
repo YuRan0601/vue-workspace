@@ -198,9 +198,6 @@ onMounted(() => {
 
     <v-container
       style="
-        display: flex;
-        align-items: center;
-        justify-content: center;
         width: 500px;
       "
     >

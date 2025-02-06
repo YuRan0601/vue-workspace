@@ -64,7 +64,7 @@ function toBookingSearch() {
   padding: 10px;
   width: 100%;
   text-align: center;
-  background-color: rgb(185, 252, 185);
+  background-color: rgb(238, 255, 238);
 }
 
 #bookingBtn {

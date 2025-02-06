@@ -130,7 +130,9 @@ function logout() {
         </nav>
       </div>
     </header>
-    <RouterView></RouterView>
+    <div class="frontContainer">
+      <RouterView></RouterView>
+    </div>
     <Footer></Footer>
   </div>
 </template>
@@ -142,5 +144,9 @@ nav a img {
 
 .bg-header {
   background-color: #ecf0d6;
+}
+
+.frontContainer {
+  min-height: 150vh;
 }
 </style>

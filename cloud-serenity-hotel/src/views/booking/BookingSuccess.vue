@@ -37,7 +37,8 @@ import { useRouter } from 'vue-router';
 .content {
   width: 500px;
   border-radius: 10px;
-  padding: 50px;
+  padding-top: 150px;
   text-align: center;
+  min-height: 150vh;
 }
 </style>

@@ -216,5 +216,6 @@ function cancelOrder() {
   border-radius: 10px;
   padding: 50px;
   text-align: center;
+  min-height: 150vh;
 }
 </style>

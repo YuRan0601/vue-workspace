@@ -66,16 +66,19 @@ onMounted(async () => {
 
   if (chartCanvas.value) {
     chartInstance = new Chart(chartCanvas.value, {
-      type: "bar",
+      type: "line",
       data: {
         labels: labels,
         datasets: [
           {
             label: "近5個月訂房數",
             data: dataCounts,
-            backgroundColor: "rgba(75, 192, 192, 0.2)",
-            borderColor: "rgba(75, 192, 192, 1)",
-            borderWidth: 1,
+            backgroundColor: "transparent", // 不填充區域
+            borderColor: "rgba(75, 192, 192, 1)", // 線條顏色
+            borderWidth: 2, // 線條粗細
+            pointBackgroundColor: "rgba(75, 192, 192, 1)", // 數據點顏色
+            pointRadius: 5, // 數據點大小
+            tension: 0.2, // 使線條有點平滑
           },
         ],
       },
