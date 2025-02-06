@@ -63,7 +63,7 @@ const submitRegister = () => {
 
 //一鍵帶入
 function autoKeyin() {
-    registerData.value.userName = "linxiaomei";
+    registerData.value.userName = "林小美";
     registerData.value.email = "linxiaomei.cloud@gmail.com";
     registerData.value.password = "cloud#cus01";
     registerData.value.member.gender = "Female";

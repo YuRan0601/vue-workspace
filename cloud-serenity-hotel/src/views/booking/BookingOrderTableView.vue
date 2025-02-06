@@ -227,7 +227,12 @@ onMounted(() => {
         </template>
 
         <template #item.actions="{ item }">
-          <v-btn color="primary" class="mr-2" @click="seeUpdateOrder(item)">
+          <v-btn
+            v-if="item.status === '待付款'"
+            color="primary"
+            class="mr-2"
+            @click="seeUpdateOrder(item)"
+          >
             修改
           </v-btn>
         </template>
