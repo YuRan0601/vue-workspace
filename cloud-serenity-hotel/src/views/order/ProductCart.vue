@@ -112,7 +112,7 @@ const updateQuantity = async (cartItemId, quantity) => {
             },
         }).then(async (result) => {
             if (result.isConfirmed) {
-                await removeFromCart(cartItemId);
+                await removeFromCart(cartItemId, cartItems.value.find(item => item.cartItemId === cartItemId).productId);
             } else {
                 fetchCartItems(); // 恢復商品列表
             }
@@ -137,6 +137,12 @@ const updateQuantity = async (cartItemId, quantity) => {
                     newQuantity: quantity
                 }
             });
+
+            // 更新 Pinia store 中的商品數量
+            const storeIndex = cartStore.selectedItems.findIndex(item => item.cartItemId === cartItemId);
+            if (storeIndex !== -1) {
+                cartStore.selectedItems[storeIndex].quantity = quantity;
+            }
 
             calculateTotal();
 

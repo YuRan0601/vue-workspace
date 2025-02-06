@@ -16,7 +16,7 @@ export const useCartStore = defineStore('cart', {
         // 設置選中的商品
         setSelectedItems(items) {
             console.log("Setting selected items:", items);  // 確認 Pinia store 是否正確設置商品
-            this.selectedItems = items;
+            this.selectedItems = items; // 儲存更新後的商品列表
         },
         // 更新收件人資料
         setRecipientData(data) {
