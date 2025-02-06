@@ -150,7 +150,7 @@ const cancelReservation = async () => {
         confirmButtonText: "確定",
       }).then(() => {
         // 可以在這裡跳轉頁面，或者進一步處理
-        location.reload(); // 這行會刷新頁面
+        window.location.href = "http://localhost:5173/rent/CarRentalHistory";
       });
     } else {
       // 使用 SweetAlert2 顯示錯誤訊息

@@ -104,7 +104,6 @@ const cancelOrder = async (reservationId) => {
         <tr>
           <th scope="col">訂單編號</th>
           <th scope="col">車輛編號</th>
-          <th scope="col">訂單狀態</th>
           <th scope="col">取車時間</th>
           <th scope="col">還車時間</th>
           <th scope="col">操作</th>
@@ -115,7 +114,6 @@ const cancelOrder = async (reservationId) => {
         <tr v-for="(order, index) in CarUser" :key="index">
           <td>{{ order.id }}</td>
           <td>{{ order.carId }}</td>
-          <td>{{ order.rentalStatus }}</td>
           <td>{{ order.rentalStart }}</td>
           <td>{{ order.rentalEnd }}</td>
           <td class="text-center align-middle">
