@@ -143,4 +143,33 @@ const getImageSrc = (carId) => {
   height: 100%; /* 確保容器有足夠的高度 */
   margin-left: 90px;
 }
+
+.search-container {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-start; /* 按鈕從左側開始排列 */
+  overflow-x: auto; /* 使容器在按鈕超過寬度時可以水平滾動 */
+  padding: 10px 0; /* 上下內邊距 */
+  margin-left: 160px;
+}
+
+.search-btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  cursor: pointer;
+  border-radius: 5px;
+  background-color: #3d4044;
+  color: #ffffff;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.search-btn:hover {
+  background-color: #65707e;
+  color: #ffffff;
+}
+
+.search-btn:active {
+  background-color: #a9afb6;
+  border-color: #a9afb6;
+}
 </style>
