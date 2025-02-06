@@ -87,6 +87,11 @@ function confirmNewPassword() {
     }
 }
 
+function autoKeyin() {
+    newPassword.value = "lin$5#mei";
+    checkNewPassword.value = "lin$5#mei";
+}
+
 //取得token
 onMounted(() => {
     token.value = route.query.token || '';
@@ -113,6 +118,7 @@ onMounted(() => {
             </div>
             <div class="col-4 mt-2">
                 <button type="submit" class="btn btn-primary text-white">重設密碼</button>
+                <button type="button" @click="autoKeyin()" class="btn btn-primary px-5 text-white mx-2">一鍵帶入</button>
             </div>
         </form>
     </div>
