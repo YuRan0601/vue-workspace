@@ -30,6 +30,11 @@ async function submitForgotForm() {
             });
         })
 }
+
+function autoKeyin() {
+    email.value = "linxiaomei.cloud@gmail.com";
+}
+
 </script>
 
 <template>
@@ -43,6 +48,7 @@ async function submitForgotForm() {
             </div>
             <div class="col-4 mt-2">
                 <button type="submit" class="btn btn-primary text-white">寄送重設密碼確認信</button>
+                <button type="button" @click="autoKeyin()" class="btn btn-primary px-5 text-white mx-2">一鍵帶入</button>
             </div>
         </form>
     </div>

@@ -56,6 +56,7 @@ async function submitEditForm() {
                     allowOutsideClick: false
                 });
                 getMemberInfo()
+                isEdit.value = false
             })
             .catch(function (error) {
                 Swal.fire({
