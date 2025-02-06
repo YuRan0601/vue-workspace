@@ -76,54 +76,56 @@ setInterval(() => {
 
 <template>
   <div>
-    <div
-      id="carouselExampleIndicators"
-      class="carousel slide"
-      data-bs-ride="carousel"
-    >
-      <div class="carousel-indicators">
-        <button
-          v-for="(image, index) in images"
-          :key="index"
-          type="button"
-          :data-bs-target="'#carouselExampleIndicators'"
-          :data-bs-slide-to="index"
-          :class="{ active: index === activeIndex }"
-          :aria-label="'Slide ' + (index + 1)"
-        ></button>
-      </div>
-      <div class="carousel-inner">
-        <div
-          v-for="(image, index) in images"
-          :key="index"
-          class="carousel-item"
-          :class="{ active: index === activeIndex }"
-        >
-          <img
-            :src="getImageSrc(image)"
-            class="d-block w-100"
-            :alt="'Slide ' + (index + 1)"
-          />
+    <div class="imageSize">
+      <div
+        id="carouselExampleIndicators"
+        class="carousel slide"
+        data-bs-ride="carousel"
+      >
+        <div class="carousel-indicators">
+          <button
+            v-for="(image, index) in images"
+            :key="index"
+            type="button"
+            :data-bs-target="'#carouselExampleIndicators'"
+            :data-bs-slide-to="index"
+            :class="{ active: index === activeIndex }"
+            :aria-label="'Slide ' + (index + 1)"
+          ></button>
         </div>
+        <div class="carousel-inner">
+          <div
+            v-for="(image, index) in images"
+            :key="index"
+            class="carousel-item"
+            :class="{ active: index === activeIndex }"
+          >
+            <img
+              :src="getImageSrc(image)"
+              class="d-block w-100"
+              :alt="'Slide ' + (index + 1)"
+            />
+          </div>
+        </div>
+        <button
+          class="carousel-control-prev"
+          type="button"
+          data-bs-target="#carouselExampleIndicators"
+          data-bs-slide="prev"
+        >
+          <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Previous</span>
+        </button>
+        <button
+          class="carousel-control-next"
+          type="button"
+          data-bs-target="#carouselExampleIndicators"
+          data-bs-slide="next"
+        >
+          <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          <span class="visually-hidden">Next</span>
+        </button>
       </div>
-      <button
-        class="carousel-control-prev"
-        type="button"
-        data-bs-target="#carouselExampleIndicators"
-        data-bs-slide="prev"
-      >
-        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Previous</span>
-      </button>
-      <button
-        class="carousel-control-next"
-        type="button"
-        data-bs-target="#carouselExampleIndicators"
-        data-bs-slide="next"
-      >
-        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-        <span class="visually-hidden">Next</span>
-      </button>
     </div>
   </div>
 </template>
@@ -132,5 +134,12 @@ setInterval(() => {
 img {
   width: 100%;
   height: auto;
+}
+
+.imageSize {
+  width: 900px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 </style>

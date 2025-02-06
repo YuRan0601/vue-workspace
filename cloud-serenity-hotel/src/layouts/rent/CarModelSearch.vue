@@ -31,7 +31,7 @@ console.log(carId);
 }
 
 .adjusted-position {
-  margin-left: 100px; /* 向右移動 20px */
+  margin-left: -100px; /* 向右移動 20px */
   /* margin-top: -500px; 向上移動 20px */
 }
 </style>
