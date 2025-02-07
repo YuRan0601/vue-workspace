@@ -68,7 +68,7 @@ const submitForm = async () => {
 };
 
 const quickInsert = () => {
-  formData.value.carModel = "Pulse";
+  formData.value.carModel = "Gogoro VIVA XL";
   formData.value.brand = "GOGORO";
   formData.value.engineDisplacement = "0";
   formData.value.seatingCapacity = "2";

@@ -120,8 +120,6 @@ const submitForm = async () => {
 };
 
 function quickInsert() {
-  formData.value.carModelId = 1;
-  formData.value.carId = "PulseUltra50";
   formData.value.colorOptions = "紅色";
   formData.value.licensePlate = "GYL-2167";
   formData.value.year = "2022";
