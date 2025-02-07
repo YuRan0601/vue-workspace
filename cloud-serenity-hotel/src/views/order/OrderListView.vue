@@ -208,9 +208,11 @@ watch([currentPage, itemsPerPage], () => {
                     class="btn btn-warning btn-sm me-1">
                     <i class="bi bi-pencil-square"></i>
                 </RouterLink>
+                <!-- 刪除按鈕 
                 <button class="btn btn-danger btn-sm" @click="openDeleteModal(item)">
                     <i class="bi bi-trash"></i>
                 </button>
+                -->
             </template>
         </v-data-table>
 

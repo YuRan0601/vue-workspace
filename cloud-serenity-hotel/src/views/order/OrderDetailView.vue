@@ -249,10 +249,11 @@ const deleteOrder = async () => {
                     class="btn btn-warning me-2">
                     <i class="bi bi-pencil-square"></i> 編輯
                 </RouterLink>
-                <!-- 刪除按鈕 -->
+                <!-- 刪除按鈕 
                 <button class="btn btn-danger" @click="showDeleteAlert">
                     <i class="bi bi-trash"></i> 刪除
                 </button>
+                -->
             </div>
         </div>
 
