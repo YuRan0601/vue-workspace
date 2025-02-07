@@ -14,7 +14,7 @@ const headers = [
     { title: "特價", key: 'specialPrice' },
     { title: "新增時間", key: 'createdAt' },
     { title: "修改時間", key: 'updatedAt' },
-    { title: "上架狀態", key: 'listingStatus' },
+    { title: "上架狀態", key: 'listingStatus', width: '130px' },
     { title: "操作", key: "actions" }
 ]
 
@@ -110,12 +110,6 @@ function listingStatus(item){
     
 // }
 
-const update = async () => {
-    const UPDATE_URL = `${BASE_URL}Product/update/${item.productId}`
-    const response = await fetch(UPDATE_URL)
-    const data = await response.json()
-    product.value = data
-}
 
 // 點編輯
 function editItem(item) {
@@ -193,15 +187,41 @@ const result = await Swal.fire({
                 <img :src="getImageUrl(item )" alt="Product Image" style="height: 100px; width: 100px; object-fit: cover;" />
             </template>
 
+<!-- 上下架按鈕 版本一 -->
             <template #item.listingStatus="{ item }">
                 <v-btn 
                 :color="item.status === 0 ? 'grey-lighten-3' : 'primary'" 
                 class="mr-2" 
                 elevation="0" 
                 @click="listingStatus(item)">
-                {{ item.status === 0 ? '下架' : '上架' }} 
+                {{ item.status === 0 ? '下架中' : '上架中' }} 
                 </v-btn>
             </template>
+
+<!-- 上下架按鈕 版本二 -->
+<!-- <template #item.listingStatus="{ item }">
+    <v-switch 
+        :model-value="item.status === 1"
+        :label="item.status === 0 ? '下架' : '上架'"
+        :color="item.status === 0 ? 'grey' : 'primary'"
+        @update:modelValue="listingStatus(item)"
+    ></v-switch>
+</template> -->
+
+<!-- 上下架按鈕 版本三 -->
+<!-- <template #item.listingStatus="{ item }">
+    <v-switch 
+        :model-value="item.status === 1"
+        :color="item.status === 0 ? 'grey' : 'primary'"
+        @update:modelValue="listingStatus(item)"
+    >
+        <template #label>
+            <span :style="{ color: item.status === 1 ? '#01579B' : 'inherit' }">
+                {{ item.status === 0 ? '下架' : '上架' }}
+            </span>
+        </template>
+    </v-switch>
+</template> -->
 
             <template #item.actions="{ item }">
                 <!-- elevation="0" 無陰影 -->
