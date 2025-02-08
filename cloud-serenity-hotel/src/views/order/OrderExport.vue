@@ -1,21 +1,9 @@
 <script setup>
 import axios from "axios";
-import { ref, onMounted, watch } from "vue";
-import { Modal } from "bootstrap"; // 顯式導入 Bootstrap 的 Modal 功能
+import { ref, onMounted } from "vue";
+import Swal from "sweetalert2";
 
-// ===== Axios 攔截器：針對 404 錯誤攔截並靜默處理 =====
-axios.interceptors.response.use(
-    (response) => response, // 正常回應直接返回
-    (error) => {
-        if (error.response && error.response.status === 404) {
-            console.warn(`404 錯誤攔截：${error.response.config.url}`);
-            return Promise.resolve(error.response); // 返回普通回應，避免拋出錯誤
-        }
-        return Promise.reject(error); // 其他錯誤繼續拋出
-    }
-);
-
-// 訂單資料
+// ===== 訂單資料 =====
 const headers = [
     { title: "OrderID", key: "orderId" },
     { title: "訂單狀態", key: "orderStatus" },
@@ -24,7 +12,7 @@ const headers = [
     { title: "最終金額", key: "finalAmount" },
     { title: "訂單日期", key: "orderDate" },
     { title: "更新日期", key: "updatedAt" },
-    { title: "操作", key: "actions" },
+    //{ title: "操作", key: "actions" },
 ];
 
 // ===== 定義狀態 =====
@@ -32,7 +20,7 @@ const orders = ref([]); // 訂單列表
 const currentPage = ref(1); // 當前頁碼
 const itemsPerPage = ref(10); // 每頁顯示的數量
 const totalItems = ref(0); // 總筆數
-const totalPages = ref(1); // 總頁數
+//const totalPages = ref(1); // 總頁數
 
 const orderStatus = ref('');
 const fileFormat = ref('');
@@ -46,14 +34,41 @@ const formatNumberToInteger = (number) => Math.round(number);
 // ===== 匯出訂單資料 =====
 const exportOrders = async () => {
     try {
-        const response = await axios.post('/api/exportOrders', {
+        // 打印出傳送的資料，確認格式
+        console.log({
             orderStatus: orderStatus.value,
             format: fileFormat.value,
             filePath: filePath.value
         });
-        alert('匯出成功！');
+
+        // 發送 POST 請求，傳送訂單狀態、格式和檔案路徑（如果有提供）
+        const response = await axios.post("/api/Order/exportOrders", null, {
+            params: {
+                orderStatus: orderStatus.value,
+                format: fileFormat.value,
+                filePath: filePath.value || "" // 若沒提供 filePath，傳空字串
+            }
+        });
+
+        // 匯出成功後顯示 SweetAlert
+        Swal.fire({
+            icon: 'success',
+            title: '匯出成功!',
+            text: '訂單已成功匯出，若無設定路徑將匯於桌面!',
+            confirmButtonColor: "#6a0dad",
+            confirmButtonText: '確認',
+            customClass: {
+                confirmButton: "btn text-white me-2",
+            },
+        });
     } catch (error) {
-        alert('匯出失敗，請重試！');
+        // 匯出失敗時顯示錯誤提示
+        Swal.fire({
+            icon: 'error',
+            title: '匯出失敗!',
+            text: '請稍後再試。',
+            confirmButtonText: '確認'
+        });
         console.error('匯出錯誤:', error);
     }
 };
@@ -77,12 +92,6 @@ async function loadTable() {
 // ===== 初始化加載資料 =====
 onMounted(() => {
     loadTable();
-    console.log(orders.value); // 確保 orders 裡每筆數據都有 orderId
-});
-
-// ===== 監控分頁與每頁項目變化 =====
-watch([currentPage, itemsPerPage], () => {
-    loadTable();
 });
 </script>
 
@@ -94,8 +103,8 @@ watch([currentPage, itemsPerPage], () => {
             <!-- 匯出檔案 -->
             <v-row>
                 <v-col cols="12" md="4">
-                    <v-select label="訂單狀態" v-model="orderStatus" :items="['未付款', '已付款', '處理中', '已發貨', '已完成', '已取消']"
-                        item-text="name" item-value="value" outlined></v-select>
+                    <v-select label="訂單狀態" v-model="orderStatus" :items="['未付款', '已付款', '處理中', '已出貨', '已完成', '已取消']"
+                        outlined></v-select>
                 </v-col>
 
                 <v-col cols="12" md="4">
