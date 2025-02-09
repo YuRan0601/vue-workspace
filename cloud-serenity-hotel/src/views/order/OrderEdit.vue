@@ -207,6 +207,8 @@ watch(() => props.orderId, fetchOrderDetail, { immediate: true });
                 <div class="col-lg-8">
                     <label for="orderStatus" class="form-label">訂單狀態</label>
                     <select class="form-select" id="orderStatus" v-model="orderDetail.orderStatus">
+                        <option value="未付款">未付款</option>
+                        <option value="已付款">已付款</option>
                         <option value="處理中">處理中</option>
                         <option value="已出貨">已出貨</option>
                         <option value="已完成">已完成</option>

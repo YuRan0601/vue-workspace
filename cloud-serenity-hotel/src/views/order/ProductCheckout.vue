@@ -114,7 +114,7 @@ const submitOrder = () => {
             <v-col v-for="item in orderItems" :key="item.productId" cols="12" md="4">
                 <v-card class="my-3">
                     <v-img :src="BASE_URL + '/' + item.imageUrl" alt="product image" height="200px"></v-img>
-                    <v-card-title class="text-center">{{ item.productName }}</v-card-title>
+                    <v-card-title class="text-center wrap-text">{{ item.productName }}</v-card-title>
                     <v-card-subtitle class="text-center">
                         <span v-if="item.discount > 0">
                             <span class="original-price">${{ item.unitPrice }}</span>
@@ -164,6 +164,15 @@ const submitOrder = () => {
 </template>
 
 <style scoped>
+.wrap-text {
+    white-space: normal;
+    /* 允許文字換行 */
+    word-wrap: break-word;
+    /* 自動斷字 */
+    word-break: break-word;
+    /* 確保長單詞不會超出邊界 */
+}
+
 .v-card {
     display: flex;
     flex-direction: column;
