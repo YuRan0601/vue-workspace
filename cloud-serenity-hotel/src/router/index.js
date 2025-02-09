@@ -377,7 +377,7 @@ const router = createRouter({
       beforeEnter: async (to, from, next) => {
         const useStores = useAuthStore();
 
-        useStores.fetchUser();
+        // useStores.fetchUser();
         console.log(useStores.user);
 
         // 檢查登入狀態
