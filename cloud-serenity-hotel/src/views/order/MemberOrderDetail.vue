@@ -60,20 +60,32 @@ onMounted(() => {
                 <ul>
                     <li v-for="item in orderDetail.orderItemsDtos" :key="item.orderitemId" class="order-item">
                         <span>{{ item.productName }} ({{ item.quantity }} 件)</span>
-                        <span>原價：<s>${{ item.unitPrice }}</s>，特價：${{ item.specialPrice }}</span>
+
+                        <span>
+                            <!-- 如果有特價，顯示原價並劃線，並顯示特價 -->
+                            <span v-if="item.specialPrice > 0">
+                                原價：<s>${{ item.unitPrice }}</s>，
+                                特價：$<span class="text-danger">{{ item.specialPrice }}</span> <!-- 這裡設置紅色 -->
+                            </span>
+                            <!-- 如果沒有特價，只顯示原價 -->
+                            <span v-else>
+                                原價：${{ item.unitPrice }}
+                            </span>
+                        </span>
                     </li>
                 </ul>
             </div>
 
             <div class="price-summary">
                 <div class="info-item">
-                    <strong>小計：</strong> ${{ orderDetail.totalAmount }}
+                    <strong>小計：</strong> ${{ Math.round(orderDetail.totalAmount) }}
                 </div>
                 <div class="info-item">
-                    <strong>折扣金額：</strong> -{{ orderDetail.discountAmount }}
+                    <strong>折扣金額：</strong> $<span class="text-danger">{{ Math.round(orderDetail.discountAmount)
+                        }}</span>
                 </div>
                 <div class="info-item">
-                    <strong>總金額：</strong> ${{ orderDetail.finalAmount }}
+                    <strong>最終總金額：</strong> ${{ Math.round(orderDetail.finalAmount) }}
                 </div>
             </div>
 
@@ -95,6 +107,11 @@ onMounted(() => {
 </template>
 
 <style lang="css" scoped>
+.text-danger {
+    color: red;
+    /* 設置特價為紅色 */
+}
+
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     background-color: #f7f7f7;

@@ -60,23 +60,38 @@ const submitOrder = () => {
 
     console.log('提交的訂單資料:', orderData); // 確保資料傳送正確
 
-    // 先將訂單資料提交到後端
-    axios.post(`/api/Order/CartToOrderWithPayment`, orderData)
+    // 根據付款方式選擇不同的 API
+    const apiUrl = recipient.value.paymentMethod === '貨到付款'
+        ? `/api/Order/CartToOrder`  // 不串金流的 API
+        : `/api/Order/CartToOrderWithPayment`;  // 需要金流處理的 API
+
+    // 提交訂單資料
+    axios.post(apiUrl, orderData)
         .then(response => {
             if (response.status === 200 || response.status === 201) { // 如果訂單提交成功
-                const paymentForm = response.data;  // 獲取綠界金流表單
-                // 將返回的支付表單 HTML 設置到 ecpayHtml 中
-                ecpayHtml.value = paymentForm;
-
-                // 等待 DOM 更新
-                nextTick(() => {
-                    // 找到表單並自動提交
-                    const formEl = ecpayContainer.value.querySelector("#ecpay-form");
-                    if (formEl) {
-                        formEl.submit();  // 自動提交表單
-                    }
-                });
-
+                if (recipient.value.paymentMethod === '貨到付款') {
+                    // 顯示 SweetAlert2 訂單成功提示
+                    Swal.fire({
+                        title: '建立訂單成功!',
+                        text: '您的訂單已經建立，可至會員中心訂單區查看。',
+                        icon: 'success',
+                        confirmButtonText: '去查看',
+                        customClass: {
+                            confirmButton: "btn btn-primary text-white me-2", // 自定義確認按鈕
+                        },
+                    }).then(() => {
+                        // 可以根據需求進行重定向或其他操作
+                        router.push({ name: 'memberOrder' });  // 假設你有成功頁面
+                    });
+                } else {
+                    const paymentForm = response.data;  // 獲取綠界金流表單
+                    // 顯示金流表單並自動提交
+                    ecpayHtml.value = paymentForm;
+                    nextTick(() => {
+                        const formEl = ecpayContainer.value.querySelector("#ecpay-form");
+                        if (formEl) formEl.submit();  // 自動提交表單
+                    });
+                }
             } else {
                 console.error('訂單提交失敗：狀態碼不正確', response.status);
                 alert('訂單提交失敗，請稍後再試');
@@ -87,7 +102,6 @@ const submitOrder = () => {
             alert('訂單提交失敗，請稍後再試');
         });
 };
-
 
 </script>
 
