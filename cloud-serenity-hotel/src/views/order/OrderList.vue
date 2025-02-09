@@ -202,11 +202,11 @@ watch([currentPage, itemsPerPage], () => {
             <template #item.actions="{ item }">
                 <RouterLink :to="{ name: 'orderdetail', params: { orderId: item.orderId } }"
                     class="btn btn-primary btn-sm me-1">
-                    <i class="bi bi-eye"></i>
+                    <i class="bi bi-eye">查看</i>
                 </RouterLink>
                 <RouterLink :to="{ name: 'orderedit', params: { orderId: item.orderId } }"
                     class="btn btn-warning btn-sm me-1">
-                    <i class="bi bi-pencil-square"></i>
+                    <i class="bi bi-pencil-square">修改</i>
                 </RouterLink>
                 <!-- 刪除按鈕 
                 <button class="btn btn-danger btn-sm" @click="openDeleteModal(item)">

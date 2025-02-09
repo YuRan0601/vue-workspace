@@ -19,10 +19,6 @@ import VehicleDetails from "@/layouts/rent/VehicleDetails.vue";
 import CarInfo from "@/views/rent/CarInfo.vue";
 import CarTypeView from "@/views/rent/CarTypeView.vue";
 import VehicleList from "@/views/rent/VehicleList.vue";
-import OrderAddView from "@/views/order/OrderAddView.vue";
-import OrderDetailView from "@/views/order/OrderDetailView.vue";
-import OrderEditView from "@/views/order/OrderEditView.vue";
-import OrderListView from "@/views/order/OrderListView.vue";
 import { createRouter, createWebHistory } from "vue-router";
 import BackAdmin from "@/views/user/BackAdmin.vue";
 import Login from "@/views/user/Login.vue";
@@ -78,6 +74,11 @@ import CartToOrderSuccess from "@/views/order/CartToOrderSuccess.vue";
 import CarOrderMember from "@/views/rent/CarOrderMember.vue";
 import HideProductHome from "@/views/product/HideProductHome.vue";
 import PublicProductHome from "@/views/product/PublicProductHome.vue";
+import OrderExport from "@/views/order/OrderExport.vue";
+import OrderList from "@/views/order/OrderList.vue";
+import OrderDetail from "@/views/order/OrderDetail.vue";
+import OrderEdit from "@/views/order/OrderEdit.vue";
+import OrderAdd from "@/views/order/OrderAdd.vue";
 
 
 const router = createRouter({
@@ -566,27 +567,33 @@ const router = createRouter({
             {
               path: "/order/orderList",
               name: "orderList",
-              component: OrderListView,
+              component: OrderList,
               props: true,
             },
             {
               path: "/order/orderdetail/:orderId",
               name: "orderdetail",
-              component: OrderDetailView,
+              component: OrderDetail,
               props: true,
             },
             {
               path: "/order/orderedit/:orderId",
               name: "orderedit",
-              component: OrderEditView,
+              component: OrderEdit,
               props: true,
             },
             {
               path: "/order/orderadd",
               name: "orderadd",
-              component: OrderAddView,
+              component: OrderAdd,
               props: true,
             },
+            {
+              path: "/order/orderExport",
+              name: "orderExport",
+              component: OrderExport,
+              props: true,
+            }
           ],
         },
         //-------------

@@ -227,7 +227,7 @@ onMounted(() => {
 <style lang="css" scoped>
 .cart-title {
     text-align: left;
-    margin-left: 175px;
+    margin-left: 60px;
 }
 
 .v-card {
@@ -242,7 +242,7 @@ onMounted(() => {
 }
 
 .product-card {
-    width: 80%;
+    width: 90%;
     /* 增大卡片寬度 */
     margin: 10px auto;
     /* 中央對齊 */
@@ -277,6 +277,10 @@ onMounted(() => {
     font-weight: bold;
     margin-right: 10px;
     /* 避免商品名和價格擁擠 */
+    white-space: normal;
+    /* 允許換行 */
+    word-wrap: break-word;
+    /* 長名稱自動換行 */
 }
 
 .v-card-subtitle {
