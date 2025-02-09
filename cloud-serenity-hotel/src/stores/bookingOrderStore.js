@@ -3,11 +3,13 @@ import Swal from "sweetalert2";
 import { ref } from "vue";
 
 export const useBookingOrderStore = defineStore("bookingOrder", () => {
+  const orderId = ref(null);
   const checkInDate = ref(null);
   const checkOutDate = ref(null);
   const roomTypeId = ref(null);
   const roomTypeName = ref(null);
   const totalPrice = ref(null);
+  const paymentMethod = ref(null);
 
   function resetAll() {
     console.log("123");
@@ -41,13 +43,15 @@ export const useBookingOrderStore = defineStore("bookingOrder", () => {
   }
 
   return {
+    orderId,
     checkInDate,
     checkOutDate,
     roomTypeId,
     roomTypeName,
     totalPrice,
+    paymentMethod,
     resetAll,
     checkValue,
-    toOrderView
+    toOrderView,
   };
 });

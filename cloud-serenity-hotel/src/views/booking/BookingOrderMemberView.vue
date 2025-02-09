@@ -97,10 +97,6 @@ const ecpayHtml = ref("");
 const ecpayContainer = ref(null);
 
 async function orderPay(item) {
-  console.log(item.orderId);
-  console.log(item.roomTypeName);
-  console.log(item.totalPrice);
-
   payment.value.orderId = item.orderId;
   payment.value.productName = item.roomTypeName;
   payment.value.price = item.totalPrice;
