@@ -78,14 +78,14 @@ onMounted(() => {
 
             <div class="price-summary">
                 <div class="info-item">
-                    <strong>小計：</strong> ${{ Math.round(orderDetail.totalAmount) }}
+                    <strong>總金額：</strong> ${{ Math.round(orderDetail.totalAmount) }}
                 </div>
                 <div class="info-item">
                     <strong>折扣金額：</strong> $<span class="text-danger">{{ Math.round(orderDetail.discountAmount)
                         }}</span>
                 </div>
                 <div class="info-item">
-                    <strong>最終總金額：</strong> ${{ Math.round(orderDetail.finalAmount) }}
+                    <strong>最終金額：</strong> ${{ Math.round(orderDetail.finalAmount) }}
                 </div>
             </div>
 
