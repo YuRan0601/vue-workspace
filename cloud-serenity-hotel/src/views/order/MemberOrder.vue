@@ -53,6 +53,13 @@ onMounted(() => {
     <div>
         <h2>訂單資料</h2>
         <v-container>
+            <!-- 查詢訂單狀態 -->
+            <v-row>
+                <v-col cols="12" md="4">
+                    <v-select label="訂單狀態" v-model="orderStatus" :items="['未付款', '已付款', '處理中', '已出貨', '已完成', '已取消']"
+                        outlined @change="loadOrders"></v-select>
+                </v-col>
+            </v-row>
             <v-data-table :items="orders" :headers="headers" item-value="orderId" class="orderTable" show-expand>
 
                 <!-- 商品名稱 -->

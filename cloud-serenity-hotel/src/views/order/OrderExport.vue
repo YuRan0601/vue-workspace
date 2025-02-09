@@ -153,16 +153,18 @@ onMounted(() => {
             <!-- 匯出檔案 -->
             <v-row>
                 <v-col cols="12" md="4">
-                    <v-select label="訂單狀態" v-model="orderStatus" :items="['', '未付款', '已付款', '處理中', '已出貨', '已完成', '已取消']"
-                        outlined @change="loadOrders"></v-select>
+                    <v-select label="訂單狀態(未選預設全部)" v-model="orderStatus"
+                        :items="['', '未付款', '已付款', '處理中', '已出貨', '已完成', '已取消']" outlined
+                        @change="loadOrders"></v-select>
                 </v-col>
 
                 <v-col cols="12" md="4">
-                    <v-select label="檔案格式" v-model="fileFormat" :items="['', 'csv', 'json']" outlined></v-select>
+                    <v-select label="檔案格式(csv / json)" v-model="fileFormat" :items="['', 'csv', 'json']"
+                        outlined></v-select>
                 </v-col>
 
                 <v-col cols="12" md="4">
-                    <v-text-field label="檔案路徑與檔名" v-model="filePath" outlined></v-text-field>
+                    <v-text-field label="檔案路徑與檔名(未輸入預設到桌面)" v-model="filePath" outlined></v-text-field>
                 </v-col>
             </v-row>
             <v-btn @click="exportOrders" color="primary" class="mt-4">匯出訂單</v-btn>
