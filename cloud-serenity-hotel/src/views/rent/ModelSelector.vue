@@ -116,10 +116,7 @@ const getImageSrc = (carId) => {
   border-bottom: 1px solid #ddd;
 }
 
-.card-body {
-  padding: 1rem;
-  text-align: center;
-}
+
 
 .card-body h4 {
   font-size: 1.2rem;
@@ -135,16 +132,17 @@ const getImageSrc = (carId) => {
 }
 
 .card-body {
+  width: 100%;
   display: inline-block; /* 如果需要確保 RouterLink 顯示為區塊元素，可以設定 */
   flex-direction: column; /* 使 h4 和 h5 垂直排列 */
   justify-content: center; /* 垂直居中 */
   align-items: center; /* 水平居中 */
   text-align: center; /* 使文字內部也居中 */
   height: 100%; /* 確保容器有足夠的高度 */
-  margin-left: 90px;
 }
 
 .search-container {
+  
   display: flex;
   gap: 10px;
   justify-content: flex-start; /* 按鈕從左側開始排列 */

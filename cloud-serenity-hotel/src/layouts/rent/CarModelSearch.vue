@@ -11,7 +11,7 @@ console.log(carId);
   <div>
     <div>
       <div class="row centered-row">
-        <div class="col-sm-7"><CarImage :id="carId" /></div>
+        <div class="col-sm-7"><CarImage :id="carId" style="width: 800px;"/></div>
         <div class="col-sm-4 adjusted-position">
           <ModelDetail :id="carId" />
         </div>

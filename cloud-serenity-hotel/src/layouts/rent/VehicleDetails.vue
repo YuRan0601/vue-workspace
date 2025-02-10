@@ -4,10 +4,15 @@ import VehicleHeader from "@/components/rent/VehicleHeader.vue";
 </script>
 <template>
   <div>
-    <VehicleHeader></VehicleHeader>
+    <VehicleHeader class="image" ></VehicleHeader>
     <VehicleList></VehicleList>
   </div>
 </template>
 
 <style scoped>
+.image {
+  justify-content: center;
+  display: flex;
+  align-items: center;
+}
 </style>

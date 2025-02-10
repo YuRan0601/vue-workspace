@@ -75,7 +75,9 @@ setInterval(() => {
 </script>
 
 <template>
-  <div>
+  <div style="justify-content: center;
+  display: flex;
+  align-items: center;">
     <div class="imageSize">
       <div
         id="carouselExampleIndicators"
@@ -132,8 +134,7 @@ setInterval(() => {
 
 <style scoped>
 img {
-  width: 100%;
-  height: auto;
+  width: 850px;
 }
 
 .imageSize {
