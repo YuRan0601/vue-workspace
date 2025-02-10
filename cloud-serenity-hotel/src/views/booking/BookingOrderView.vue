@@ -65,7 +65,6 @@ async function insertOrder() {
     return;
   }
 
-
   Swal.fire({
     title: "確定要提交訂單?",
     icon: "warning",
@@ -76,6 +75,7 @@ async function insertOrder() {
     cancelButtonText: "取消",
   }).then(async (res) => {
     if (res.isConfirmed) {
+      bookingOrderStore.paymentMethod = bookingOrder.value.paymentMethod;
 
       Swal.fire({
         title: "處理中",
@@ -99,6 +99,12 @@ async function insertOrder() {
       Swal.close();
 
       if (data.code === 200) {
+        console.log(data.orderId);
+
+        bookingOrderStore.orderId = data.orderId;
+        bookingOrderStore.roomTypeName = data.roomTypeName;
+        bookingOrderStore.totalPrice = data.totalPrice;
+
         Swal.fire({
           title: "訂單建立成功",
           icon: "success",
@@ -145,10 +151,10 @@ function cancelOrder() {
     confirmButtonText: "確定",
     cancelButtonText: "取消",
   }).then(async (res) => {
-    if (res.isConfirmed) { 
-      router.push({name : 'bookingSearch'})
+    if (res.isConfirmed) {
+      router.push({ name: "bookingSearch" });
     }
-  })
+  });
 }
 </script>
 
@@ -157,7 +163,7 @@ function cancelOrder() {
     <div class="content">
       <h3>您的訂房訂單</h3>
       <br />
-      <v-form ref="form">
+      <v-form ref="form" v-model="isValid">
         <v-text-field
           v-model="userStore.user.userName"
           label="會員名稱"
