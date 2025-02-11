@@ -174,7 +174,7 @@ onMounted(() => {
 
 <template>
   <div>
-    <h1>會員訂房訂單</h1>
+    <h2>會員訂房訂單</h2>
     <br />
     <v-container class="typeBtnContainer">
       <v-row>
