@@ -2,8 +2,7 @@
 ===
 ```雲城旅館 專案介紹```
   
-專案採用前後端分離的架構。
-
+專案採用前後端分離的架構。.
 前端部分使用Vue搭配Vite做為開發框架，並使用axios串接後端的RESTful API。
 
 後端部分基於Spring Boot框架，透過Spring Data JPA搭配Hibernate進行物件關係映射，並與Microsoft SQL Server資料庫進行資料存取。
