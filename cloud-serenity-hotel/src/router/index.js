@@ -207,17 +207,17 @@ const router = createRouter({
               component: bookingOrderMemberViewVue,
             },
             {
-              path: "/front/member/CarOrderMember",
+              path: "/front/member/carOrderMember",
               name: "CarOrderMember",
               component: CarOrderMember,
             },
             {
-              path: "/front/member/Order",
+              path: "/front/member/order",
               name: "memberOrder",
               component: MemberOrder,
             },
             {
-              path: "/front/member/OrderDetail/:orderId",  // 動態參數 :orderId
+              path: "/front/member/orderDetail/:orderId",  // 動態參數 :orderId
               name: "memberOrderDetail",
               component: MemberOrderDetail,
             },

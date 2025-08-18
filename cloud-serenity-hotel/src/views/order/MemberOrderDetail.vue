@@ -1,6 +1,6 @@
 <script setup>
 import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, RouterLink } from "vue-router";
 import { useAuthStore } from "@/stores/authStore";
 import axios from "axios";
 
@@ -19,7 +19,7 @@ async function loadOrderDetail() {
     try {
         if (!userId) return;
 
-        const response = await axios.get(`/api/Order/user/${userId}/order/${orderId}`);
+        const response = await axios.get(`/api/order/user/${userId}/order/${orderId}`);
         orderDetail.value = response.data.data;
     } catch (error) {
         console.error("無法載入訂單詳情：", error);
@@ -37,67 +37,85 @@ onMounted(() => {
             您尚未登入，請先登入後再查看訂單。
         </div>
 
-        <h2 class="mb-4 ">訂單明細</h2>
+        <h2 class="mb-4">訂單明細</h2>
 
-        <div v-if="orderDetail" class="order-summary card shadow-lg">
-            <div class="order-info">
-                <div class="info-item">
-                    <strong>訂單編號：</strong> {{ orderDetail.orderId }}
+        <div v-if="orderDetail" class="order-summary p-4">
+            <!-- 上半部 訂單資訊 / 總金額 / 收件人資訊 -->
+            <!-- 訂單資料 -->
+            <div class="order-grid">
+                <h4 class="text-primary mb-3">訂單資料：</h4>
+                <div class="order-row">
+                    <label>訂單編號：</label>
+                    <span>{{ orderDetail.orderId }}</span>
                 </div>
-                <div class="info-item">
-                    <strong>狀態：</strong> {{ orderDetail.orderStatus }}
+                <div class="order-row">
+                    <label>狀態：</label>
+                    <span>{{ orderDetail.orderStatus }}</span>
                 </div>
-                <div class="info-item">
-                    <strong>付款方式：</strong> {{ orderDetail.paymentMethod }}
+                <div class="order-row">
+                    <label>付款方式：</label>
+                    <span>{{ orderDetail.paymentMethod }}</span>
                 </div>
-                <div class="info-item">
-                    <strong>收件人Email：</strong> {{ orderDetail.email }}
+                <div class="order-row">
+                    <label>總金額：</label>
+                    <span>${{ Math.round(orderDetail.totalAmount) }}</span>
+                </div>
+                <div class="order-row">
+                    <label>最終金額：</label>
+                    <span>${{ Math.round(orderDetail.finalAmount) }}</span>
                 </div>
             </div>
 
+            <!-- 收件人資料 -->
+            <div class="order-grid">
+                <h4 class="text-primary mb-3">收件人資料：</h4>
+                <div class="order-row">
+                    <label>收件人：</label>
+                    <span>{{ orderDetail.receiveName }}</span>
+                </div>
+                <div class="order-row">
+                    <label>電話：</label>
+                    <span>{{ orderDetail.phoneNumber }}</span>
+                </div>
+                <div class="order-row">
+                    <label>Email：</label>
+                    <span>{{ orderDetail.email }}</span>
+                </div>
+                <div class="order-row">
+                    <label>地址：</label>
+                    <span>{{ orderDetail.address }}</span>
+                </div>
+            </div>
+
+            <!-- 下半部 商品清單 -->
             <div class="order-items">
                 <h4 class="text-primary">商品清單：</h4>
-                <ul>
-                    <li v-for="item in orderDetail.orderItemsDtos" :key="item.orderitemId" class="order-item">
-                        <span>{{ item.productName }} ({{ item.quantity }} 件)</span>
-
-                        <span>
-                            <!-- 如果有特價，顯示原價並劃線，並顯示特價 -->
-                            <span v-if="item.specialPrice > 0">
-                                原價：<s>${{ item.unitPrice }}</s>，
-                                特價：$<span class="text-danger">{{ item.specialPrice }}</span> <!-- 這裡設置紅色 -->
-                            </span>
-                            <!-- 如果沒有特價，只顯示原價 -->
-                            <span v-else>
-                                原價：${{ item.unitPrice }}
-                            </span>
-                        </span>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="price-summary">
-                <div class="info-item">
-                    <strong>總金額：</strong> ${{ Math.round(orderDetail.totalAmount) }}
-                </div>
-                <div class="info-item">
-                    <strong>折扣金額：</strong> $<span class="text-danger">{{ Math.round(orderDetail.discountAmount)
-                        }}</span>
-                </div>
-                <div class="info-item">
-                    <strong>最終金額：</strong> ${{ Math.round(orderDetail.finalAmount) }}
+                <div class="row">
+                    <div class="col-md-4 mb-3" v-for="item in orderDetail.orderItemsDtos" :key="item.orderitemId">
+                        <div class="card h-100 shadow-sm">
+                            <img v-if="item.productMainImage" :src="`/api/${item.productMainImage}`"
+                                class="card-img-top" alt="商品主圖">
+                            <div class="card-body">
+                                <h5 class="card-title">{{ item.productName }}</h5>
+                                <p class="card-text">
+                                    數量：{{ item.quantity }} 件<br>
+                                    <span v-if="item.specialPrice != null && item.specialPrice > 0">
+                                        原價：<s>${{ item.unitPrice }}</s><br>
+                                        特價：$<span class="text-danger">{{ item.specialPrice }}</span>
+                                    </span>
+                                    <span v-else>
+                                        單價：${{ item.unitPrice }}
+                                    </span><br />
+                                    <span>折扣：${{ item.discount }}</span><br />
+                                    <span>小記：${{ item.subtotal }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <div class="recipient-info">
-                <h4 class="text-success">收件人資訊：</h4>
-                <p><strong>收件人：</strong> {{ orderDetail.receiveName }}</p>
-                <p><strong>電話：</strong> {{ orderDetail.phoneNumber }}</p>
-                <p><strong>地址：</strong> {{ orderDetail.address }}</p>
-            </div>
-
-            <!-- 返回按鈕，固定在卡片右下角 -->
-            <div class="text-right">
+            <!-- 返回按鈕 -->
+            <div class="text-right mt-4">
                 <RouterLink :to="{ name: 'memberOrder' }" class="btn btn-outline-primary">
                     <i class="bi bi-arrow-left"></i> 返回
                 </RouterLink>
@@ -109,7 +127,6 @@ onMounted(() => {
 <style lang="css" scoped>
 .text-danger {
     color: red;
-    /* 設置特價為紅色 */
 }
 
 body {
@@ -120,12 +137,12 @@ body {
 }
 
 .card {
-    background-color: #ffffff;
+    background-color: #fff;
     border-radius: 15px;
-    padding: 25px;
     margin: 20px auto;
     max-width: 950px;
     box-shadow: 0 12px 24px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
 }
 
 .card:hover {
@@ -133,40 +150,6 @@ body {
 }
 
 h2 {
-    color: #333;
-}
-
-.order-info,
-.price-summary,
-.recipient-info {
-    margin-bottom: 20px;
-}
-
-.info-item {
-    margin-bottom: 15px;
-    font-size: 1.1em;
-    color: #555;
-}
-
-.order-items ul {
-    list-style: none;
-    padding: 0;
-    margin-bottom: 20px;
-}
-
-.order-items li {
-    padding: 12px 0;
-    border-bottom: 1px solid #e0e0e0;
-    font-size: 1.1em;
-}
-
-.price-summary p,
-.recipient-info p {
-    margin: 5px 0;
-    font-size: 1.1em;
-}
-
-strong {
     color: #333;
 }
 
@@ -183,10 +166,6 @@ strong {
     color: #4c8bf5;
 }
 
-.text-success {
-    color: #28a745;
-}
-
 .alert-warning {
     padding: 10px;
     background-color: #ffcc00;
@@ -194,9 +173,51 @@ strong {
     margin-bottom: 20px;
 }
 
-/* 調整返回按鈕位置 */
-.card-footer {
-    text-align: right;
-    padding-top: 20px;
+.card-img-top {
+    max-height: 150px;
+    object-fit: cover;
+    border-radius: 10px;
+}
+
+/* 佔滿卡片寬度 */
+/* 限制最大高度，可調整 */
+/* 讓圖片按比例縮小，不裁切 */
+/* 卡片內圖片和文字有間距 */
+/* .card-img-top {
+    width: 100%;        
+    max-height: 120px;  
+    object-fit: contain; 
+    border-radius: 10px;
+    margin-bottom: 10px; 
+} */
+
+/* 訂單資料 & 收件人資料圓弧網格樣式 */
+.order-grid {
+    border-radius: 15px;
+    background-color: #fff;
+    padding: 15px 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+.order-row {
+    display: flex;
+    padding: 8px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.order-row label {
+    width: 120px;
+    /* 左側固定寬度，可調整 */
+    font-weight: 600;
+}
+
+.order-row span {
+    flex: 1;
+    /* 右側自動填滿 */
+}
+
+.order-row:last-child {
+    border-bottom: none;
 }
 </style>

@@ -4,19 +4,22 @@ export const useCartStore = defineStore('cart', {
     state: () => ({
         selectedItems: [],  // 儲存選中的商品
         recipient: {        // 儲存收件人資料
-            name: '',
+            receiveName: '',
             phone: '',
             email: '',
             address: '',
             paymentMethod: '',
-            userid: null // 新增 userid 欄位，預設為 null
+            userid: null
         }
     }),
     actions: {
-        // 設置選中的商品
+        // 設置選中的商品，順便計算 subtotal
         setSelectedItems(items) {
-            console.log("Setting selected items:", items);  // 確認 Pinia store 是否正確設置商品
-            this.selectedItems = items; // 儲存更新後的商品列表
+            console.log("Setting selected items:", items);
+            this.selectedItems = items.map(item => ({
+                ...item,
+                subtotal: item.quantity * (item.unitPrice - (item.discount || 0))
+            }));
         },
         // 更新收件人資料
         setRecipientData(data) {

@@ -51,35 +51,29 @@ function changeImage(imageUrl) {
 
 // 加入購物車
 async function addToCart(product) {
-  const userId = authStore.user?.userId; // 獲取當前用戶 ID
+  const userId = authStore.user?.userId;
 
   if (!userId) {
-    // 用戶未登入，提示要求登入
     Swal.fire({
       icon: 'warning',
       title: '請先登入',
       text: '您需要先登入才能將商品加入購物車！',
       confirmButtonColor: "#6a0dad",
       confirmButtonText: '去登入',
-      allowOutsideClick: false, // 禁止點擊外部關閉
-      customClass: {
-        confirmButton: "btn text-white me-2",
-      },
+      allowOutsideClick: false,
+      customClass: { confirmButton: "btn text-white me-2" },
     }).then((result) => {
-      if (result.isConfirmed) {
-        // 引導用戶跳轉到登入頁面
-        window.location.href = '/login'; // 導向正確的登入頁
-      }
+      if (result.isConfirmed) window.location.href = '/login';
     });
-    return; // 阻止繼續執行
+    return;
   }
 
   try {
-    await axios.post(`/api/Cart/add`, null, {
+    await axios.post(`/api/cart/items`, null, {
       params: {
-        userId, // 動態傳入用戶 ID
+        userId,
         productId: product.productId,
-        quantity: quantity.value, // 使用輸入的數量
+        quantity: quantity.value,
       },
     });
 
@@ -89,10 +83,8 @@ async function addToCart(product) {
       text: `已將「${product.productName}」加入購物車！ 數量：${quantity.value}`,
       confirmButtonColor: "#6a0dad",
       confirmButtonText: "OK",
-      allowOutsideClick: false, // 禁止點擊外部關閉
-      customClass: {
-        confirmButton: "btn text-white me-2",
-      },
+      allowOutsideClick: false,
+      customClass: { confirmButton: "btn text-white me-2" },
     });
   } catch (error) {
     Swal.fire({
@@ -102,6 +94,7 @@ async function addToCart(product) {
     });
   }
 }
+
 </script>
 
 <template>

@@ -1,105 +1,102 @@
 <script setup>
-import { ref, computed, nextTick } from 'vue';
-import { useCartStore } from "@/stores/cartStore";  // 引入 Pinia store
-import { useAuthStore } from "@/stores/authStore"; // 引入 Pinia store
-import { useRouter } from 'vue-router'; // 引入 Vue Router
-import axios from 'axios'; // 引入 axios
+import { computed, ref, nextTick } from 'vue';
+import { useCartStore } from "@/stores/cartStore";
+import { useAuthStore } from "@/stores/authStore";
+import { useRouter } from 'vue-router';
+import axios from 'axios';
 import Swal from "sweetalert2";
 
-const BASE_URL = import.meta.env.VITE_BACKEND_SERVER_URL;
-const router = useRouter(); // 使用 Vue Router
-
-// 使用 Pinia store
+const BASE_URL = import.meta.env.VITE_BACKEND_SERVER_URL; // For 顯示圖片
+const router = useRouter();
 const cartStore = useCartStore();
+const authStore = useAuthStore();
 
-// ===== 使用 authStore =====
-const authStore = useAuthStore(); // 取得 authStore 的實例
+// 用 computed 直接讀 Pinia
+const orderItems = computed(() => cartStore.selectedItems);
+const recipient = computed(() => cartStore.recipient);
 
-// 直接訪問 Pinia store 中的 orderItems 和 recipient
-const orderItems = ref(cartStore.selectedItems);  // 獲取選中的商品
-const recipient = ref(cartStore.recipient);  // 獲取收件人資料
-
-// 計算總金額
+// 總金額
 const totalAmount = computed(() => {
-    return orderItems.value.reduce((total, item) => total + item.subtotal, 0);
+    return orderItems.value.reduce(
+        (sum, item) =>
+            sum + (item.subtotal ?? (item.quantity * (item.unitPrice - (item.discount || 0)))),
+        0
+    );
 });
 
-// 返回購物車
-const goBackToCart = () => {
-    router.push({ name: 'productCart' });  // 導回購物車頁面
-};
-
-// 返回收件人資料
-const goBackToRecipient = () => {
-    router.push({ name: 'productRecipient' });  // 導回收件人資料頁面
-};
+// 返回頁面
+const goBackToCart = () => router.push({ name: 'productCart' });
+const goBackToRecipient = () => router.push({ name: 'productRecipient' });
 
 const ecpayHtml = ref("");
 const ecpayContainer = ref(null);
 
-// 提交訂單
+// 提交訂單（現金 / 貨到付款）
 const submitOrder = () => {
-    const userId = authStore.user?.userId;  // 使用正確的大小寫，獲取當前登入的 userId
+    const userId = authStore.user?.userId;
+    if (!userId) return alert("請先登入！");
 
-    if (!userId) {
-        alert("請先登入！");
-        return;
-    }
+    // 只選擇被勾選的商品
+    const selectedItems = cartStore.selectedItems.filter(item => item.isSelected);
+    if (selectedItems.length === 0) return alert("請選擇商品！");
 
+    // 組成 DTO
     const orderData = {
-        recipient: {
-            receiveName: recipient.value.name,  // 傳送 receive_name 給後端
-            phone: recipient.value.phone,
-            email: recipient.value.email,
-            address: recipient.value.address,
-            paymentMethod: recipient.value.paymentMethod,
-            userid: userId  // 加入 userId
-        },
-        orderItems: orderItems.value
+        recipient: { ...cartStore.recipient },
+        orderItems: selectedItems
     };
 
-    console.log('提交的訂單資料:', orderData); // 確保資料傳送正確
-
-    // 根據付款方式選擇不同的 API
-    const apiUrl = recipient.value.paymentMethod === '貨到付款'
-        ? `/api/Order/CartToOrder`  // 不串金流的 API
-        : `/api/Order/CartToOrderWithPayment`;  // 需要金流處理的 API
-
-    // 提交訂單資料
-    axios.post(apiUrl, orderData)
-        .then(response => {
-            if (response.status === 200 || response.status === 201) { // 如果訂單提交成功
-                if (recipient.value.paymentMethod === '貨到付款') {
-                    // 顯示 SweetAlert2 訂單成功提示
-                    Swal.fire({
-                        title: '建立訂單成功!',
-                        text: '您的訂單已經建立，可至會員中心訂單區查看。',
-                        icon: 'success',
-                        confirmButtonText: '去查看',
-                        customClass: {
-                            confirmButton: "btn btn-primary text-white me-2", // 自定義確認按鈕
-                        },
-                    }).then(() => {
-                        // 可以根據需求進行重定向或其他操作
-                        router.push({ name: 'memberOrder' });  // 假設你有成功頁面
-                    });
-                } else {
-                    const paymentForm = response.data;  // 獲取綠界金流表單
-                    // 顯示金流表單並自動提交
-                    ecpayHtml.value = paymentForm;
-                    nextTick(() => {
-                        const formEl = ecpayContainer.value.querySelector("#ecpay-form");
-                        if (formEl) formEl.submit();  // 自動提交表單
-                    });
-                }
+    axios.post("/api/order", orderData) // ✅ 對應你的 Controller
+        .then(res => {
+            if (res.status === 201) {
+                Swal.fire({
+                    title: '建立訂單成功!',
+                    text: '您的訂單已經建立，可至會員中心訂單區查看。',
+                    icon: 'success',
+                    confirmButtonText: '去查看',
+                    customClass: { confirmButton: "btn btn-primary text-white me-2" },
+                }).then(() => router.push({ name: 'memberOrder' }));
             } else {
-                console.error('訂單提交失敗：狀態碼不正確', response.status);
-                alert('訂單提交失敗，請稍後再試');
+                alert('訂單提交失敗');
             }
         })
-        .catch(error => {
-            console.error('訂單提交失敗:', error);
-            alert('訂單提交失敗，請稍後再試');
+        .catch(err => {
+            console.error(err);
+            alert('訂單提交失敗');
+        });
+};
+
+// 提交訂單（信用卡付款）
+const submitOrderWithPayment = () => {
+    const userId = authStore.user?.userId;
+    if (!userId) return alert("請先登入！");
+
+    const selectedItems = cartStore.selectedItems.filter(item => item.isSelected);
+    if (selectedItems.length === 0) return alert("請選擇商品！");
+
+    const orderData = {
+        recipient: { ...cartStore.recipient },
+        orderItems: selectedItems
+    };
+
+    axios.post("/api/order/payment", orderData)
+        .then(res => {
+            if (res.data.success) {
+                // 後端回傳的是 ECPay 付款表單 HTML
+                ecpayHtml.value = res.data.data;
+                nextTick(() => {
+                    if (ecpayContainer.value) {
+                        const form = ecpayContainer.value.querySelector("form");
+                        if (form) form.submit(); // 🚀 自動提交到金流
+                    }
+                });
+            } else {
+                alert('付款流程建立失敗：' + res.data.message);
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            alert('付款流程建立失敗');
         });
 };
 
@@ -109,7 +106,6 @@ const submitOrder = () => {
     <v-container class="text-center">
         <h2 class="my-4">訂單最後確認</h2>
 
-        <!-- 顯示來自 Pinia store 的選中商品 -->
         <v-row class="d-flex justify-center">
             <v-col v-for="item in orderItems" :key="item.productId" cols="12" md="4">
                 <v-card class="my-3">
@@ -120,21 +116,21 @@ const submitOrder = () => {
                             <span class="original-price">${{ item.unitPrice }}</span>
                             <span class="special-price">${{ (item.unitPrice - item.discount).toFixed(0) }}</span>
                         </span>
-                        <span v-else class="normal - price">${{ item.unitPrice }}</span>
+                        <span v-else class="normal-price">${{ item.unitPrice }}</span>
                     </v-card-subtitle>
                     <v-card-actions class="justify-center">
                         <span>{{ item.quantity }}件</span>
-                        <span>小計: ${{ item.subtotal }}</span>
+                        <span>小計: ${{ item.subtotal ?? (item.quantity * (item.unitPrice - (item.discount || 0)))
+                        }}</span>
                     </v-card-actions>
                 </v-card>
             </v-col>
         </v-row>
 
-        <!-- 顯示收件人資料 -->
         <v-row class="my-4">
             <v-col>
                 <h3>收件人資料</h3>
-                <p>姓名: {{ recipient.name }}</p>
+                <p>姓名: {{ recipient.receiveName }}</p>
                 <p>電話: {{ recipient.phone }}</p>
                 <p>地址: {{ recipient.address }}</p>
                 <p>Email: {{ recipient.email }}</p>
@@ -142,35 +138,37 @@ const submitOrder = () => {
             </v-col>
         </v-row>
 
-        <!-- 顯示總金額 -->
         <v-row class="my-4">
             <v-col>
                 <h3>總金額：${{ totalAmount }}</h3>
             </v-col>
         </v-row>
 
+        <v-row>
+            <v-col class="text-center">
+                <v-btn @click="goBackToCart" class="mt-3" color="info">返回購物車</v-btn>
+                <v-btn @click="goBackToRecipient" class="mt-3" color="info">返回收件人資料</v-btn>
+                <!-- 信用卡付款 -->
+                <v-btn v-if="recipient.paymentMethod === '信用卡'" @click="submitOrderWithPayment" class="mt-3"
+                    color="primary">
+                    提交訂單(前往付款)
+                </v-btn>
+                <!-- 其他付款方式（貨到付款、現金） -->
+                <v-btn v-else @click="submitOrder" class="mt-3" color="primary">
+                    提交訂單
+                </v-btn>
+            </v-col>
+        </v-row>
+
+        <div ref="ecpayContainer" v-html="ecpayHtml" style="display: none"></div>
     </v-container>
-    <v-row>
-        <v-col class="text-center">
-            <!-- 返回購物車的按鈕 -->
-            <v-btn @click="goBackToCart" class="mt-3" color="info">返回購物車</v-btn>
-            <!-- 返回收件人資料的按鈕 -->
-            <v-btn @click="goBackToRecipient" class="mt-3" color="info">返回收件人資料</v-btn>
-            <!-- 提交訂單的按鈕 -->
-            <v-btn @click="submitOrder" class="mt-3" color="primary">提交訂單</v-btn>
-        </v-col>
-    </v-row>
-    <div ref="ecpayContainer" v-html="ecpayHtml" style="display: none"></div>
 </template>
 
 <style scoped>
 .wrap-text {
     white-space: normal;
-    /* 允許文字換行 */
     word-wrap: break-word;
-    /* 自動斷字 */
     word-break: break-word;
-    /* 確保長單詞不會超出邊界 */
 }
 
 .v-card {

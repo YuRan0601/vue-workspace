@@ -1,286 +1,260 @@
 <script setup>
-import { ref, onMounted } from "vue";
-import { useRouter } from 'vue-router';
+import { ref, onMounted, watch } from "vue";
+import { useRouter } from "vue-router";
 import axios from "axios";
-import { useAuthStore } from "@/stores/authStore"; // 引入Pinia的authStore
-import { useCartStore } from "@/stores/cartStore"; // 引入Pinia的cartStore
-import Swal from "sweetalert2";
+import { useAuthStore } from "@/stores/authStore";
+import { useCartStore } from "@/stores/cartStore";
+import Swal from 'sweetalert2';
 
-const BASE_URL = import.meta.env.VITE_BACKEND_SERVER_URL;
+const BASE_URL = import.meta.env.VITE_BACKEND_SERVER_URL
 const router = useRouter();
-
-// 引入Pinia store來獲取用戶資料
 const authStore = useAuthStore();
-const cartStore = useCartStore();  // 使用 Pinia store
-
-const cartItems = ref([]); // 購物車商品列表
-const cartTotal = ref(0); // 購物車總金額
-
-// 確保用戶已經登入
+const cartStore = useCartStore();
 const userId = authStore.user?.userId;
 
-if (!userId) {
-    Swal.fire({
-        icon: 'warning',
-        title: '請先登入',
-        text: '您需要先登入才能查看購物車！',
-        confirmButtonColor: "#6a0dad",
-        confirmButtonText: '去登入',
-        allowOutsideClick: false, // 禁止點擊外部關閉
-        customClass: {
-            confirmButton: "btn text-white me-2",
-        },
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = '/login'; // 重定向到登入頁
-        }
-    });
-}
+const cartItems = ref([]);
+const cartTotal = ref(0);
+const selectAll = ref(false);
 
-// 獲取購物車內容
+// 取得購物車列表
 const fetchCartItems = async () => {
     try {
-        const response = await axios.get(`/api/Cart/findAllCartItems`, {
-            params: { userId },
-        });
-        cartItems.value = response.data.map(item => ({
+        const { data } = await axios.get("/api/cart/items", { params: { userId } });
+        cartItems.value = data.data.map(item => ({
             ...item,
-            isSelected: false, // 初始化每個商品的選擇狀態
+            isSelected: false,
+            // 計算小計，如果後端沒提供
+            subtotal: (item.unitPrice - (item.discount || 0)) * item.quantity
         }));
-        calculateTotal(); // 計算總金額
+        calculateTotal();
     } catch (error) {
-        console.error("無法載入購物車資料：", error);
+        console.error("取得購物車失敗", error);
     }
 };
 
-// 計算購物車總金額
+// 計算總金額
 const calculateTotal = () => {
-    cartTotal.value = cartItems.value.reduce((total, item) => {
-        if (item.isSelected) {
-            return total + item.subtotal; // 累加選中的商品金額
-        }
-        return total;
-    }, 0);
+    cartTotal.value = cartItems.value
+        .filter(item => item.isSelected)
+        .reduce((sum, item) => sum + item.subtotal, 0);
 };
 
-// 刪除商品
-const removeFromCart = async (cartItemId, productId) => {
-    try {
-        // 傳遞 userId 和 productId 參數
-        await axios.delete(`/api/Cart/delete`, {
-            params: { userId, productId }
-        });
-        cartItems.value = cartItems.value.filter((item) => item.cartItemId !== cartItemId); // 更新購物車列表
-        Swal.fire({
-            icon: 'success',
-            title: '商品已刪除',
-            confirmButtonText: "OK",
-            confirmButtonColor: "#6c757d",
-            allowOutsideClick: false, // 禁止點擊外部關閉
-            customClass: {
-                confirmButton: "btn text-white me-2",
-            },
-        });
-    } catch (error) {
-        Swal.fire("刪除失敗", "請稍後再試", "error");
-    }
-};
-
-// 更新選擇商品狀態
-const updateSelection = () => {
-    calculateTotal();  // 每次選擇變更後，重新計算總金額
-};
-
-// 更新數量
-const updateQuantity = async (cartItemId, quantity) => {
-    console.log("cartItemId:", cartItemId, "quantity:", quantity); // Debugging log
-
-    if (quantity <= 0) {
-        Swal.fire({
-            title: '確定要刪除此商品嗎?',
-            text: "數量為0時將自動刪除此商品。",
+// 更新商品數量
+const updateQuantity = async (productId, newQuantity, currentQuantity) => {
+    // 如果減到 0 或 1，先確認是否刪除
+    if (newQuantity <= 0) {
+        const result = await Swal.fire({
+            title: '確認刪除',
+            text: '數量已降到 0，是否要從購物車移除該商品？',
             icon: 'warning',
             showCancelButton: true,
-            confirmButtonColor: "#d33", // 確認按鈕顏色
-            cancelButtonColor: "#6c757d", // 取消按鈕顏色
             confirmButtonText: '刪除',
             cancelButtonText: '取消',
-            buttonsStyling: false, // 停用 SweetAlert2 預設樣式
             customClass: {
-                confirmButton: "btn btn-danger text-white me-2", // 自定義確認按鈕
-                cancelButton: "btn btn-secondary text-white", // 自定義取消按鈕
+                confirmButton: 'btn btn-danger text-white me-2', // 紅底白字
+                cancelButton: 'btn btn-secondary text-white'     // 灰底白字
             },
-        }).then(async (result) => {
-            if (result.isConfirmed) {
-                await removeFromCart(cartItemId, cartItems.value.find(item => item.cartItemId === cartItemId).productId);
-            } else {
-                fetchCartItems(); // 恢復商品列表
-            }
+            buttonsStyling: false
         });
+        if (result.isConfirmed) {
+            removeFromCart(productId);
+        }
         return;
     }
 
-    const index = cartItems.value.findIndex(item => item.cartItemId === cartItemId);
-    if (index !== -1) {
-        cartItems.value[index].quantity = quantity;
-        // 修改為 (單價 - 折扣) * 數量 的邏輯
-        cartItems.value[index].subtotal = (cartItems.value[index].unitPrice - cartItems.value[index].discount) * quantity;
+    try {
+        await axios.put(`/api/cart/items/${productId}`, null, { params: { userId, newQuantity } });
+        fetchCartItems();
+    } catch (error) {
+        console.error("更新數量失敗", error);
+    }
+};
 
-        try {
-            // 記錄更新商品的請求
-            console.log("Updating cartItemId:", cartItemId, "with quantity:", quantity); // Debugging log
-
-            await axios.put(`/api/Cart/update`, null, {
-                params: {
-                    userId,
-                    productId: cartItems.value[index].productId,
-                    newQuantity: quantity
-                }
-            });
-
-            // 更新 Pinia store 中的商品數量
-            const storeIndex = cartStore.selectedItems.findIndex(item => item.cartItemId === cartItemId);
-            if (storeIndex !== -1) {
-                cartStore.selectedItems[storeIndex].quantity = quantity;
+// 刪除商品
+const removeFromCart = async (productId) => {
+    Swal.fire({
+        title: "確定要刪除這個商品嗎？",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "刪除",
+        cancelButtonText: "取消",
+        customClass: {
+            confirmButton: 'btn btn-danger text-white me-2', // 紅底白字
+            cancelButton: 'btn btn-secondary text-white'     // 灰底白字
+        },
+        buttonsStyling: false
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                await axios.delete(`/api/cart/items/${productId}`, { params: { userId } });
+                Swal.fire("已刪除!", "", "success");
+                fetchCartItems(); // 更新購物車列表
+            } catch (error) {
+                console.error("刪除商品失敗", error);
+                Swal.fire("刪除失敗", "請稍後再試", "error");
             }
+        }
+    });
+};
 
-            calculateTotal();
+const deleteAll = async () => {
+    const result = await Swal.fire({
+        title: '確定要清空購物車嗎？',
+        text: '這將會移除所有商品！',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: '清空',
+        cancelButtonText: '取消',
+        customClass: {
+            confirmButton: 'btn btn-danger text-white me-2',
+            cancelButton: 'btn btn-secondary text-white'
+        },
+        buttonsStyling: false
+    });
 
-            cartItems.value = [...cartItems.value]; // 讓 Vue 重新渲染商品
+    if (result.isConfirmed) {
+        try {
+            await axios.delete('/api/cart/items', { params: { userId } });
+            Swal.fire('購物車已清空!', '', 'success');
+            fetchCartItems(); // 重新載入購物車
         } catch (error) {
-            console.error("更新購物車數量失敗", error);
+            console.error('清空購物車失敗', error);
+            Swal.fire('清空失敗', '請稍後再試', 'error');
         }
     }
 };
 
-// 在購物車頁面進行跳轉
-const goToCheckout = () => {
-    // 篩選選中的商品並儲存至 Pinia store
-    const selectedItems = cartItems.value.filter(item => item.isSelected);
-    //console.log("Selected Items:", selectedItems);  // 查看選中的商品資料
-    cartStore.setSelectedItems(selectedItems); // 使用 Pinia store 設定選中的商品
-
-    router.push({
-        name: 'productRecipient', // 跳轉至下一頁
+// 勾選全部購物車商品
+const toggleSelectAll = () => {
+    cartItems.value.forEach(item => {
+        item.isSelected = selectAll.value;
     });
+    calculateTotal();
+};
+
+// 監聽-> 勾選全部
+watch(
+    cartItems,
+    (newItems) => {
+        // 如果全部勾選，selectAll = true；否則 false
+        selectAll.value = newItems.length > 0 && newItems.every(item => item.isSelected);
+        calculateTotal();
+    },
+    { deep: true }
+);
+
+
+// 去結帳
+const goToCheckout = () => {
+    const selectedItems = cartItems.value.filter(item => item.isSelected);
+    if (!selectedItems.length) return; // 避免空陣列
+    cartStore.setSelectedItems(selectedItems); // 更新 Pinia
+    router.push({ name: "productRecipient" }); // 不再傳 params
 };
 
 onMounted(() => {
     fetchCartItems();
 });
 </script>
-
 <template>
     <div>
         <v-container>
             <h2 class="cart-title">購物車清單</h2>
+            <!-- 全選 + 清空購物車 -->
+            <v-row>
+                <v-col cols="12">
+                    <v-card class="product-card cart-controls-card d-flex align-center justify-space-between">
+                        <!-- 左邊：全選 -->
+                        <v-checkbox v-model="selectAll" label="全選" @change="toggleSelectAll" class="checkbox-align" />
+
+                        <!-- 右邊：清空購物車 -->
+                        <v-btn color="deep-orange-darken-4" @click="deleteAll">
+                            <i class="bi bi-trash"></i> 清空購物車
+                        </v-btn>
+                    </v-card>
+                </v-col>
+            </v-row>
+
             <v-row v-for="item in cartItems" :key="item.cartItemId" class="cart-item">
                 <v-col cols="12" sm="6" md="12">
-                    <v-card class="d-flex align-center product-card">
-                        <!-- 勾選放在最前面 -->
-                        <v-checkbox v-model="item.isSelected" label="選擇購買" @change="updateSelection"></v-checkbox>
+                    <v-card class="product-card d-flex align-center">
 
-                        <!-- 圖片與商品名距離更近 -->
-                        <v-img :src="BASE_URL + '/' + item.imageUrl" alt="product image" class="product-image"></v-img>
+                        <!-- 勾選商品 -->
+                        <v-checkbox v-model="item.isSelected" @change="calculateTotal" label="選擇購買" />
+
+                        <!-- 商品圖片 -->
+                        <v-img :src="BASE_URL + item.imageUrl" alt="product image" class="product-image"></v-img>
+
+                        <!-- 商品名稱與價格 -->
                         <v-card-title class="product-name">{{ item.productName }}</v-card-title>
-
                         <v-card-subtitle>
                             <span v-if="item.discount > 0">
                                 <span class="original-price">${{ item.unitPrice }}</span>
                                 <span class="special-price">${{ (item.unitPrice - item.discount).toFixed(0) }}</span>
                             </span>
-                            <span v-else class="normal-price">{{ item.unitPrice }}</span>
+                            <span v-else class="normal-price">${{ item.unitPrice }}</span>
                         </v-card-subtitle>
 
-                        <v-card-actions class="d-flex justify-space-between">
-                            <!-- 顯示數量 -->
-                            <v-btn @click="updateQuantity(item.cartItemId, item.quantity - 1)" small>-</v-btn>
-                            {{ item.quantity }}
-                            <v-btn @click="updateQuantity(item.cartItemId, item.quantity + 1)" small>+</v-btn>
-
-                            <span>${{ item.subtotal }}</span>
+                        <!-- 數量與小計 -->
+                        <v-card-actions class="d-flex align-center justify-end">
+                            <v-btn @click="updateQuantity(item.productId, item.quantity - 1)" small>-</v-btn>
+                            <span class="quantity">{{ item.quantity }}</span>
+                            <v-btn @click="updateQuantity(item.productId, item.quantity + 1)" small>+</v-btn>
+                            <span class="subtotal">${{ item.subtotal }}</span>
 
                             <!-- 刪除按鈕 -->
-                            <v-btn @click="removeFromCart(item.cartItemId, item.productId)" color="red" small>刪除</v-btn>
+                            <v-btn color="red-lighten-2" @click="removeFromCart(item.productId)"
+                                class="font-weight-bold">刪除</v-btn>
                         </v-card-actions>
                     </v-card>
                 </v-col>
             </v-row>
+
+            <!-- 總金額 -->
+            <v-row>
+                <v-col class="text-center">
+                    <h3>總金額：${{ cartTotal }}</h3>
+                </v-col>
+            </v-row>
+
+            <!-- 結帳按鈕 -->
+            <v-row>
+                <v-col class="text-center">
+                    <v-btn color="primary" @click="goToCheckout" :disabled="!cartItems.some(item => item.isSelected)">
+                        去結帳
+                    </v-btn>
+                </v-col>
+            </v-row>
         </v-container>
-
-        <v-row>
-            <v-col class="text-center">
-                <h3>總金額：${{ cartTotal }}</h3>
-            </v-col>
-        </v-row>
-
-        <v-row>
-            <v-col class="text-center">
-                <v-btn color="primary" @click="goToCheckout" :disabled="!cartItems.some(item => item.isSelected)">
-                    去結帳
-                </v-btn>
-            </v-col>
-        </v-row>
     </div>
 </template>
-
-<style lang="css" scoped>
+<style scoped>
 .cart-title {
-    text-align: left;
     margin-left: 60px;
-}
-
-.v-card {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-start;
-    /* 讓內容靠左顯示 */
-    padding: 10px;
-    align-items: center;
-    width: 70%;
-    margin: 0 auto;
+    text-align: left;
 }
 
 .product-card {
-    width: 90%;
-    /* 增大卡片寬度 */
-    margin: 10px auto;
-    /* 中央對齊 */
-}
-
-.v-container {
-    text-align: center;
-}
-
-.v-row {
-    justify-content: center;
-}
-
-.v-col {
     display: flex;
-    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    width: 90%;
+    margin: 10px auto;
+    padding: 10px;
 }
 
 .product-image {
     width: 80px;
-    /* 調整圖片大小 */
     height: 80px;
     object-fit: cover;
     margin-right: 10px;
-    /* 降低圖片與商品名之間的間距 */
 }
 
 .product-name {
     flex: 1;
-    /* 讓商品名稱佔據剩餘空間 */
-    font-size: 16px;
     font-weight: bold;
     margin-right: 10px;
-    /* 避免商品名和價格擁擠 */
-    white-space: normal;
-    /* 允許換行 */
-    word-wrap: break-word;
-    /* 長名稱自動換行 */
 }
 
 .v-card-subtitle {
@@ -292,26 +266,48 @@ onMounted(() => {
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    gap: 10px;
 }
 
 .original-price {
-    font-size: 16px;
-    color: black;
     text-decoration: line-through;
+    color: #9e9e9e;
+    /* 淺灰色 */
+    margin-right: 5px;
 }
 
 .special-price {
-    font-size: 18px;
-    color: red;
     font-weight: bold;
+    color: red;
 }
 
 .normal-price {
-    font-size: 18px;
     color: black;
+    font-weight: bold;
 }
 
-.v-btn {
-    margin: 15px;
+.quantity {
+    margin: 0 5px;
+}
+
+.subtotal {
+    margin-left: 10px;
+}
+
+.cart-controls-card {
+    border: none;
+    /* 隱藏邊框 */
+    box-shadow: none;
+    /* 移除陰影 */
+    padding: 10px 0;
+    /* 保留上下空間感 */
+    margin: 0 auto;
+    /* 中心對齊 */
+}
+
+/* 統一勾選框左邊距 */
+.checkbox-align {
+    margin-left: 10px;
+    /* 調整成商品卡片勾選框起點 */
 }
 </style>
