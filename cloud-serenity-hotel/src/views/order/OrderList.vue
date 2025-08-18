@@ -20,7 +20,6 @@ const headers = [
     { title: "OrderID", key: "orderId" },
     { title: "訂單狀態", key: "orderStatus" },
     { title: "付款方式", key: "paymentMethod" },
-    { title: "折扣金額", key: "discountAmount" },
     { title: "最終金額", key: "finalAmount" },
     { title: "訂單日期", key: "orderDate" },
     { title: "更新日期", key: "updatedAt" },
@@ -34,12 +33,6 @@ const currentPage = ref(1); // 當前頁碼
 const itemsPerPage = ref(10); // 每頁顯示的數量
 const totalItems = ref(0); // 總筆數
 const totalPages = ref(1); // 總頁數
-
-const selectedOrder = ref(null); // 用於模態框顯示的訂單
-let deleteModalInstance = null; // 刪除模態框實例
-// let errorModalInstance = null; // 錯誤模態框實例
-const isLoading = ref(false); // 防止多次請求的狀態_定義請求狀態，初始為 `false`
-const errorModalMessage = ref(""); // 錯誤訊息內容
 
 // ===== 格式化工具 =====
 const formatNumberToInteger = (number) => Math.round(number);
@@ -67,20 +60,19 @@ function isValidNumber(input) {
 }
 
 // ===== 加載訂單列表（分頁） =====
-async function loadTable() {
-    if (isLoading.value) return; // 防止重複請求
-    isLoading.value = true;
-
+// 先取得全部訂單
+const fetchOrders = async () => {
     try {
-        const { data } = await axios.get("/api/Order/findAllOrders");
-        orders.value = data.sort((a, b) => a.orderId - b.orderId); // 按 OrderID 排序
-        totalItems.value = data.length; // 總筆數
+        const { data } = await axios.get("/api/order"); // 後端查全部訂單 API
+        orders.value = data.data.map(order => ({
+            ...order,
+            isSelected: false
+        }));
+        calculateTotal();
     } catch (error) {
-        console.error("查詢失敗：", error);
-    } finally {
-        isLoading.value = false;
+        console.error("取得訂單失敗", error);
     }
-}
+};
 
 // ===== 查詢單筆訂單 =====
 async function validateOrderId() {
@@ -125,28 +117,32 @@ async function validateOrderId() {
     }
 }
 
-// ===== 開啟刪除模態框 =====
-function openDeleteModal(order) {
-    selectedOrder.value = order; // 設定選中的訂單
-    const modalElement = document.getElementById("deleteModal");
-    deleteModalInstance = Modal.getOrCreateInstance(modalElement);
-    deleteModalInstance.show(); // 顯示模態框
-}
-
-// ===== 確認刪除訂單 =====
-async function confirmDeleteOrder() {
-    if (!selectedOrder.value) return;
-    try {
-        // 發送刪除請求到後端
-        await axios.delete(`/api/Order/delete/${selectedOrder.value.orderId}`);
-        await loadTable(); // 刪除成功後重新加載列表
-        selectedOrder.value = null; // 清空選中的訂單
-        deleteModalInstance.hide(); // 關閉模態框
-    } catch (error) {
-        console.error("刪除失敗：", error);
-        showErrorModal("刪除失敗，請稍後再試！");
-    }
-}
+// ===== 假刪除 / 作廢訂單 =====
+const voidOrder = async (order) => {
+    Swal.fire({
+        title: "確定要作廢這筆訂單嗎？",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "作廢",
+        cancelButtonText: "取消",
+        customClass: {
+            confirmButton: 'btn btn-danger text-white me-2',
+            cancelButton: 'btn btn-secondary text-white'
+        },
+        buttonsStyling: false
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            try {
+                await axios.put(`/api/Order/${order.orderId}/void`);
+                Swal.fire("已作廢!", "", "success");
+                loadTable(); // 更新訂單列表
+            } catch (error) {
+                console.error("作廢訂單失敗", error);
+                Swal.fire("操作失敗", "請稍後再試", "error");
+            }
+        }
+    });
+};
 
 // ===== 防抖函數（用於搜尋輸入） =====
 function debounce(func, delay) {
@@ -162,8 +158,7 @@ const debouncedValidateOrderId = debounce(validateOrderId, 100);
 
 // ===== 初始化加載資料 =====
 onMounted(() => {
-    loadTable();
-    console.log(orders.value); // 確保 orders 裡每筆數據都有 orderId
+    fetchOrders();
 });
 
 // ===== 監控分頁與每頁項目變化 =====
@@ -184,10 +179,10 @@ watch([currentPage, itemsPerPage], () => {
             </div>
         </div>
         <div>
-            <!-- 新增按鈕 -->
-            <RouterLink :to="{ name: 'orderadd' }" class="button-48 ms-2" role="button">
+            <!-- 新增按鈕(後台不應該新增&刪除) -->
+            <!-- <RouterLink :to="{ name: 'orderadd' }" class="button-48 ms-2" role="button">
                 <span class="text">新增訂單</span>
-            </RouterLink>
+            </RouterLink> -->
         </div>
 
         <!-- 訂單表格 -->
@@ -199,61 +194,20 @@ watch([currentPage, itemsPerPage], () => {
             <template #item.finalAmount="{ item }">
                 {{ formatNumberToInteger(item.finalAmount) }}
             </template>
+            <!-- actions 欄位自訂按鈕 -->
             <template #item.actions="{ item }">
-                <RouterLink :to="{ name: 'orderdetail', params: { orderId: item.orderId } }"
-                    class="btn btn-primary btn-sm me-1">
-                    <i class="bi bi-eye">查看</i>
-                </RouterLink>
-                <RouterLink :to="{ name: 'orderedit', params: { orderId: item.orderId } }"
-                    class="btn btn-warning btn-sm me-1">
-                    <i class="bi bi-pencil-square">修改</i>
-                </RouterLink>
-                <!-- 刪除按鈕 
-                <button class="btn btn-danger btn-sm" @click="openDeleteModal(item)">
-                    <i class="bi bi-trash"></i>
-                </button>
-                -->
+                <v-btn color="primary" class="btn-tiny me-1">
+                    <i class="bi bi-eye"></i> 查看
+                </v-btn>
+                <v-btn color="info" class="btn-tiny me-1">
+                    <i class="bi bi-pencil-square"></i> 修改
+                </v-btn>
+                <!-- 假刪除-> 作廢 -->
+                <v-btn color="error" class="btn-tiny">
+                    <i class="bi bi-trash"></i> 作廢
+                </v-btn>
             </template>
         </v-data-table>
-
-        <!-- 模態框：刪除確認 -->
-        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="false">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h1 class="modal-title fs-5" id="deleteModalLabel">訂單刪除</h1>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        確定要刪除 OrderID 為 <strong>{{ selectedOrder?.orderId }}</strong> 的訂單嗎？
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                            取消
-                        </button>
-                        <button type="button" class="btn btn-danger" @click="confirmDeleteOrder">
-                            確認刪除
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 錯誤模態框 -->
-        <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="false">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="errorModalLabel">錯誤訊息</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">{{ errorModalMessage }}</div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">關閉</button>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 
 </template>
@@ -270,63 +224,19 @@ watch([currentPage, itemsPerPage], () => {
     align-items: center;
 }
 
-/* 新增按鈕_CSS */
-.button-48 {
-    appearance: none;
-    background-color: #FFFFFF;
-    border-width: 0;
-    box-sizing: border-box;
-    color: #000000;
-    cursor: pointer;
-    display: inline-block;
-    font-family: Clarkson, Helvetica, sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    letter-spacing: 0;
-    line-height: 1em;
-    margin: 0;
-    opacity: 1;
-    outline: 0;
-    padding: 1.5em 2.2em;
-    position: relative;
-    text-align: center;
-    text-decoration: none;
-    text-rendering: geometricprecision;
-    text-transform: uppercase;
-    transition: opacity 300ms cubic-bezier(.694, 0, 0.335, 1), background-color 100ms cubic-bezier(.694, 0, 0.335, 1), color 100ms cubic-bezier(.694, 0, 0.335, 1);
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
-    vertical-align: baseline;
-    white-space: nowrap;
+.btn-tiny {
+    font-size: 0.75rem;
+    /* 比之前大一些 */
+    min-width: 32px;
+    /* 按鈕寬度放大 */
+    height: 28px;
+    /* 按鈕高度放大 */
+    padding: 0 4px;
+    /* 文字左右留一點空間 */
 }
 
-.button-48:before {
-    animation: opacityFallbackOut .5s step-end forwards;
-    backface-visibility: hidden;
-    background-color: #EBEBEB;
-    clip-path: polygon(-1% 0, 0 0, -25% 100%, -1% 100%);
-    content: "";
-    height: 100%;
-    left: 0;
-    position: absolute;
-    top: 0;
-    transform: translateZ(0);
-    transition: clip-path .5s cubic-bezier(.165, 0.84, 0.44, 1), -webkit-clip-path .5s cubic-bezier(.165, 0.84, 0.44, 1);
-    width: 100%;
-}
-
-.button-48:hover:before {
-    animation: opacityFallbackIn 0s step-start forwards;
-    clip-path: polygon(0 0, 101% 0, 101% 101%, 0 101%);
-}
-
-.button-48:after {
-    background-color: #FFFFFF;
-}
-
-.button-48 span {
-    z-index: 1;
-    position: relative;
+.v-data-table .v-data-table__wrapper tr {
+    height: 30px;
+    /* 調整 row 高度 */
 }
 </style>
