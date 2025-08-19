@@ -36,7 +36,7 @@ const formatDateTime = (dateTime) => {
 // 查詢單筆訂單
 const fetchOrderDetail = async () => {
     try {
-        const response = await axios.get(`/api/Order/findOrderDetails/${props.orderId}`);
+        const response = await axios.get(`/api/order/${props.orderId}`);
 
         // 確認 orderItemsDtos 存在並為數組
         if (response.data.data?.orderItemsDtos && Array.isArray(response.data.data.orderItemsDtos)) {
@@ -145,19 +145,6 @@ const deleteOrder = async () => {
                     <label class="form-label">總金額</label>
                     <input type="text" class="form-control" :value="formatNumberToInteger(orderDetail?.totalAmount)"
                         disabled />
-                </div>
-            </div>
-            <div class="row mb-3 justify-content-center">
-                <div class="col-lg-8">
-                    <label class="form-label">點數折抵</label>
-                    <input type="text" class="form-control" :value="orderDetail?.pointsDiscount || '無'" disabled />
-                </div>
-            </div>
-            <div class="row mb-3 justify-content-center">
-                <div class="col-lg-8">
-                    <label class="form-label">折扣金額</label>
-                    <input type="text" class="form-control"
-                        :value="formatNumberToInteger(orderDetail?.discountAmount || '無')" disabled />
                 </div>
             </div>
             <div class="row mb-3 justify-content-center">

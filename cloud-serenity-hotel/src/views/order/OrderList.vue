@@ -2,6 +2,7 @@
 import axios from "axios";
 import { ref, onMounted, watch } from "vue";
 import { Modal } from "bootstrap"; // 顯式導入 Bootstrap 的 Modal 功能
+import Swal from 'sweetalert2';
 
 // ===== Axios 攔截器：針對 404 錯誤攔截並靜默處理 =====
 axios.interceptors.response.use(
@@ -68,7 +69,6 @@ const fetchOrders = async () => {
             ...order,
             isSelected: false
         }));
-        calculateTotal();
     } catch (error) {
         console.error("取得訂單失敗", error);
     }
@@ -118,27 +118,46 @@ async function validateOrderId() {
 }
 
 // ===== 假刪除 / 作廢訂單 =====
+// ===== 假刪除 / 作廢訂單 =====
 const voidOrder = async (order) => {
     Swal.fire({
         title: "確定要作廢這筆訂單嗎？",
+        text: `訂單編號：${order.orderId}`,
         icon: "warning",
         showCancelButton: true,
         confirmButtonText: "作廢",
         cancelButtonText: "取消",
         customClass: {
-            confirmButton: 'btn btn-danger text-white me-2',
-            cancelButton: 'btn btn-secondary text-white'
+            confirmButton: 'btn btn-danger text-white me-2', // 紅底白字
+            cancelButton: 'btn btn-secondary text-white'     // 灰底白字
         },
         buttonsStyling: false
     }).then(async (result) => {
         if (result.isConfirmed) {
             try {
-                await axios.put(`/api/Order/${order.orderId}/void`);
-                Swal.fire("已作廢!", "", "success");
-                loadTable(); // 更新訂單列表
+                const { data } = await axios.put(`/api/order/${order.orderId}/void`);
+                if (data.success) {
+                    // Swal.fire("已作廢!", "", "success");
+                    Swal.fire({
+                        icon: "success",
+                        title: "已作廢!",
+                        text: "",
+                        confirmButtonColor: "#6a0dad",
+                        confirmButtonText: "確認",
+                        allowOutsideClick: false, // 禁止點擊外部關閉
+                        customClass: {
+                            confirmButton: "btn text-white me-2",
+                        },
+                    });
+
+                    // ===== 前端立即更新 orderStatus =====
+                    order.orderStatus = data.data.orderStatus;
+                } else {
+                    Swal.fire("作廢失敗", data.message || "請稍後再試", "error");
+                }
             } catch (error) {
                 console.error("作廢訂單失敗", error);
-                Swal.fire("操作失敗", "請稍後再試", "error");
+                Swal.fire("作廢失敗", "請稍後再試", "error");
             }
         }
     });
@@ -196,16 +215,22 @@ watch([currentPage, itemsPerPage], () => {
             </template>
             <!-- actions 欄位自訂按鈕 -->
             <template #item.actions="{ item }">
-                <v-btn color="primary" class="btn-tiny me-1">
-                    <i class="bi bi-eye"></i> 查看
-                </v-btn>
-                <v-btn color="info" class="btn-tiny me-1">
-                    <i class="bi bi-pencil-square"></i> 修改
-                </v-btn>
-                <!-- 假刪除-> 作廢 -->
-                <v-btn color="error" class="btn-tiny">
-                    <i class="bi bi-trash"></i> 作廢
-                </v-btn>
+                <RouterLink :to="{ name: 'orderdetail', params: { orderId: item.orderId } }">
+                    <v-btn color="primary" class="btn-tiny me-1">
+                        <i class="bi bi-eye"></i> 查看
+                    </v-btn>
+                </RouterLink>
+                <!-- 只有當訂單不是作廢時才顯示修改 & 作廢 -->
+                <template v-if="item.orderStatus !== '作廢'">
+                    <RouterLink :to="{ name: 'orderedit', params: { orderId: item.orderId } }">
+                        <v-btn color="info" class="btn-tiny me-1">
+                            <i class="bi bi-pencil-square"></i> 修改
+                        </v-btn>
+                    </RouterLink>
+                    <v-btn color="error" class="btn-tiny" @click="voidOrder(item)">
+                        <i class="bi bi-trash"></i> 作廢
+                    </v-btn>
+                </template>
             </template>
         </v-data-table>
     </div>
