@@ -87,7 +87,7 @@ const searchOrders = async () => {
 };
 
 
-// 顯示查詢失敗提示
+// 提示：顯示查詢失敗
 const showErrorModal = (message) => {
     Swal.fire({
         icon: "error",
@@ -153,7 +153,7 @@ const handleVoidOrder = async (order) => {
     }
 };
 
-// 顯示作廢成功提示
+// 提示：顯示作廢成功
 const showVoidSuccessAlert = () => {
     Swal.fire({
         icon: "success",
@@ -168,7 +168,7 @@ const showVoidSuccessAlert = () => {
     });
 };
 
-// 顯示作廢失敗提示
+// 提示：顯示作廢失敗
 const showVoidErrorAlert = (message) => {
     Swal.fire({
         icon: "error",
@@ -193,48 +193,51 @@ onMounted(() => {
     <div>
         <h2 class="text-center mt-4">訂單總表</h2>
         <div class="text-center my-4">
-            <h4>🔎請依照條件搜尋</h4>
-            <div class="d-flex flex-wrap gap-2 justify-content-center">
-                <input type="number" placeholder="訂單ID" v-model="filters.orderId" class="form-control"
-                    style="width: 120px;" />
-                <input type="number" placeholder="使用者ID" v-model="filters.userId" class="form-control"
-                    style="width: 120px;" />
+            <v-card class="pa-4 my-4" outlined>
+                <h4>🔎請依照條件搜尋</h4>
+                <div class="d-flex flex-wrap gap-2 justify-content-center">
+                    <input type="number" placeholder="訂單ID" v-model="filters.orderId" class="form-control"
+                        style="width: 120px;" />
+                    <input type="number" placeholder="使用者ID" v-model="filters.userId" class="form-control"
+                        style="width: 120px;" />
 
-                <!-- ✅ 日期加上 label -->
-                <!-- 起始日期 -->
-                <div class="d-flex align-items-center">
-                    <label class="form-label me-1 mb-0">起始日期:</label>
-                    <input type="date" v-model="filters.startDate" class="form-control form-control-sm"
-                        style="width: 160px;" />
-                </div>
-                <!-- 結束日期 -->
-                <div class="d-flex align-items-center">
-                    <label class="form-label me-1 mb-0">結束日期:</label>
-                    <input type="date" v-model="filters.endDate" class="form-control form-control-sm"
-                        style="width: 160px;" />
-                </div>
+                    <!-- ✅ 日期加上 label -->
+                    <!-- 起始日期 -->
+                    <div class="d-flex align-items-center">
+                        <label class="form-label me-1 mb-0">起始日期:</label>
+                        <input type="date" v-model="filters.startDate" class="form-control form-control-sm"
+                            style="width: 160px;" />
+                    </div>
+                    <!-- 結束日期 -->
+                    <div class="d-flex align-items-center">
+                        <label class="form-label me-1 mb-0">結束日期:</label>
+                        <input type="date" v-model="filters.endDate" class="form-control form-control-sm"
+                            style="width: 160px;" />
+                    </div>
 
-                <select v-model="filters.paymentMethod" class="form-control" style="width: 120px;">
-                    <option value="">付款方式不限</option>
-                    <option value="信用卡">信用卡</option>
-                    <option value="貨到付款">貨到付款</option>
-                </select>
+                    <select v-model="filters.paymentMethod" class="form-control" style="width: 120px;">
+                        <option value="">付款方式不限</option>
+                        <option value="信用卡">信用卡</option>
+                        <option value="貨到付款">貨到付款</option>
+                    </select>
 
-                <!-- ✅ 改成 checkbox 多選 -->
-                <div class="d-flex flex-wrap gap-2 align-items-center">
-                    <span class="fw-bold">訂單狀態：</span>
-                    <div v-for="status in orderStatusOptions" :key="status" class="form-check form-check-inline">
-                        <input class="form-check-input" type="checkbox" :value="status"
-                            v-model="filters.orderStatuses" />
-                        <label class="form-check-label">{{ status }}</label>
+                    <!-- ✅ 改成 checkbox 多選 -->
+                    <div class="d-flex flex-wrap gap-2 align-items-center">
+                        <span class="fw-bold">訂單狀態：</span>
+                        <div v-for="status in orderStatusOptions" :key="status" class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" :value="status"
+                                v-model="filters.orderStatuses" />
+                            <label class="form-check-label">{{ status }}</label>
+                        </div>
+                    </div>
+                    <!-- ✅ 查詢 / 清空按鈕移到下一行 -->
+                    <div class="w-100 text-center mt-3">
+                        <v-btn color="primary" class="me-2" @click="searchOrders"><i class="bi bi-search"></i>
+                            查詢</v-btn>
+                        <v-btn color="secondary" @click="resetFilters"><i class="bi bi-x-lg"></i> 清空條件</v-btn>
                     </div>
                 </div>
-                <!-- ✅ 查詢 / 清空按鈕移到下一行 -->
-                <div class="w-100 text-center mt-3">
-                    <v-btn color="primary" class="me-2" @click="searchOrders"><i class="bi bi-search"></i> 查詢</v-btn>
-                    <v-btn color="secondary" @click="resetFilters"><i class="bi bi-x-lg"></i> 清空條件</v-btn>
-                </div>
-            </div>
+            </v-card>
         </div>
 
 

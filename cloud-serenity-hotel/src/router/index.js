@@ -79,6 +79,7 @@ import OrderList from "@/views/order/OrderList.vue";
 import OrderDetail from "@/views/order/OrderDetail.vue";
 import OrderEdit from "@/views/order/OrderEdit.vue";
 import OrderAdd from "@/views/order/OrderAdd.vue";
+import ExportDetail from "@/views/order/ExportDetail.vue";
 
 
 const router = createRouter({
@@ -592,6 +593,12 @@ const router = createRouter({
               path: "/order/orderExport",
               name: "orderExport",
               component: OrderExport,
+              props: true,
+            },
+            {
+              path: "/order/exportDetail/:orderId",
+              name: "exportDetail",
+              component: ExportDetail,
               props: true,
             }
           ],
