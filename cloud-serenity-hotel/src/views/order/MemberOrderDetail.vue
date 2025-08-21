@@ -106,7 +106,7 @@ onMounted(() => {
                                     <span v-else>
                                         單價：${{ item.unitPrice }}
                                     </span><br />
-                                    <span>折扣：${{ item.discount }}</span><br />
+                                    <span>單件折扣：${{ item.discount }}</span><br />
                                     <span>小記：${{ item.subtotal }}</span>
                                 </p>
                             </div>

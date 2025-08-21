@@ -1,22 +1,9 @@
 <script setup>
 import axios from "axios";
-import { ref, onMounted, watch } from "vue";
-import { Modal } from "bootstrap"; // 顯式導入 Bootstrap 的 Modal 功能
+import { ref, onMounted } from "vue";
 import Swal from 'sweetalert2';
 
-// ===== Axios 攔截器：針對 404 錯誤攔截並靜默處理 =====
-axios.interceptors.response.use(
-    (response) => response, // 正常回應直接返回
-    (error) => {
-        if (error.response && error.response.status === 404) {
-            console.warn(`404 錯誤攔截：${error.response.config.url}`);
-            return Promise.resolve(error.response); // 返回普通回應，避免拋出錯誤
-        }
-        return Promise.reject(error); // 其他錯誤繼續拋出
-    }
-);
-
-// 訂單資料
+// ===== 訂單資料 =====
 const headers = [
     { title: "OrderID", key: "orderId" },
     { title: "訂單狀態", key: "orderStatus" },
@@ -29,39 +16,19 @@ const headers = [
 
 // ===== 定義狀態 =====
 const orders = ref([]); // 訂單列表
-const search = ref(""); // 搜尋輸入
 const currentPage = ref(1); // 當前頁碼
 const itemsPerPage = ref(10); // 每頁顯示的數量
 const totalItems = ref(0); // 總筆數
-const totalPages = ref(1); // 總頁數
+// const totalPages = ref(1); // 總頁數
 
 // ===== 格式化工具 =====
-const formatNumberToInteger = (number) => Math.round(number);
+const formatNumberToInteger = (val) => {
+    if (!val) return 0;
+    const num = Number(val.toString().replace(/,/g, "")); // 支援 "1,200" 或 "1200.0"
+    return Math.round(num).toLocaleString("zh-TW");       // 回傳千分位格式
+};
 
-// ===== 錯誤模態框 =====
-function showErrorModal(message) {
-    errorModalMessage.value = message;
-    const modalElement = document.getElementById("errorModal");
-    const modalInstance = Modal.getOrCreateInstance(modalElement);
-
-    // 確保模態框顯示前，移除 aria-hidden
-    modalElement.setAttribute("aria-hidden", "false");
-    modalInstance.show();
-
-    modalElement.addEventListener("hidden.bs.modal", () => {
-        // 模態框隱藏後恢復 aria-hidden
-        modalElement.setAttribute("aria-hidden", "true");
-    });
-}
-
-
-// ===== 驗證是否為有效數字 =====
-function isValidNumber(input) {
-    return /^\d+$/.test(input);
-}
-
-// ===== 加載訂單列表（分頁） =====
-// 先取得全部訂單
+// ===== 加載訂單列表 =====
 const fetchOrders = async () => {
     try {
         const { data } = await axios.get("/api/order"); // 後端查全部訂單 API
@@ -74,52 +41,82 @@ const fetchOrders = async () => {
     }
 };
 
-// ===== 查詢單筆訂單 =====
-async function validateOrderId() {
-    const trimmedSearch = search.value.trim();
+// ===== 條件查詢用 =====
+const filters = ref({
+    orderId: "",
+    userId: "",
+    startDate: "",
+    endDate: "",
+    paymentMethod: "",
+    orderStatuses: [] // checkbox 多選: 勾選的狀態會是一個陣列
+});
 
-    if (!trimmedSearch) {
-        loadTable();
-        return;
-    }
+// ===== 狀態選項 =====
+const orderStatusOptions = [
+    "未付款",
+    "已付款",
+    "處理中",
+    "已出貨",
+    "已完成",
+    "已取消",
+    "作廢"
+];
 
-    if (!isValidNumber(trimmedSearch)) {
-        showErrorModal("請輸入有效的數字作為訂單編號！");
-        orders.value = [];
-        totalItems.value = 0;
-        totalPages.value = 1;
-        return;
-    }
-
+// 查詢條件訂單
+const searchOrders = async () => {
     try {
-        const { data, status } = await axios.get(`/api/Order/findOrderDetails/${trimmedSearch}`, {
-            validateStatus: (status) => status === 200 || status === 404,
+        const params = { ...filters.value };
+        // 將陣列轉成逗號分隔字串
+        if (Array.isArray(params.orderStatuses) && params.orderStatuses.length > 0) {
+            params.orderStatuses = params.orderStatuses.join(",");
+        }
+
+        // 移除空值
+        Object.keys(params).forEach(key => {
+            if (params[key] === "" || params[key] == null) delete params[key];
         });
 
-        if (status === 200 && data.success) {
-            // 單筆結果也進行排序（其實只有一筆數據）
-            orders.value = [data.data].sort((a, b) => a.orderId - b.orderId);
-            console.log("訂單資料：", orders.value); // 確認資料是否正確
-            console.log("API 返回數據：", data.content);
-            totalItems.value = 1;
-            totalPages.value = 1;
-        } else if (status === 404) {
-            // 特殊處理 404，避免報錯
-            console.warn(`查無訂單 ID: ${trimmedSearch}，這是預期結果。`);
-            showErrorModal(data.message || `查無訂單編號 ${trimmedSearch}，請確認後再試！`);
-            orders.value = [];
-            totalItems.value = 0;
-            totalPages.value = 1;
-        }
+        console.log(params); // 🔹 可以先檢查傳給後端的參數
+
+        const { data } = await axios.get("/api/order/search", { params });
+        orders.value = data;
     } catch (error) {
-        console.error("單筆查詢失敗：", error);
-        showErrorModal("查詢失敗，請稍後再試！");
+        console.error("條件查詢失敗", error);
+        showErrorModal();
     }
-}
+};
+
+
+// 顯示查詢失敗提示
+const showErrorModal = (message) => {
+    Swal.fire({
+        icon: "error",
+        title: "條件查詢失敗，請稍後再試！",
+        text: message,
+        confirmButtonColor: "#6c757d",
+        confirmButtonText: "確認",
+        customClass: {
+            confirmButton: "btn btn-danger text-white",
+        },
+    });
+};
+
+// 清空搜尋條件
+const resetFilters = () => {
+    filters.value = {
+        orderId: "",
+        userId: "",
+        startDate: "",
+        endDate: "",
+        paymentMethod: "",
+        orderStatuses: []
+    };
+    fetchOrders(); // 重新載入全部訂單
+};
 
 // ===== 假刪除 / 作廢訂單 =====
-// ===== 假刪除 / 作廢訂單 =====
 const voidOrder = async (order) => {
+    // 先跳出確認視窗
     Swal.fire({
         title: "確定要作廢這筆訂單嗎？",
         text: `訂單編號：${order.orderId}`,
@@ -128,81 +125,119 @@ const voidOrder = async (order) => {
         confirmButtonText: "作廢",
         cancelButtonText: "取消",
         customClass: {
-            confirmButton: 'btn btn-danger text-white me-2', // 紅底白字
-            cancelButton: 'btn btn-secondary text-white'     // 灰底白字
+            confirmButton: 'btn btn-danger text-white me-2',
+            cancelButton: 'btn btn-secondary text-white'
         },
         buttonsStyling: false
     }).then(async (result) => {
         if (result.isConfirmed) {
-            try {
-                const { data } = await axios.put(`/api/order/${order.orderId}/void`);
-                if (data.success) {
-                    // Swal.fire("已作廢!", "", "success");
-                    Swal.fire({
-                        icon: "success",
-                        title: "已作廢!",
-                        text: "",
-                        confirmButtonColor: "#6a0dad",
-                        confirmButtonText: "確認",
-                        allowOutsideClick: false, // 禁止點擊外部關閉
-                        customClass: {
-                            confirmButton: "btn text-white me-2",
-                        },
-                    });
-
-                    // ===== 前端立即更新 orderStatus =====
-                    order.orderStatus = data.data.orderStatus;
-                } else {
-                    Swal.fire("作廢失敗", data.message || "請稍後再試", "error");
-                }
-            } catch (error) {
-                console.error("作廢訂單失敗", error);
-                Swal.fire("作廢失敗", "請稍後再試", "error");
-            }
+            await handleVoidOrder(order);
         }
     });
 };
 
-// ===== 防抖函數（用於搜尋輸入） =====
-function debounce(func, delay) {
-    let timer;
-    return (...args) => {
-        clearTimeout(timer);
-        timer = setTimeout(() => func(...args), delay);
-    };
-}
+// 呼叫後端 API 作廢訂單
+const handleVoidOrder = async (order) => {
+    try {
+        const { data } = await axios.put(`/api/order/${order.orderId}/void`);
+        if (data.success) {
+            showVoidSuccessAlert();
+            // ===== 前端立即更新 orderStatus =====
+            order.orderStatus = data.data.orderStatus;
+        } else {
+            showVoidErrorAlert(data.message || "請稍後再試");
+        }
+    } catch (error) {
+        console.error("作廢訂單失敗", error);
+        showVoidErrorAlert("請稍後再試");
+    }
+};
 
-// ===== 防抖的單筆查詢 =====
-const debouncedValidateOrderId = debounce(validateOrderId, 100);
+// 顯示作廢成功提示
+const showVoidSuccessAlert = () => {
+    Swal.fire({
+        icon: "success",
+        title: "已作廢!",
+        text: "",
+        confirmButtonColor: "#6a0dad",
+        confirmButtonText: "確認",
+        allowOutsideClick: false,
+        customClass: {
+            confirmButton: "btn text-white me-2",
+        },
+    });
+};
+
+// 顯示作廢失敗提示
+const showVoidErrorAlert = (message) => {
+    Swal.fire({
+        icon: "error",
+        title: "作廢失敗",
+        text: message,
+        confirmButtonColor: "#6c757d",
+        confirmButtonText: "確認",
+        customClass: {
+            confirmButton: "btn btn-danger text-white",
+        },
+    });
+};
 
 // ===== 初始化加載資料 =====
 onMounted(() => {
     fetchOrders();
 });
 
-// ===== 監控分頁與每頁項目變化 =====
-watch([currentPage, itemsPerPage], () => {
-    loadTable();
-});
 </script>
 
 <template>
     <div>
         <h2 class="text-center mt-4">訂單總表</h2>
-
-        <!-- 搜尋框 -->
         <div class="text-center my-4">
-            <div class="d-inline-flex align-items-center">
-                <input type="text" class="form-control search-input" placeholder="請輸入欲查詢的訂單編號" v-model="search"
-                    @input="debouncedValidateOrderId" />
+            <h4>🔎請依照條件搜尋</h4>
+            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                <input type="number" placeholder="訂單ID" v-model="filters.orderId" class="form-control"
+                    style="width: 120px;" />
+                <input type="number" placeholder="使用者ID" v-model="filters.userId" class="form-control"
+                    style="width: 120px;" />
+
+                <!-- ✅ 日期加上 label -->
+                <!-- 起始日期 -->
+                <div class="d-flex align-items-center">
+                    <label class="form-label me-1 mb-0">起始日期:</label>
+                    <input type="date" v-model="filters.startDate" class="form-control form-control-sm"
+                        style="width: 160px;" />
+                </div>
+                <!-- 結束日期 -->
+                <div class="d-flex align-items-center">
+                    <label class="form-label me-1 mb-0">結束日期:</label>
+                    <input type="date" v-model="filters.endDate" class="form-control form-control-sm"
+                        style="width: 160px;" />
+                </div>
+
+                <select v-model="filters.paymentMethod" class="form-control" style="width: 120px;">
+                    <option value="">付款方式不限</option>
+                    <option value="信用卡">信用卡</option>
+                    <option value="貨到付款">貨到付款</option>
+                </select>
+
+                <!-- ✅ 改成 checkbox 多選 -->
+                <div class="d-flex flex-wrap gap-2 align-items-center">
+                    <span class="fw-bold">訂單狀態：</span>
+                    <div v-for="status in orderStatusOptions" :key="status" class="form-check form-check-inline">
+                        <input class="form-check-input" type="checkbox" :value="status"
+                            v-model="filters.orderStatuses" />
+                        <label class="form-check-label">{{ status }}</label>
+                    </div>
+                </div>
+                <!-- ✅ 查詢 / 清空按鈕移到下一行 -->
+                <div class="w-100 text-center mt-3">
+                    <v-btn color="primary" class="me-2" @click="searchOrders"><i class="bi bi-search"></i> 查詢</v-btn>
+                    <v-btn color="secondary" @click="resetFilters"><i class="bi bi-x-lg"></i> 清空條件</v-btn>
+                </div>
             </div>
         </div>
-        <div>
-            <!-- 新增按鈕(後台不應該新增&刪除) -->
-            <!-- <RouterLink :to="{ name: 'orderadd' }" class="button-48 ms-2" role="button">
-                <span class="text">新增訂單</span>
-            </RouterLink> -->
-        </div>
+
+
 
         <!-- 訂單表格 -->
         <v-data-table :items="orders" :headers="headers" :items-per-page="itemsPerPage" :page.sync="currentPage"
@@ -223,7 +258,7 @@ watch([currentPage, itemsPerPage], () => {
                 <!-- 只有當訂單不是作廢時才顯示修改 & 作廢 -->
                 <template v-if="item.orderStatus !== '作廢'">
                     <RouterLink :to="{ name: 'orderedit', params: { orderId: item.orderId } }">
-                        <v-btn color="info" class="btn-tiny me-1">
+                        <v-btn color="amber 500" class="btn-tiny me-1">
                             <i class="bi bi-pencil-square"></i> 修改
                         </v-btn>
                     </RouterLink>

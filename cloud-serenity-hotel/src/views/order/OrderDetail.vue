@@ -51,62 +51,72 @@ const fetchOrderDetail = async () => {
     }
 };
 
+// ===== 作廢訂單 =====
+const deleteOrder = async () => {
+    // 先跳出確認視窗
+    Swal.fire({
+        title: "確定要作廢這筆訂單嗎？",
+        text: "作廢後將無法恢復！",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "作廢",
+        cancelButtonText: "取消",
+        customClass: {
+            confirmButton: "btn btn-danger text-white me-2",
+            cancelButton: "btn btn-secondary text-white"
+        },
+        buttonsStyling: false
+    }).then(async (result) => {
+        if (result.isConfirmed) {
+            await handleDeleteOrder();
+        }
+    });
+};
 
+// 呼叫後端 API 作廢訂單
+const handleDeleteOrder = async () => {
+    try {
+        await axios.put(`/api/order/${orderDetail.value.orderId}/void`);
+        showDeleteSuccessAlert();
+    } catch (error) {
+        console.error("作廢失敗：", error);
+        showDeleteErrorAlert("作廢過程中發生錯誤。");
+    }
+};
+
+// 顯示刪除成功提示
+const showDeleteSuccessAlert = () => {
+    Swal.fire({
+        title: "作廢成功！",
+        icon: "success",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#6a0dad",
+        customClass: {
+            confirmButton: "btn text-white me-2",
+        },
+    }).then(() => {
+        window.location.href = "/order/orderList";
+    });
+};
+
+// 顯示刪除失敗提示
+const showDeleteErrorAlert = (message) => {
+    Swal.fire({
+        title: "作廢失敗",
+        text: message,
+        icon: "error",
+        confirmButtonText: "OK",
+        confirmButtonColor: "#6c757d",
+        customClass: {
+            confirmButton: "btn btn-danger text-white",
+        },
+    });
+};
 
 // 初始化
 onMounted(() => {
     fetchOrderDetail(props.orderId);
 });
-
-// SweetAlert2 刪除警告
-const showDeleteAlert = () => {
-    Swal.fire({
-        title: "確定要刪除此訂單嗎？",
-        text: "刪除後將無法恢復！",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonColor: "#d33", // 確認按鈕顏色
-        cancelButtonColor: "#6c757d", // 取消按鈕顏色
-        confirmButtonText: "確定",
-        cancelButtonText: "取消",
-        buttonsStyling: false, // 停用 SweetAlert2 預設樣式
-        customClass: {
-            confirmButton: "btn btn-danger text-white me-2", // 自定義確認按鈕
-            cancelButton: "btn btn-secondary text-white", // 自定義取消按鈕
-        },
-    }).then((result) => {
-        if (result.isConfirmed) {
-            deleteOrder(); // 執行刪除操作
-        }
-    });
-};
-
-// 刪除訂單
-const deleteOrder = async () => {
-    try {
-        await axios.delete(`/api/Order/delete/${orderDetail.value.orderId}`);
-        Swal.fire({
-            title: "刪除成功！",
-            icon: "success",
-            confirmButtonText: "OK",
-            confirmButtonColor: "#6c757d",
-            customClass: {
-                confirmButton: "btn text-white me-2", // 自定義確認按鈕
-            },
-        }).then(() => {
-            window.location.href = "/order/orderList";
-        });
-    } catch (error) {
-        console.error("刪除失敗：", error);
-        Swal.fire({
-            title: "刪除失敗",
-            text: "刪除過程中發生錯誤。",
-            icon: "error",
-            confirmButtonText: "OK",
-            confirmButtonColor: "#6c757d",
-        });
-    }
-};
 </script>
 
 <template>
@@ -231,16 +241,18 @@ const deleteOrder = async () => {
                 <i class="bi bi-arrow-left"></i> 返回
             </RouterLink>
             <div>
-                <!-- 編輯按鈕 -->
-                <RouterLink :to="{ name: 'orderedit', params: { orderId: props.orderId } }"
-                    class="btn btn-warning me-2">
-                    <i class="bi bi-pencil-square"></i> 編輯
-                </RouterLink>
-                <!-- 刪除按鈕 
-                <button class="btn btn-danger" @click="showDeleteAlert">
-                    <i class="bi bi-trash"></i> 刪除
-                </button>
-                -->
+                <!-- 只有當訂單不是作廢時才顯示修改 & 作廢 -->
+                <template v-if="orderDetail?.orderStatus !== '作廢'">
+                    <!-- 編輯按鈕 -->
+                    <RouterLink :to="{ name: 'orderedit', params: { orderId: props.orderId } }"
+                        class="btn btn-warning me-2">
+                        <i class="bi bi-pencil-square"></i> 編輯
+                    </RouterLink>
+                    <!-- 作廢按鈕  -->
+                    <button class="btn btn-danger" @click="deleteOrder">
+                        <i class="bi bi-trash"></i> 作廢
+                    </button>
+                </template>
             </div>
         </div>
 

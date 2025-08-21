@@ -23,7 +23,7 @@ const errors = ref({
     phoneNumber: "",
     address: "",
 });
-
+console.log("OrderEdit orderId:", props.orderId);
 // 格式化數字為整數
 const formatNumberToInteger = (number) => {
     return Math.round(number); // 四捨五入至整數
@@ -117,7 +117,7 @@ const updateOrder = async () => {
             phoneNumber: orderDetail.value.phoneNumber,
             address: orderDetail.value.address,
         };
-        await axios.put(`/api/Order/update/${orderDetail.value.orderId}`, payload);
+        await axios.put(`/api/order/${orderDetail.value.orderId}`, payload);
         // 更新成功的提示
         Swal.fire({
             icon: "success",
@@ -151,7 +151,7 @@ const updateOrder = async () => {
 // 獲取訂單詳細資料
 const fetchOrderDetail = async () => {
     try {
-        const response = await axios.get(`/api/Order/findOrderDetails/${props.orderId}`);
+        const response = await axios.get(`/api/order/${props.orderId}`);
 
         // 確認 orderItemsDtos 存在並為數組
         if (response.data.data?.orderItemsDtos && Array.isArray(response.data.data.orderItemsDtos)) {
@@ -228,20 +228,6 @@ watch(() => props.orderId, fetchOrderDetail, { immediate: true });
                     <label for="totalAmount" class="form-label">總金額</label>
                     <input type="text" class="form-control" id="totalAmount"
                         :value="formatNumberToInteger(orderDetail.totalAmount)" disabled />
-                </div>
-            </div>
-            <div class="row mb-3 justify-content-center">
-                <div class="col-lg-8">
-                    <label for="pointsDiscount" class="form-label">點數折抵</label>
-                    <input type="text" class="form-control" id="pointsDiscount" v-model="orderDetail.pointsDiscount"
-                        disabled />
-                </div>
-            </div>
-            <div class="row mb-3 justify-content-center">
-                <div class="col-lg-8">
-                    <label for="discountAmount" class="form-label">折扣金額</label>
-                    <input type="text" class="form-control" id="discountAmount"
-                        :value="formatNumberToInteger(orderDetail.discountAmount)" disabled />
                 </div>
             </div>
             <div class="row mb-3 justify-content-center">
