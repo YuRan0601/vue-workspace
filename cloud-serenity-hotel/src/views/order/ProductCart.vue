@@ -40,7 +40,7 @@ const calculateTotal = () => {
 };
 
 // 更新商品數量
-const updateQuantity = async (productId, newQuantity, currentQuantity) => {
+const updateQuantity = async (productId, newQuantity) => {
     // 如果減到 0 或 1，先確認是否刪除
     if (newQuantity <= 0) {
         const result = await Swal.fire({
