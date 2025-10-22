@@ -59,7 +59,7 @@ function adminKeyin() {
     loginData.value.password = "cloud_admin01"
 }
 function memberKeyin() {
-    loginData.value.email = "forworklioacm@gmail.com"
+    loginData.value.email = "catcoffeeenjoy@gmail.com"
     loginData.value.password = "cloud#cus01"
 }
 function member2Keyin() {
